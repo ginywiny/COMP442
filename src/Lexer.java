@@ -64,6 +64,7 @@ class Lexer {
         String tokenValue = Character.toString(currentChar);
 
         // New line, increment line count
+        // Dont use \r return line, since that will increment the count again!
         if (currentChar.equals('\n')) {
             lineNumber++;
             return token; // TODO: Fix this
@@ -215,39 +216,47 @@ class Lexer {
                 }
             }
             else if (peekedChar.equals('n')) {
-                while (currentChar.equals('i') || currentChar.equals('n') || currentChar.equals('t') || currentChar.equals('e') || currentChar.equals('g') || currentChar.equals('r') && tokenValue.length() < 7) {
+                // Create string integer
+                currentChar = buff.getNextChar();
+                tokenValue += currentChar;
+                peekedChar = buff.peekNextChar();
 
-                    // Create string integer
-                    currentChar = buff.getNextChar();
-                    tokenValue += currentChar;
-                    if (tokenValue.equals("integer")) {
+                if (peekedChar.equals('t')) {
+                    while (currentChar.equals('i') || currentChar.equals('n') || currentChar.equals('t') || currentChar.equals('e') || currentChar.equals('g') || currentChar.equals('r') && tokenValue.length() < 7) {
 
-                        // Check if end of word or if word continues and is actually an ID
-                        peekedChar = buff.peekNextChar();
-                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
-                            token.setAll(tokenValue, tokenValue, lineNumber);
-                        }
-                        else {
-                            // TODO: Make ID Function
+                        // Create string integer
+                        currentChar = buff.getNextChar();
+                        tokenValue += currentChar;
+                        if (tokenValue.equals("integer")) {
+    
+                            // Check if end of word or if word continues and is actually an ID
+                            peekedChar = buff.peekNextChar();
+                            if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                                token.setAll(tokenValue, tokenValue, lineNumber);
+                            }
+                            else {
+                                // TODO: Make ID Function
+                            }
                         }
                     }
                 }
-            }
-            else if (peekedChar.equals('n')) {
-                while (currentChar.equals('i') || currentChar.equals('n') || currentChar.equals('h') || currentChar.equals('e') || currentChar.equals('r') || currentChar.equals('t') || currentChar.equals('s') && tokenValue.length() < 8) {
 
-                    // Create string inherits
-                    currentChar = buff.getNextChar();
-                    tokenValue += currentChar;
-                    if (tokenValue.equals("inherits")) {
-
-                        // Check if end of word or if word continues and is actually an ID
-                        peekedChar = buff.peekNextChar();
-                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
-                            token.setAll(tokenValue, tokenValue, lineNumber);
-                        }
-                        else {
-                            // TODO: Make ID Function
+                else if (peekedChar.equals('h')) {
+                    while (currentChar.equals('i') || currentChar.equals('n') || currentChar.equals('h') || currentChar.equals('e') || currentChar.equals('r') || currentChar.equals('t') || currentChar.equals('s') && tokenValue.length() < 8) {
+    
+                        // Create string inherits
+                        currentChar = buff.getNextChar();
+                        tokenValue += currentChar;
+                        if (tokenValue.equals("inherits")) {
+    
+                            // Check if end of word or if word continues and is actually an ID
+                            peekedChar = buff.peekNextChar();
+                            if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                                token.setAll(tokenValue, tokenValue, lineNumber);
+                            }
+                            else {
+                                // TODO: Make ID Function
+                            }
                         }
                     }
                 }
@@ -582,9 +591,32 @@ class Lexer {
                 // TODO: Make ID Function
             }
         }
+        // let
+        else if (currentChar.equals('l')) {
+            Character peekedChar = buff.peekNextChar();
 
+            if (peekedChar.equals('e')) {
+                while (currentChar.equals('l') || currentChar.equals('e') || currentChar.equals('t') && tokenValue.length() < 3) {
+                    // Create string let
+                    currentChar = buff.getNextChar();
+                    tokenValue += currentChar;
 
-
+                    if (tokenValue.equals("let")) {
+                        // Check if end of word or if word continues and is actually an ID
+                        peekedChar = buff.peekNextChar();
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                            token.setAll(tokenValue, tokenValue, lineNumber);
+                        }
+                        else {
+                            // TODO: Make ID Function
+                        }
+                    }
+                }
+            }
+            else {
+                // TODO: Make ID Function
+            }
+        }
 
 
 
@@ -628,12 +660,24 @@ class Lexer {
 
 
 
+        buffer.setReadLine();
+        lineNumber++;
+        buffer.setReadLine();
+        lineNumber++;
+        buffer.setReadLine();
+        lineNumber++;
+        buffer.setReadLine();
+        lineNumber++;
+        buffer.setReadLine();
+        lineNumber++;
+
+
+
         // Create character
         for (int i = 0; i < 30; i++) {
             TokenType token = createToken(buffer);
             token.printAll();
         }
-        buffer.setReadLine();
 
 
 
