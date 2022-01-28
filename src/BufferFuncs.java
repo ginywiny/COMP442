@@ -48,6 +48,29 @@ public class BufferFuncs {
         return test;
     }
 
+    public BufferedReader getBuffer() {
+        return buff;
+    }
+
+    public void setReadLine() throws Exception {
+        String test = buff.readLine();
+
+        System.out.println(test);
+    }
+
+
+    // public Character peekDepth(int depth) throws Exception {
+    //     // Check if not EOF
+    //     buff.mark(1);
+    //     String check = buff.readLine();
+    //     if (check == null) {
+    //         return null;
+    //     }
+    //     buff.reset();
+
+
+    // }
+
 
     //------------------------PRE LEXER.JAVA FUNCTIONS---------------------------
     // // Get the next char from the buffer stream

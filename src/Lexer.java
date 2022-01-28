@@ -57,9 +57,8 @@ class Lexer {
     // static TokenType createToken(BufferedReader buff) throws Exception {
     static TokenType createToken(BufferFuncs buff) throws Exception {
 
-        // Character currentChar = getNextChar(buff);
         Character currentChar = buff.getNextChar();
-        TokenType token = new TokenType();
+        TokenType token = new TokenType(); // Initialize to [NAN, NAN, -1]
 
         // Cast character to string add to token object
         String tokenValue = Character.toString(currentChar);
@@ -70,13 +69,11 @@ class Lexer {
             return token; // TODO: Fix this
         }
         else if (currentChar.equals('=')) {
-            // Character peekedChar = peekNextChar(buff);
             Character peekedChar = buff.peekNextChar();
 
             if (peekedChar.equals('=')) {
                 tokenValue += peekedChar;
                 token.setAll("eq", tokenValue, lineNumber);
-                // getNextChar(buff); // Advance the buffer by a char
                 buff.getNextChar(); // Advance the buffer by a char
             }
             else {
@@ -84,34 +81,29 @@ class Lexer {
             }
         }
         else if (currentChar.equals('<')) {
-            // Character peekedChar = peekNextChar(buff);
             Character peekedChar = buff.peekNextChar();
 
             if (peekedChar.equals('>')) {
                 tokenValue += peekedChar;
                 token.setAll("noteq", tokenValue, lineNumber);
-                // getNextChar(buff); // Advance the buffer by a char
                 buff.getNextChar(); // Advance the buffer by a char
             }
             else if (peekedChar.equals('=')) {
                 tokenValue += peekedChar;
                 token.setAll("leq", tokenValue, lineNumber);
-                getNextChar(buff); // Advance the buffer by a char
+                buff.getNextChar(); // Advance the buffer by a char
             }
             else {
                 token.setAll("lt", tokenValue, lineNumber);
             }
         }
         else if (currentChar.equals('>')) {
-            // Character peekedChar = peekNextChar(buff);
             Character peekedChar = buff.peekNextChar();
 
             if (peekedChar.equals('=')) {
                 tokenValue += peekedChar;
                 token.setAll("geq", tokenValue, lineNumber);
-                // getNextChar(buff); // Advance the buffer by a char
                 buff.getNextChar(); // Advance the buffer by a char
-
             }
             else {
                 token.setAll("gt", tokenValue, lineNumber);
@@ -121,13 +113,21 @@ class Lexer {
             token.setAll("plus", tokenValue, lineNumber);
         }
         else if (currentChar.equals('-')) {
-            token.setAll("minus", tokenValue, lineNumber);
+            Character peekedChar = buff.peekNextChar();
+
+            if (peekedChar.equals('>')) {
+                tokenValue += peekedChar;
+                token.setAll("arrow", tokenValue, lineNumber);
+                buff.getNextChar(); // Advance the buffer by a char
+            }
+            else {
+                token.setAll("minus", tokenValue, lineNumber);
+            }
         }
         else if (currentChar.equals('*')) {
             token.setAll("mult", tokenValue, lineNumber);
         }
         else if (currentChar.equals('/')) {
-            // Character peekedChar = peekNextChar(buff);
             Character peekedChar = buff.peekNextChar();
 
             if (peekedChar.equals('*')) {
@@ -146,6 +146,446 @@ class Lexer {
         else if (currentChar.equals('!')) {
             token.setAll("not", tokenValue, lineNumber);
         }
+        else if (currentChar.equals('(')) {
+            token.setAll("openpar", tokenValue, lineNumber);
+        }
+        else if (currentChar.equals(')')) {
+            token.setAll("closepar", tokenValue, lineNumber);
+        }
+        else if (currentChar.equals('{')) {
+            token.setAll("opencubr", tokenValue, lineNumber);
+        }
+        else if (currentChar.equals('}')) {
+            token.setAll("closecubr", tokenValue, lineNumber);
+        }
+        else if (currentChar.equals('[')) {
+            token.setAll("opensqbr", tokenValue, lineNumber);
+        }
+        else if (currentChar.equals(']')) {
+            token.setAll("closesqbr", tokenValue, lineNumber);
+        }
+        else if (currentChar.equals(';')) {
+            token.setAll("semi", tokenValue, lineNumber);
+        }
+        else if (currentChar.equals(',')) {
+            token.setAll("comma", tokenValue, lineNumber);
+        }
+        else if (currentChar.equals('.')) {
+            token.setAll("dot", tokenValue, lineNumber);
+        }
+        else if (currentChar.equals(':')) {
+            Character peekedChar = buff.peekNextChar();
+
+            if (peekedChar.equals(':')) {
+                tokenValue += peekedChar;
+                token.setAll("coloncolon", tokenValue, lineNumber);
+                buff.getNextChar(); // Advance the buffer by a char
+            }
+            else {
+                token.setAll("colon", tokenValue, lineNumber);
+            }
+        }
+        // if, impl, integer, inherits
+        else if (currentChar.equals('i')) {
+            Character peekedChar = buff.peekNextChar();
+
+            if (peekedChar.equals('f')) {
+                // if
+                tokenValue += peekedChar;
+                token.setAll(tokenValue, tokenValue, lineNumber);
+                buff.getNextChar(); // Advance the buffer by a char
+            }
+            else if (peekedChar.equals('m')) {
+                while (currentChar.equals('i') || currentChar.equals('m') || currentChar.equals('p') || currentChar.equals('l') && tokenValue.length() < 4) {
+
+                    // Create string impl
+                    currentChar = buff.getNextChar();
+                    tokenValue += currentChar;
+                    if (tokenValue.equals("impl")) {
+                        
+                        // Check if end of word or if word continues and is actually an ID
+                        peekedChar = buff.peekNextChar();
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                            token.setAll(tokenValue, tokenValue, lineNumber);
+                        }
+                        else {
+                            // TODO: Make ID Function
+                        }
+                    }
+                }
+            }
+            else if (peekedChar.equals('n')) {
+                while (currentChar.equals('i') || currentChar.equals('n') || currentChar.equals('t') || currentChar.equals('e') || currentChar.equals('g') || currentChar.equals('r') && tokenValue.length() < 7) {
+
+                    // Create string integer
+                    currentChar = buff.getNextChar();
+                    tokenValue += currentChar;
+                    if (tokenValue.equals("integer")) {
+
+                        // Check if end of word or if word continues and is actually an ID
+                        peekedChar = buff.peekNextChar();
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                            token.setAll(tokenValue, tokenValue, lineNumber);
+                        }
+                        else {
+                            // TODO: Make ID Function
+                        }
+                    }
+                }
+            }
+            else if (peekedChar.equals('n')) {
+                while (currentChar.equals('i') || currentChar.equals('n') || currentChar.equals('h') || currentChar.equals('e') || currentChar.equals('r') || currentChar.equals('t') || currentChar.equals('s') && tokenValue.length() < 8) {
+
+                    // Create string inherits
+                    currentChar = buff.getNextChar();
+                    tokenValue += currentChar;
+                    if (tokenValue.equals("inherits")) {
+
+                        // Check if end of word or if word continues and is actually an ID
+                        peekedChar = buff.peekNextChar();
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                            token.setAll(tokenValue, tokenValue, lineNumber);
+                        }
+                        else {
+                            // TODO: Make ID Function
+                        }
+                    }
+                }
+            }
+            else {
+                // TODO: Make ID Function
+            }
+        }
+        // then
+        else if (currentChar.equals('t')) {
+            Character peekedChar = buff.peekNextChar();
+
+            if (peekedChar.equals('h')) {
+                while (currentChar.equals('t') || currentChar.equals('h') || currentChar.equals('e') || currentChar.equals('n') && tokenValue.length() < 4) {
+                    // Create string then
+                    currentChar = buff.getNextChar();
+                    tokenValue += currentChar;
+
+                    if (tokenValue.equals("then")) {
+                        // Check if end of word or if word continues and is actually an ID
+                        peekedChar = buff.peekNextChar();
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                            token.setAll(tokenValue, tokenValue, lineNumber);
+                        }
+                        else {
+                            // TODO: Make ID Function
+                        }
+                    }
+                }
+            }
+            else {
+                // TODO: Make ID Function
+            }
+        }
+        // else
+        else if (currentChar.equals('e')) {
+            Character peekedChar = buff.peekNextChar();
+
+            if (peekedChar.equals('l')) {
+                while (currentChar.equals('e') || currentChar.equals('l') || currentChar.equals('s') && tokenValue.length() < 4) {
+                    // Create string else
+                    currentChar = buff.getNextChar();
+                    tokenValue += currentChar;
+
+                    if (tokenValue.equals("else")) {
+                        // Check if end of word or if word continues and is actually an ID
+                        peekedChar = buff.peekNextChar();
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                            token.setAll(tokenValue, tokenValue, lineNumber);
+                        }
+                        else {
+                            // TODO: Make ID Function
+                        }
+                    }
+                }
+            }
+            else {
+                // TODO: Make ID Function
+            }
+        }
+        // float and func
+        else if (currentChar.equals('f')) {
+            Character peekedChar = buff.peekNextChar();
+
+            if (peekedChar.equals('l')) {
+                while (currentChar.equals('f') || currentChar.equals('l') || currentChar.equals('o') || currentChar.equals('a') || currentChar.equals('t') && tokenValue.length() < 5) {
+                    // Create string float
+                    currentChar = buff.getNextChar();
+                    tokenValue += currentChar;
+
+                    if (tokenValue.equals("float")) {
+                        // Check if end of word or if word continues and is actually an ID
+                        peekedChar = buff.peekNextChar();
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                            token.setAll(tokenValue, tokenValue, lineNumber);
+                        }
+                        else {
+                            // TODO: Make ID Function
+                        }
+                    }
+                }
+            }
+            else if (peekedChar.equals('u')) {
+                while (currentChar.equals('f') || currentChar.equals('u') || currentChar.equals('n') || currentChar.equals('c') && tokenValue.length() < 4) {
+                    // Create string func
+                    currentChar = buff.getNextChar();
+                    tokenValue += currentChar;
+
+                    if (tokenValue.equals("func")) {
+                        // Check if end of word or if word continues and is actually an ID
+                        peekedChar = buff.peekNextChar();
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                            token.setAll(tokenValue, tokenValue, lineNumber);
+                        }
+                        else {
+                            // TODO: Make ID Function
+                        }
+                    }
+                }
+            }
+            else {
+                // TODO: Make ID Function
+            }
+        }
+
+        // void, var
+        else if (currentChar.equals('v')) {
+            Character peekedChar = buff.peekNextChar();
+
+            if (peekedChar.equals('o')) {
+                while (currentChar.equals('v') || currentChar.equals('o') || currentChar.equals('i') || currentChar.equals('d') && tokenValue.length() < 4) {
+                    // Create string void
+                    currentChar = buff.getNextChar();
+                    tokenValue += currentChar;
+
+                    if (tokenValue.equals("void")) {
+                        // Check if end of word or if word continues and is actually an ID
+                        peekedChar = buff.peekNextChar();
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                            token.setAll(tokenValue, tokenValue, lineNumber);
+                        }
+                        else {
+                            // TODO: Make ID Function
+                        }
+                    }
+                }
+            }
+            else if (peekedChar.equals('a')) {
+                while (currentChar.equals('v') || currentChar.equals('a') || currentChar.equals('r') && tokenValue.length() < 3) {
+                    // Create string var
+                    currentChar = buff.getNextChar();
+                    tokenValue += currentChar;
+
+                    if (tokenValue.equals("var")) {
+                        // Check if end of word or if word continues and is actually an ID
+                        peekedChar = buff.peekNextChar();
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                            token.setAll(tokenValue, tokenValue, lineNumber);
+                        }
+                        else {
+                            // TODO: Make ID Function
+                        }
+                    }
+                }
+            }
+            else {
+                // TODO: Make ID Function
+            }
+        }
+
+        //public, private
+        else if (currentChar.equals('p')) {
+            Character peekedChar = buff.peekNextChar();
+
+            if (peekedChar.equals('u')) {
+                while (currentChar.equals('p') || currentChar.equals('u') || currentChar.equals('b') || currentChar.equals('l') || currentChar.equals('i') || currentChar.equals('c') && tokenValue.length() < 6) {
+                    // Create string public
+                    currentChar = buff.getNextChar();
+                    tokenValue += currentChar;
+
+                    if (tokenValue.equals("public")) {
+                        // Check if end of word or if word continues and is actually an ID
+                        peekedChar = buff.peekNextChar();
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                            token.setAll(tokenValue, tokenValue, lineNumber);
+                        }
+                        else {
+                            // TODO: Make ID Function
+                        }
+                    }
+                }
+            }
+            else if (peekedChar.equals('r')) {
+                while (currentChar.equals('p') || currentChar.equals('r') || currentChar.equals('i') || currentChar.equals('v') || currentChar.equals('a') || currentChar.equals('t') || currentChar.equals('e') && tokenValue.length() < 7) {
+                    // Create string private
+                    currentChar = buff.getNextChar();
+                    tokenValue += currentChar;
+
+                    if (tokenValue.equals("private")) {
+                        // Check if end of word or if word continues and is actually an ID
+                        peekedChar = buff.peekNextChar();
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                            token.setAll(tokenValue, tokenValue, lineNumber);
+                        }
+                        else {
+                            // TODO: Make ID Function
+                        }
+                    }
+                }
+            }
+            else {
+                // TODO: Make ID Function
+            }
+        }
+        // struct, self
+        else if (currentChar.equals('s')) {
+            Character peekedChar = buff.peekNextChar();
+
+            if (peekedChar.equals('t')) {
+                while (currentChar.equals('s') || currentChar.equals('t') || currentChar.equals('r') || currentChar.equals('u') || currentChar.equals('c') && tokenValue.length() < 6) {
+                    // Create string struct
+                    currentChar = buff.getNextChar();
+                    tokenValue += currentChar;
+
+                    if (tokenValue.equals("struct")) {
+                        // Check if end of word or if word continues and is actually an ID
+                        peekedChar = buff.peekNextChar();
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                            token.setAll(tokenValue, tokenValue, lineNumber);
+                        }
+                        else {
+                            // TODO: Make ID Function
+                        }
+                    }
+                }
+            }
+            else if (peekedChar.equals('e')) {
+                while (currentChar.equals('s') || currentChar.equals('e') || currentChar.equals('l') || currentChar.equals('f') && tokenValue.length() < 4) {
+                    // Create string self
+                    currentChar = buff.getNextChar();
+                    tokenValue += currentChar;
+
+                    if (tokenValue.equals("self")) {
+                        // Check if end of word or if word continues and is actually an ID
+                        peekedChar = buff.peekNextChar();
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                            token.setAll(tokenValue, tokenValue, lineNumber);
+                        }
+                        else {
+                            // TODO: Make ID Function
+                        }
+                    }
+                }
+            }
+            else {
+                // TODO: Make ID Function
+            }
+        }
+        // while, write
+        else if (currentChar.equals('w')) {
+            Character peekedChar = buff.peekNextChar();
+
+            if (peekedChar.equals('h')) {
+                while (currentChar.equals('w') || currentChar.equals('h') || currentChar.equals('i') || currentChar.equals('l') || currentChar.equals('e') && tokenValue.length() < 5) {
+                    // Create string while
+                    currentChar = buff.getNextChar();
+                    tokenValue += currentChar;
+
+                    if (tokenValue.equals("while")) {
+                        // Check if end of word or if word continues and is actually an ID
+                        peekedChar = buff.peekNextChar();
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                            token.setAll(tokenValue, tokenValue, lineNumber);
+                        }
+                        else {
+                            // TODO: Make ID Function
+                        }
+                    }
+                }
+            }
+            else if (peekedChar.equals('r')) {
+                while (currentChar.equals('w') || currentChar.equals('r') || currentChar.equals('i') || currentChar.equals('t') || currentChar.equals('e') && tokenValue.length() < 5) {
+                    // Create string write
+                    currentChar = buff.getNextChar();
+                    tokenValue += currentChar;
+
+                    if (tokenValue.equals("write")) {
+                        // Check if end of word or if word continues and is actually an ID
+                        peekedChar = buff.peekNextChar();
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                            token.setAll(tokenValue, tokenValue, lineNumber);
+                        }
+                        else {
+                            // TODO: Make ID Function
+                        }
+                    }
+                }
+            }
+            else {
+                // TODO: Make ID Function
+            }
+        }
+        // read, return
+        else if (currentChar.equals('r')) {
+            currentChar = buff.getNextChar();
+            tokenValue += currentChar;
+            Character peekedChar = buff.peekNextChar();
+
+            if (currentChar.equals('e')) {
+
+                if (peekedChar.equals('a')) {
+                    while (currentChar.equals('r') || currentChar.equals('e') || currentChar.equals('a') || currentChar.equals('d') && tokenValue.length() < 4) {
+                        // Create string read
+                        currentChar = buff.getNextChar();
+                        tokenValue += currentChar;
+    
+                        if (tokenValue.equals("read")) {
+                            // Check if end of word or if word continues and is actually an ID
+                            peekedChar = buff.peekNextChar();
+                            if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                                token.setAll(tokenValue, tokenValue, lineNumber);
+                            }
+                            else {
+                                // TODO: Make ID Function
+                            }
+                        }
+                    }
+                }
+                else if (peekedChar.equals('t')) {
+                    while (currentChar.equals('r') || currentChar.equals('e') || currentChar.equals('t') || currentChar.equals('u') || currentChar.equals('n') && tokenValue.length() < 6) {
+                        // Create string return
+                        currentChar = buff.getNextChar();
+                        tokenValue += currentChar;
+    
+                        if (tokenValue.equals("return")) {
+                            // Check if end of word or if word continues and is actually an ID
+                            peekedChar = buff.peekNextChar();
+                            if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                                token.setAll(tokenValue, tokenValue, lineNumber);
+                            }
+                            else {
+                                // TODO: Make ID Function
+                            }
+                        }
+                    }
+                }
+                else {
+                    // TODO: Make ID Function
+                }
+            }
+            else {
+                // TODO: Make ID Function
+            }
+        }
+
+
+
+
 
 
 
@@ -157,8 +597,6 @@ class Lexer {
 
         return token;
     }
-
-
 
     // Constructor
     public Lexer() {
@@ -173,7 +611,6 @@ class Lexer {
         // Read filepath
         String filePath = args[0];
         BufferFuncs buffer = new BufferFuncs(new FileReader(filePath));
-        // inputBuffer = new BufferedReader(new FileReader(filePath));
 
 
         // // Read input line by line
@@ -189,17 +626,16 @@ class Lexer {
         //     System.out.println("Error reading file.");
         // }
 
+
+
         // Create character
-        for (int i = 0; i < 10; i++) {
-            
-            // TokenType token = createToken(inputBuffer);
+        for (int i = 0; i < 30; i++) {
             TokenType token = createToken(buffer);
             token.printAll();
         }
+        buffer.setReadLine();
 
-        // Read lines synchronously
-        // String nullCheck = new String();
-        // nullCheck = inputBuffer.readLine();
+
 
         // while(true) {
         //     Character c = getNextChar(inputBuffer);

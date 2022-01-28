@@ -32,7 +32,7 @@ public class TokenType {
             System.out.println(output);
         }
         else {
-            System.out.println("Invalid character");
+            //System.out.println("Invalid character");
         }
     }
 }
