@@ -42,23 +42,28 @@ class Lexer {
     /*---------------------------------------------------------------*/
     
 
-    String nextToken() {
-        return null;
-    }
-    char nextChar() {
-        return 'p';
-    }
-    char backupChar() {
-        return 'p';
-    }
+    // String nextToken() {
+    //     return null;
+    // }
+    // char nextChar() {
+    //     return 'p';
+    // }
+    // char backupChar() {
+    //     return 'p';
+    // }
     // Boolean isFinalState(String state)
     // String table(String state, int col)
 
-    // static TokenType createToken(BufferedReader buff) throws Exception {
+
+
     static TokenType createToken(BufferFuncs buff) throws Exception {
 
         Character currentChar = buff.getNextChar();
         TokenType token = new TokenType(); // Initialize to [NAN, NAN, -1]
+        // TODO: To fix
+        if (currentChar == null) {
+            return token;
+        }
 
         // Cast character to string add to token object
         String tokenValue = Character.toString(currentChar);
@@ -128,16 +133,58 @@ class Lexer {
         else if (currentChar.equals('*')) {
             token.setAll("mult", tokenValue, lineNumber);
         }
+        // Comments
         else if (currentChar.equals('/')) {
             Character peekedChar = buff.peekNextChar();
 
             if (peekedChar.equals('*')) {
-                // TODO: Implement comment multiple line (loop till */)
+                int imbricationCount = 1; // Keep track of number of /* in the comment
+                int startLineCount = lineNumber;
+
+                while(imbricationCount > 0) {
+                    currentChar = buff.getNextChar();
+
+                    // Create comment string
+                    if (currentChar.equals('\n')) {
+                        lineNumber++; // Increment line count
+                        tokenValue += "\\n";
+                    }
+                    else if (currentChar.equals('\r')) { // Skip carriage return
+                        continue;
+                    }
+                    else {
+                        tokenValue += currentChar;
+                    }
+
+                    peekedChar = buff.peekNextChar(); // Check for */
+
+                    if (currentChar.equals('/') && peekedChar.equals('*')) {
+                        imbricationCount++;
+                    }
+                    else if (currentChar.equals('*') && peekedChar.equals('/')) {
+                        imbricationCount--;
+                        if (imbricationCount == 0) {
+                            currentChar = buff.getNextChar();
+                            tokenValue += currentChar;
+                            token.setAll("blockcmt", tokenValue, startLineCount);
+                        }
+                    }
+                }
+            }
+            else if (peekedChar.equals('/')) {
+                while (!peekedChar.equals('\n') && !peekedChar.equals('\r')) {
+                    // Create comment string
+                    currentChar = buff.getNextChar();
+                    tokenValue += currentChar;
+                    peekedChar = buff.peekNextChar();
+                }
+                token.setAll("inlinecmt", tokenValue, lineNumber);
             }
             else {
                 token.setAll("div", "/", lineNumber);
             }
         }
+
         else if (currentChar.equals('|')) {
             token.setAll("or", tokenValue, lineNumber);
         }
@@ -659,19 +706,10 @@ class Lexer {
         // }
 
 
-
-        buffer.setReadLine();
-        lineNumber++;
-        buffer.setReadLine();
-        lineNumber++;
-        buffer.setReadLine();
-        lineNumber++;
-        buffer.setReadLine();
-        lineNumber++;
-        buffer.setReadLine();
-        lineNumber++;
-
-
+        for (int i = 0; i < 46; i++) {
+            buffer.setReadLine();
+            lineNumber++;
+        }
 
         // Create character
         for (int i = 0; i < 30; i++) {
