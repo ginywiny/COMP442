@@ -1,13 +1,10 @@
 // package src;
 import java.io.*;
-import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.IOException;
-import java.nio.Buffer;
-import java.util.ArrayList;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.spi.CurrencyNameProvider;
 
 class Lexer {
 
@@ -33,13 +30,16 @@ class Lexer {
                         "inherits", "let", "impl"};
     static List<String> reservedList;
 
-    static String[] commentsReserved = {"//", "/*", "*/" , "//"};
-    static List<String> reservedCommentList;
-
     static BufferFuncs buff;
     static int lineNumber = 1;
+    static int prevLine = 1;
 
     static Character INVALIDSIGN = '$';
+
+    static FileWriter tokenFile;
+    static FileWriter errorFile;
+    static BufferedWriter bwToken;
+    static BufferedWriter bwError;
 
     /*---------------------------------------------------------------*/
     
@@ -1138,79 +1138,118 @@ class Lexer {
             return token;
         }
 
-        // // Get invalid id
-        // else if {
-        //     Character peekedChar = buff.peekNextChar();
-        //     String invalidString = getInvalidString(currentChar.toString());
-        //     invalidString += currentChar;
-        //     invalidString = getInvalidString(invalidString); 
-        //     invalidString = new StringBuilder(invalidString).deleteCharAt(invalidString.length()-1).toString();
-            
-        // }
-
-        // else if ((currentChar.equals(' ') || currentChar.equals('	')) && endFile != null) {
         else {
             // currentChar = buff.getNextChar();
             // TODO: Do I keep this buffer thing?
         }
-        
 
         return token;
     }
+
+    static public void writeToFiles(String tokenPath, String errorPath, TokenType token) throws IOException{
+        String tokenContents = token.getTokenString();
+        String tokenType = token.getType(); //i.e. float, integer...
+        String tokenValue = token.getValue(); //i.e. "abc", "123"...
+        int line = token.getLineNumber();
+
+        if (token.isValid() && line != -1) {
+            // Change line
+            if (line > prevLine) {
+                // Change line
+                bwToken.newLine();
+            }
+            bwToken.write(tokenContents + " ");
+        }
+        else if (!token.isValid() && line != -1) {
+            String errorOutput = "Lexical error: Invalid ";
+            // type.equals("invalidchar") || type.equals("invalidnum") || type.equals("invalidid")
+            if (tokenType.equals("invalidid")) {
+                String format = String.format("identifier \"%s\": line %d.", tokenValue, line);
+                errorOutput += format;
+            }
+            else if (tokenType.equals("invalidnum")) {
+                String format = String.format("number \"%s\": line %d.", tokenValue, line);
+                errorOutput += format;
+            }
+            else if (tokenType.equals("invalidchar")){
+                String format = String.format("character \"%s\": line %d.", tokenValue, line);
+                errorOutput += format;
+            }
+
+            bwError.write(errorOutput);
+            bwError.newLine();
+        }
+        else {
+            // Do nothing for skipping a blank character
+        }
+    }
+
 
     // Constructor
     public Lexer() {
         letterList = Arrays.asList(letters);
         digitsList = Arrays.asList(digits);
         reservedList = Arrays.asList(reserved);
-        reservedCommentList = Arrays.asList(commentsReserved);
     }
 
     public static void main(String args[]) throws Exception {
 
         // Read filepath
         String filePath = args[0];
-        // BufferFuncs buffer = new BufferFuncs(new FileReader(filePath));
-        buff = new BufferFuncs(new FileReader(filePath));
+        FileReader in = new FileReader(filePath);
+        buff = new BufferFuncs(in);
+
+        // Initialize given lexical elements
         letterList = Arrays.asList(letters);
         digitsList = Arrays.asList(digits);
         reservedList = Arrays.asList(reserved);
-        reservedCommentList = Arrays.asList(commentsReserved);
 
+        // Split filepath
+        String[] splitPath = filePath.split("/");
+        String file = splitPath[splitPath.length - 1];
 
-        // // Read input line by line
-        // try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-        //     String str = new String();
+        // Get filename without extension
+        String[] splitFilename = file.split("\\.");
+        String originalFilename = splitFilename[0];
 
-        //     while ((str = br.readLine()) != null) {
-        //         System.out.println(str);
-        //     }
-
-        // } 
-        // catch(IOException e) {
-        //     System.out.println("Error reading file.");
-        // }
-
+        // Use for debugging
         // for (int i = 0; i < 18; i++) {
         //     // createToken();
         //     buff.setReadLine();
         // }
 
+        // Initialize file names to output to
+        String tokenFilename = originalFilename + ".outlextokens";
+        String errorFilename = originalFilename + ".outlexerrors";
+        String tokenPath = "";
+        String errorPath = "";
+
+        for (int i = 0; i < splitPath.length - 1; i++) {
+            tokenPath += splitPath[i] + "/";
+            errorPath += splitPath[i] + "/";
+        }
+        tokenPath += tokenFilename;
+        errorPath += errorFilename;
+
+        // Initialize writers to files (true == append to file!)
+        tokenFile = new FileWriter(tokenPath, true);
+        errorFile = new FileWriter(errorPath, true);
+        bwToken = new BufferedWriter(tokenFile);
+        bwError = new BufferedWriter(errorFile);
+
+        // Read all tokens and write to files simultaneously
         while (!buff.isEndOfFile()) {
             TokenType token = createToken();
+            writeToFiles(tokenPath, errorPath, token);
             token.printAll();
         }
 
-        // for (int i = 0; i < 31; i++) {
-        //     buff.setReadLine();
-        // }
+        // Close files
+        bwToken.close();
+        bwError.close();
 
-        // // Create character
-        // for (int i = 0; i < 30; i++) {
-        //     TokenType token = createToken();
-        //     token.printAll();
-        // }
 
+        in.close(); // Close filereader
     }
 
 }
