@@ -1212,8 +1212,8 @@ class Lexer {
         String[] splitFilename = file.split("\\.");
         String originalFilename = splitFilename[0];
 
-        // Use for debugging
-        // for (int i = 0; i < 18; i++) {
+        // // Use for debugging
+        // for (int i = 0; i < 20; i++) {
         //     // createToken();
         //     buff.setReadLine();
         // }
@@ -1230,6 +1230,16 @@ class Lexer {
         }
         tokenPath += tokenFilename;
         errorPath += errorFilename;
+
+        // Delete files before making new ones;
+        File myFile = new File(tokenPath);
+        if (myFile.exists() && myFile.isFile()) {
+            myFile.delete();
+        }
+        myFile = new File(errorPath);
+        if (myFile.exists() && myFile.isFile()) {
+            myFile.delete();
+        }
 
         // Initialize writers to files (true == append to file!)
         tokenFile = new FileWriter(tokenPath, true);
