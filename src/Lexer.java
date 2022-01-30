@@ -5,7 +5,6 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.spi.CurrencyNameProvider;
 
 class Lexer {
 
