@@ -1158,6 +1158,7 @@ class Lexer {
                 // Change line
                 bwToken.newLine();
             }
+            prevLine = line;
             bwToken.write(tokenContents + " ");
         }
         else if (!token.isValid() && line != -1) {
@@ -1258,8 +1259,6 @@ class Lexer {
         bwToken.close();
         bwError.close();
 
-
         in.close(); // Close filereader
     }
-
 }
