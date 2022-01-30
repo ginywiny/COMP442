@@ -1,0 +1,15 @@
+if 	public	read
+then	private	write
+else	func	return
+integer	var	self
+float	struct	inherits
+void	while	let
+func	impl
+
+ifX 	publicaX	readX
+thenX	privateX	writeX
+elseX	funcX	returnX
+integerX	varX	selfX
+floatX	structX	inheritsX
+voidX	whileX	letX
+funcX	implX

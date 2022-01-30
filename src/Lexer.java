@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.spi.CurrencyNameProvider;
 
 class Lexer {
 
@@ -473,9 +474,30 @@ class Lexer {
 
             if (peekedChar.equals('f')) {
                 // if
-                tokenValue += peekedChar;
-                token.setAll(tokenValue, tokenValue, lineNumber);
-                buff.getNextChar(); // Advance the buffer by a char
+                while ((currentChar.equals('i') || currentChar.equals('f')) && tokenValue.length() < 2) {
+                    currentChar = buff.getNextChar();
+                    tokenValue += currentChar;
+
+                    if (tokenValue.equals("if")) {
+                        // Check if end of word or if word continues and is actually an ID
+                        peekedChar = buff.peekNextChar();
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                            // TODO: Test This
+                            token.setAll(tokenValue, tokenValue, lineNumber);
+                            return token;
+                        }
+                        //TODO: Test This
+                        else {
+                            String id = getId(tokenValue);
+                            token.setAll("id", id, lineNumber);
+                            return token;
+                        }
+                    }
+                }
+                // TODO: Create safety check to see if ID is valid!!!!!!!
+                String id = getId(tokenValue);
+                token.setAll("id", id, lineNumber);
+                return token;
             }
             else if (peekedChar.equals('m')) {
                 while (currentChar.equals('i') || currentChar.equals('m') || currentChar.equals('p') || currentChar.equals('l') && tokenValue.length() < 4) {
