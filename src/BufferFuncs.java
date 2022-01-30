@@ -19,12 +19,6 @@ public class BufferFuncs {
         }
         buff.reset();
 
-        // Newline (\n) == value 13
-        // Startline == value 10
-        // int temp = buff.read();
-        // System.out.println("Val: " + temp);
-        // Character next = (char)temp;
-
         Character next = (char)buff.read(); 
         return next;
     }
@@ -48,25 +42,26 @@ public class BufferFuncs {
         return test;
     }
 
+    // Return bufferedreader
     public BufferedReader getBuffer() {
         return buff;
     }
 
+    // Read a line from the buffer
     public void setReadLine() throws Exception {
         String test = buff.readLine();
 
         System.out.println(test);
     }
 
+    // Start flag of buffer to reset from
+    public void setStartFlag() throws Exception{
+        buff.mark(5);
+    }
 
-    // public Character peekDepth(int depth) throws Exception {
-    //     // Check if not EOF
-    //     buff.mark(1);
-    //     String check = buff.readLine();
-    //     if (check == null) {
-    //         return null;
-    //     }
-    //     buff.reset();
-    // }
+    // Reset buffer to marked flag
+    public void resetBuffer() throws Exception{
+        buff.reset();
+    }
 
 }

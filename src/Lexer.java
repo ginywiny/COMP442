@@ -12,18 +12,18 @@ import java.util.spi.CurrencyNameProvider;
 class Lexer {
 
     /*--------------------Global variables--------------------------*/
-    Character[] letters = {'a','b','c','d','e','f','g','h','i',
+    static Character[] letters = {'a','b','c','d','e','f','g','h','i',
                     'j','k','l','m','n','o','p','q','r',
                     's','t','u','v','w','x','y','z',
                     'A','B','C','D','E','F','G','H','I',
                     'J','K','L','M','N','O','P','Q','R',
                     'S','T','U','V','W','X','Y','Z'};
-    List<Character> letterList;
+    static List<Character> letterList;
 
-    Integer[] digits = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    List<Integer> digitsList;
+    static Character[] digits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+    static List<Character> digitsList;
 
-    String[] reserved = {"==", "<>", "<", ">", "<=", ">=", 
+    static String[] reserved = {"==", "<>", "<", ">", "<=", ">=", 
                         "+", "-", "*", "/", "=", "|", "&",
                         "!", "(", ")", "{", "}", "[", "]",
                         ";", ",", ".", ":", "::", "->", "if",
@@ -31,32 +31,188 @@ class Lexer {
                         "public", "private", "func", "var", "struct",
                         "while", "read", "write", "return", "self",
                         "inherits", "let", "impl"};
-    List<String> reservedList;
+    static List<String> reservedList;
 
-    String[] commentsReserved = {"//", "/*", "*/" , "//"};
-    List<String> reservedCommentList;
+    static String[] commentsReserved = {"//", "/*", "*/" , "//"};
+    static List<String> reservedCommentList;
 
-    static BufferedReader inputBuffer;
+    static BufferFuncs buff;
     static int lineNumber = 1;
 
     /*---------------------------------------------------------------*/
     
 
-    // String nextToken() {
-    //     return null;
-    // }
-    // char nextChar() {
-    //     return 'p';
-    // }
-    // char backupChar() {
-    //     return 'p';
-    // }
-    // Boolean isFinalState(String state)
-    // String table(String state, int col)
+
+    static String getId(String currentString) throws Exception {
+
+        String idString = "";
+        Character startChar = currentString.charAt(0);
+        Character currentChar;
+
+        // Step 1: Check and build id from currentString from createToken input
+        // Check for [letter] alphanum*
+        if (letterList.contains(startChar)) {
+            // Check for letter [alphanum*]
+            for (Character c : currentString.toCharArray()) {
+                if (letterList.contains(c) || digitsList.contains(c) || c.equals('_')) {
+                    currentChar = c;
+                    idString += currentChar;
+                }
+                // Return currently made string if values not from alphanum* 
+                // (e.g. 1abc: [Invalid identifier:1abc] OR [integer:1][id:abc])
+                else {
+                    return idString;
+                }
+            }
+        }
+        // Return null if value not from letter (INVALID start character)
+        else {
+            return idString; // Return null if lett
+        }
+
+        // Step 2: Build rest of string from new characters
+        Character peekedChar = buff.peekNextChar();
+        // Check for alphanum* or if space/newline
+        while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r') && (letterList.contains(peekedChar) || digitsList.contains(peekedChar) || peekedChar.equals('_'))) {
+            currentChar = buff.getNextChar(); // Increment buffer
+            idString += currentChar; 
+            peekedChar = buff.peekNextChar();
+        }
+
+
+        return idString;
+    }
+
+
+    static String getInteger(String currentString) throws Exception{
+
+        Character startChar = currentString.charAt(0);
+        String intString = "";
+        Character currentChar;
+
+        // Step 1: Check for valid starting character [nonzero] digit* | [0]
+        if (!digitsList.contains(startChar)) {
+            return intString;
+        }
+        else if (startChar.equals('0')) {
+            intString += startChar;
+            return intString;
+        }
+
+        // Step 2: Build rest of string from new characters nonzero [digit]* | [0]
+        intString += startChar;
+        Character peekedChar = buff.peekNextChar();
+
+        while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r') && (digitsList.contains(peekedChar))) {
+            // Get digits 
+            currentChar = buff.getNextChar(); // Increment buffer
+            intString += currentChar; 
+            peekedChar = buff.peekNextChar();
+
+            if (peekedChar.equals('.')) {
+                currentChar = buff.getNextChar(); // Increment buffer
+                intString += currentChar; // Add the fraction (.) to the type
+                peekedChar = buff.peekNextChar(); // TODO: Implement check to see if character after . is valid
+                
+                if (!digitsList.contains(peekedChar)) {
+                    // TODO: Do something if there is no number after . (e.g. 101.)
+                }
+
+                String fractionString = getFraction();
+                String floatString = intString;
+                floatString += fractionString;
+                peekedChar = buff.peekNextChar();
+
+                if (fractionString.charAt(fractionString.length() -1 ) == 'X' || peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                    return floatString;
+                }
+            }
+        }
+
+        return intString;
+    }
+
+    static String getFraction() throws Exception{
+
+        Character currentChar = buff.getNextChar();
+        String floatString = "";
+
+        // Step 1: Check if valid digit or if ending in: .digit* nonzero | [.0]
+        if (!digitsList.contains(currentChar)) {
+            return floatString;
+        }
+
+        else if (currentChar.equals('0')) {
+            floatString += currentChar;
+            return floatString;
+        }
+
+        // Step 2: Check if digit or nonzero: .[digit* nonzero] | .0
+        Character peekedChar = buff.peekNextChar();
+        floatString += currentChar;
+
+        // Check for nonzero: .digit* [nonzero] | .0
+        // Check for long stream of 0's, and if there is a digit after them (eg. 10.0001) 
+        while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r') && (digitsList.contains(peekedChar))) {
+            // Get digits 
+            currentChar = buff.getNextChar(); // Increment buffer
+            peekedChar = buff.peekNextChar();
+            
+            if (currentChar.equals('0') && peekedChar.equals('0')) {
+                String tempZero = "";
+
+                while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r')) {
+                    tempZero += currentChar;
+                    currentChar = buff.getNextChar();
+                    peekedChar = buff.peekNextChar();
+
+                    if (!peekedChar.equals('0') && digitsList.contains(peekedChar) && digitsList.contains(peekedChar)) {
+                        tempZero += currentChar;
+                        floatString += tempZero;
+                        currentChar = buff.getNextChar();
+                        peekedChar = buff.peekNextChar();
+                        break;
+                    }
+                    else if ((peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) && currentChar.equals('0')) {
+                        tempZero += currentChar;
+                        tempZero += "X";
+                        floatString += tempZero;
+                        return floatString;
+                    }
+                }
+            }
+
+            // Check for: .digit* [nonzero] | .0
+            // If ends in a 0, set as invalid
+            else if (currentChar.equals('0') && (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r'))) {
+                floatString += "X"; // Invalid!
+                return floatString;
+            }
+
+            // IMMEDIATELY set invalid! Get rest of number and print out values
+            else if (currentChar.equals('0') && peekedChar.equals('e')) {
+                while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r')) {
+                    floatString += currentChar;
+                    currentChar = buff.getNextChar();
+                    peekedChar = buff.peekNextChar();
+                }
+                floatString += currentChar + "X"; // Invalid!
+                return floatString;
+            }
+
+            floatString += currentChar; 
+        }
+
+
+        return floatString;
+    }
 
 
 
-    static TokenType createToken(BufferFuncs buff) throws Exception {
+
+
+
+    static TokenType createToken() throws Exception {
 
         Character currentChar = buff.getNextChar();
         TokenType token = new TokenType(); // Initialize to [NAN, NAN, -1]
@@ -133,7 +289,7 @@ class Lexer {
         else if (currentChar.equals('*')) {
             token.setAll("mult", tokenValue, lineNumber);
         }
-        // Comments
+        // Comments and div
         else if (currentChar.equals('/')) {
             Character peekedChar = buff.peekNextChar();
 
@@ -668,10 +824,40 @@ class Lexer {
 
 
 
-        // TODO: If null, finish reading
-        // else {
-        //     System.out.println("END OF FILE");
-        // }
+        // TODO: Set properly for ID
+        else if (letterList.contains(currentChar)){
+            String id = getId(tokenValue);
+            System.out.println("ID: " + id);
+        }
+        // TODO: Implement integer and float
+        else if (digitsList.contains(currentChar) && !currentChar.equals('0')) {
+            String numString = getInteger(tokenValue);
+
+            if (numString.contains("X")) {
+                numString = new StringBuilder(numString).deleteCharAt(numString.length()-1).toString();
+                System.out.println("Invalid: " + numString);
+            }
+            else if (numString.contains(".")) {
+                System.out.println("Float: " + numString);
+            }
+            else {
+                System.out.println("Integer: " + numString);
+            }
+        }
+
+        // Move to next word after space
+        else {
+            Character peekedChar = buff.peekNextChar();
+            String invalidString = "";
+            invalidString += currentChar;
+            // Increment only a single miswritten lexical element until the next space or newline
+            while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r')) {
+                currentChar = buff.getNextChar(); // Move buffer
+                invalidString += currentChar;
+                peekedChar = buff.peekNextChar();
+            }
+            System.out.println("Invalid: " + invalidString);
+        }
         
 
         return token;
@@ -689,7 +875,12 @@ class Lexer {
 
         // Read filepath
         String filePath = args[0];
-        BufferFuncs buffer = new BufferFuncs(new FileReader(filePath));
+        // BufferFuncs buffer = new BufferFuncs(new FileReader(filePath));
+        buff = new BufferFuncs(new FileReader(filePath));
+        letterList = Arrays.asList(letters);
+        digitsList = Arrays.asList(digits);
+        reservedList = Arrays.asList(reserved);
+        reservedCommentList = Arrays.asList(commentsReserved);
 
 
         // // Read input line by line
@@ -706,14 +897,14 @@ class Lexer {
         // }
 
 
-        for (int i = 0; i < 46; i++) {
-            buffer.setReadLine();
+        for (int i = 0; i < 18; i++) {
+            buff.setReadLine();
             lineNumber++;
         }
 
         // Create character
         for (int i = 0; i < 30; i++) {
-            TokenType token = createToken(buffer);
+            TokenType token = createToken();
             token.printAll();
         }
 
