@@ -1,11 +1,14 @@
 import java.io.BufferedReader;
+import java.io.LineNumberReader;
 import java.io.FileReader;
 
 public class BufferFuncs {
-    static BufferedReader buff;
+    // static BufferedReader buff;
+    static LineNumberReader buff;
 
     BufferFuncs(FileReader file) {
-        this.buff = new BufferedReader(file);
+        // this.buff = new BufferedReader(file);
+        this.buff = new LineNumberReader(file);
     }
 
 
@@ -54,14 +57,20 @@ public class BufferFuncs {
         System.out.println(test);
     }
 
-    // Start flag of buffer to reset from
-    public void setStartFlag() throws Exception{
-        buff.mark(5);
+    // Read line number from inputfile
+    public int getLineNumber() throws Exception {
+        return buff.getLineNumber();
     }
 
-    // Reset buffer to marked flag
-    public void resetBuffer() throws Exception{
+    public Boolean isEndOfFile() throws Exception{
+        // Check if not empty
+        buff.mark(1);
+        String check = buff.readLine();
+        if (check == null) {
+            return true;
+        }
         buff.reset();
+        return false;
     }
 
 }
