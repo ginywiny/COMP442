@@ -261,6 +261,7 @@ class Lexer {
             // Check for: .digit* [nonzero] | .0
             // If ends in a 0, set as invalid
             else if (currentChar.equals('0') && (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r'))) {
+                floatString += currentChar;
                 floatString += INVALIDSIGN; // Invalid!
                 return floatString;
             }
@@ -1214,7 +1215,7 @@ class Lexer {
         String originalFilename = splitFilename[0];
 
         // // Use for debugging
-        // for (int i = 0; i < 20; i++) {
+        // for (int i = 0; i < 11; i++) {
         //     // createToken();
         //     buff.setReadLine();
         // }
