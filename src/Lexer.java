@@ -52,7 +52,7 @@ class Lexer {
 
         // TODO: Include invalid chars in the loop as well???: ex. @ # $ ' \ ~ 
         // TODO: Do this by using !reservedList??
-        while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r') && (letterList.contains(peekedChar) || digitsList.contains(peekedChar) || peekedChar.equals('_'))) {
+        while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r') && (letterList.contains(peekedChar) || digitsList.contains(peekedChar) || peekedChar.equals('_') || peekedChar.equals('.'))) {
             currentChar = buff.getNextChar();
             invalidString += currentChar;
             peekedChar = buff.peekNextChar();
@@ -125,7 +125,7 @@ class Lexer {
         // Step 2: Build rest of string from new characters nonzero [digit]* | [0]
         intString += startChar;
 
-        while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r') && (digitsList.contains(peekedChar))) {
+        while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r') && (digitsList.contains(peekedChar) || peekedChar.equals('.'))) {
             // Get digits 
             currentChar = buff.getNextChar(); // Increment buffer
             intString += currentChar; 
@@ -157,6 +157,11 @@ class Lexer {
                 }
             }
         }
+        if (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r') && (!digitsList.contains(peekedChar))) {
+            intString = getInvalidString(startChar.toString());
+            return intString;
+        }
+
         return intString;
     }
 
@@ -169,7 +174,8 @@ class Lexer {
         String exponentString = "";
         exponentString += currentChar;
 
-        if (currentChar.equals('e') && (peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || digitsList.contains(peekedChar))) {
+        // if (currentChar.equals('e') && (peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || digitsList.contains(peekedChar))) {
+        if (currentChar.equals('e') && (peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r'))) {
             exponentString += INVALIDSIGN;
             return exponentString;
         }
@@ -190,7 +196,7 @@ class Lexer {
             }
         }
         // Set invalid if problem found
-        if (!digitsList.contains(peekedChar) && !peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r')) {
+        if (peekedChar.equals('0') || (!digitsList.contains(peekedChar) && !peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r'))) {
             while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r')) {
                 currentChar = buff.getNextChar();
                 peekedChar = buff.peekNextChar();
@@ -1185,7 +1191,7 @@ class Lexer {
         //     System.out.println("Error reading file.");
         // }
 
-        // for (int i = 0; i < 32; i++) {
+        // for (int i = 0; i < 18; i++) {
         //     // createToken();
         //     buff.setReadLine();
         // }
