@@ -3,7 +3,6 @@ Lexical error: Invalid character: "#": line 1.
 Lexical error: Invalid character: "$": line 1.
 Lexical error: Invalid character: "'": line 1.
 Lexical error: Invalid character: "\": line 1.
-Lexical error: Invalid character: "|": line 1.
 Lexical error: Invalid character: "~": line 1.
 Lexical error: Invalid number: "00": line 3.
 Lexical error: Invalid number: "01": line 4.
@@ -18,6 +17,6 @@ Lexical error: Invalid number: "012.340": line 13.
 Lexical error: Invalid number: "012.34e10": line 15.
 Lexical error: Invalid number: "12.34e010": line 16.
 Lexical error: Invalid identifier: "_abc": line 18. 
-Lexical error: Invalid identifier: "1abc": line 19.
+Lexical error: Invalid number: "1abc": line 19.
 Lexical error: Invalid identifier: "_abc": line 20. 
 
