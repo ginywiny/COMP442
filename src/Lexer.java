@@ -1274,7 +1274,7 @@ class Lexer {
         while (!buff.isEndOfFile()) {
             TokenType token = createToken();
             writeToFiles(tokenPath, errorPath, token);
-            token.printAll();
+            // token.printAll();
         }
 
         // Close files
