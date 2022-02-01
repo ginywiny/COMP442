@@ -30,6 +30,21 @@ class Lexer {
                         "inherits", "let", "impl"};
     static List<String> reservedList;
 
+    static String[] reservedWords = {"if",
+    "then", "else", "integer", "float", "void",
+    "public", "private", "func", "var", "struct",
+    "while", "read", "write", "return", "self",
+    "inherits", "let", "impl"};
+    static List<String> reservedWordsList;
+
+
+    static String[] operators = {"==", "<>", "<", ">", "<=", ">=", 
+    "+", "-", "*", "/", "=", "|", "&",
+    "!", "(", ")", "{", "}", "[", "]",
+    ";", ",", ".", ":", "::", "->"};
+    static List<String> operatorsList;
+
+
     static BufferFuncs buff;
     static int lineNumber = 1;
     static int prevLine = 1;
@@ -94,11 +109,35 @@ class Lexer {
 
         // Step 2: Build rest of string from new characters
         Character peekedChar = buff.peekNextChar();
-        // Check for alphanum* or if space/newline
-        while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r') && (letterList.contains(peekedChar) || digitsList.contains(peekedChar) || peekedChar.equals('_'))) {
-            currentChar = buff.getNextChar(); // Increment buffer
-            idString += currentChar; 
-            peekedChar = buff.peekNextChar();
+        String peekedString = peekedChar.toString();
+
+        // A reservedword CANNOT be used as a keyword! Meaning that, if you have then*, this would be an INVALID ID, and NOT id and Mult
+        if (reservedWordsList.contains(idString) && !digitsList.contains(peekedChar) && !peekedChar.equals('_') && !letterList.contains(peekedChar) && !peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r')) {
+            while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r')) {
+                currentChar = buff.getNextChar(); // Increment buffer
+                idString += currentChar; 
+                peekedChar = buff.peekNextChar();
+            }
+            idString += INVALIDSIGN; // Use as delimiter to set invalid variable!
+            return idString;
+        }
+        // If word contains illegal character
+        else if (!operatorsList.contains(peekedString) && !digitsList.contains(peekedChar) && !peekedChar.equals('_') && !letterList.contains(peekedChar) && !peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r')) {
+            while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r')) {
+                currentChar = buff.getNextChar(); // Increment buffer
+                idString += currentChar; 
+                peekedChar = buff.peekNextChar();
+            }
+            idString += INVALIDSIGN; // Use as delimiter to set invalid variable!
+            return idString;
+        }
+        else {
+            // Check for alphanum* or if space/newline
+            while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r') && (letterList.contains(peekedChar) || digitsList.contains(peekedChar) || peekedChar.equals('_'))) {
+                currentChar = buff.getNextChar(); // Increment buffer
+                idString += currentChar; 
+                peekedChar = buff.peekNextChar();
+            }
         }
 
         return idString;
@@ -400,9 +439,10 @@ class Lexer {
                             token.setAll("blockcmt", tokenValue, startLineCount);
                         }
                     }
-
-                    // TODO: Check for things after /* that arent good
-                    // TODO: Check if end of file and comments STILL not closed
+                    // If comments not closed
+                    if (buff.isEndOfFile() && imbricationCount > 0) {
+                        return token;
+                    }
                 }
             }
             else if (peekedChar.equals('/')) {
@@ -473,8 +513,9 @@ class Lexer {
 
             if (peekedChar.equals('f')) {
                 // if
-                while ((currentChar.equals('i') || currentChar.equals('f')) && tokenValue.length() < 2) {
+                while (letterList.contains(currentChar) && tokenValue.length() < 2 && letterList.contains(peekedChar)) {
                     currentChar = buff.getNextChar();
+                    peekedChar = buff.peekNextChar();
                     tokenValue += currentChar;
 
                     if (tokenValue.equals("if")) {
@@ -488,21 +529,23 @@ class Lexer {
                         //TODO: Test This
                         else {
                             String id = getId(tokenValue);
-                            token.setAll("id", id, lineNumber);
+                            token.setAllWithoutId(id, lineNumber);
                             return token;
                         }
                     }
                 }
                 // TODO: Create safety check to see if ID is valid!!!!!!!
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
             else if (peekedChar.equals('m')) {
-                while (currentChar.equals('i') || currentChar.equals('m') || currentChar.equals('p') || currentChar.equals('l') && tokenValue.length() < 4) {
+                while (letterList.contains(currentChar) && tokenValue.length() < 4 && letterList.contains(peekedChar)) {
                     // Create string impl
                     currentChar = buff.getNextChar();
+                    peekedChar = buff.peekNextChar();
                     tokenValue += currentChar;
+                    
                     if (tokenValue.equals("impl")) {
 
                         // Check if end of word or if word continues and is actually an ID
@@ -515,24 +558,24 @@ class Lexer {
                         //TODO: Test This
                         else {
                             String id = getId(tokenValue);
-                            token.setAll("id", id, lineNumber);
+                            token.setAllWithoutId(id, lineNumber);
                             return token;
                         }
                     }
                 }
                 // TODO: Create safety check to see if ID is valid!!!!!!!
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
             else if (peekedChar.equals('n')) {
                 // Create string integer
                 currentChar = buff.getNextChar();
-                tokenValue += currentChar;
                 peekedChar = buff.peekNextChar();
+                tokenValue += currentChar;
 
                 if (peekedChar.equals('t')) {
-                    while (currentChar.equals('i') || currentChar.equals('n') || currentChar.equals('t') || currentChar.equals('e') || currentChar.equals('g') || currentChar.equals('r') && tokenValue.length() < 7) {
+                    while (letterList.contains(currentChar) && tokenValue.length() < 7 && letterList.contains(peekedChar)) {
 
                         // Create string integer
                         currentChar = buff.getNextChar();
@@ -549,22 +592,24 @@ class Lexer {
                             else {
                                 //TODO: Test This
                                 String id = getId(tokenValue);
-                                token.setAll("id", id, lineNumber);
+                                token.setAllWithoutId(id, lineNumber);
                                 return token;
                             }
                         }
                     }
                     //TODO: Test This
                     String id = getId(tokenValue);
-                    token.setAll("id", id, lineNumber);
+                    token.setAllWithoutId(id, lineNumber);
                     return token;
                 }
 
                 else if (peekedChar.equals('h')) {
-                    while (currentChar.equals('i') || currentChar.equals('n') || currentChar.equals('h') || currentChar.equals('e') || currentChar.equals('r') || currentChar.equals('t') || currentChar.equals('s') && tokenValue.length() < 8) {
+                    while (letterList.contains(currentChar) && tokenValue.length() < 8 && letterList.contains(peekedChar)) {
                         // Create string inherits
                         currentChar = buff.getNextChar();
+                        peekedChar = buff.peekNextChar();
                         tokenValue += currentChar;
+
                         if (tokenValue.equals("inherits")) {
     
                             // Check if end of word or if word continues and is actually an ID
@@ -577,7 +622,7 @@ class Lexer {
                             else {
                                 //TODO: Test This
                                 String id = getId(tokenValue);
-                                token.setAll("id", id, lineNumber);
+                                token.setAllWithoutId(id, lineNumber);
                                 return token;
                             }
                         }
@@ -585,25 +630,26 @@ class Lexer {
                     }
                     //TODO: Test This
                     String id = getId(tokenValue);
-                    token.setAll("id", id, lineNumber);
+                    token.setAllWithoutId(id, lineNumber);
                     return token;
                 }
             }
             else {
-                //TODO: Test This
+                //TODO: Test This 
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
-        }
+        } 
         // then
         else if (currentChar.equals('t')) {
             Character peekedChar = buff.peekNextChar();
 
             if (peekedChar.equals('h')) {
-                while (currentChar.equals('t') || currentChar.equals('h') || currentChar.equals('e') || currentChar.equals('n') && tokenValue.length() < 4) {
+                while (letterList.contains(currentChar) && tokenValue.length() < 4 && letterList.contains(peekedChar)) {
                     // Create string then
                     currentChar = buff.getNextChar();
+                    peekedChar = buff.peekNextChar();
                     tokenValue += currentChar;
 
                     if (tokenValue.equals("then")) {
@@ -617,20 +663,20 @@ class Lexer {
                         else {
                             //TODO: Test This
                             String id = getId(tokenValue);
-                            token.setAll("id", id, lineNumber);
+                            token.setAllWithoutId(id, lineNumber);
                             return token;
                         }
                     }
                 }
                 //TODO: Test This
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
             else {
                 //TODO: Test This
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
         }
@@ -639,9 +685,10 @@ class Lexer {
             Character peekedChar = buff.peekNextChar();
 
             if (peekedChar.equals('l')) {
-                while (currentChar.equals('e') || currentChar.equals('l') || currentChar.equals('s') && tokenValue.length() < 4) {
+                while (letterList.contains(currentChar) && tokenValue.length() < 4 && letterList.contains(peekedChar)) {
                     // Create string else
                     currentChar = buff.getNextChar();
+                    peekedChar = buff.peekNextChar();
                     tokenValue += currentChar;
 
                     if (tokenValue.equals("else")) {
@@ -655,7 +702,7 @@ class Lexer {
                         else {
                             //TODO: Test This
                             String id = getId(tokenValue);
-                            token.setAll("id", id, lineNumber);
+                            token.setAllWithoutId(id, lineNumber);
                             return token;
                         }
                     }
@@ -664,7 +711,7 @@ class Lexer {
             else {
                 //TODO: Test This
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
         }
@@ -673,9 +720,10 @@ class Lexer {
             Character peekedChar = buff.peekNextChar();
 
             if (peekedChar.equals('l')) {
-                while (currentChar.equals('f') || currentChar.equals('l') || currentChar.equals('o') || currentChar.equals('a') || currentChar.equals('t') && tokenValue.length() < 5) {
+                while (letterList.contains(currentChar) && tokenValue.length() < 5 && letterList.contains(peekedChar)) {
                     // Create string float
                     currentChar = buff.getNextChar();
+                    peekedChar = buff.peekNextChar();
                     tokenValue += currentChar;
 
                     if (tokenValue.equals("float")) {
@@ -689,20 +737,21 @@ class Lexer {
                         else {
                             //TODO: Test This
                             String id = getId(tokenValue);
-                            token.setAll("id", id, lineNumber);
+                            token.setAllWithoutId(id, lineNumber);
                             return token;
                         }
                     }
                 }
                 //TODO: Test This
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
             else if (peekedChar.equals('u')) {
-                while (currentChar.equals('f') || currentChar.equals('u') || currentChar.equals('n') || currentChar.equals('c') && tokenValue.length() < 4) {
+                while (letterList.contains(currentChar) && tokenValue.length() < 4 && letterList.contains(peekedChar)) {
                     // Create string func
                     currentChar = buff.getNextChar();
+                    peekedChar = buff.peekNextChar();
                     tokenValue += currentChar;
 
                     if (tokenValue.equals("func")) {
@@ -716,20 +765,20 @@ class Lexer {
                         else {
                             //TODO: Test This
                             String id = getId(tokenValue);
-                            token.setAll("id", id, lineNumber);
+                            token.setAllWithoutId(id, lineNumber);
                             return token;
                         }
                     }
                 }
                 //TODO: Test This
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
             else {
                 //TODO: Test This
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
         }
@@ -739,9 +788,10 @@ class Lexer {
             Character peekedChar = buff.peekNextChar();
 
             if (peekedChar.equals('o')) {
-                while (currentChar.equals('v') || currentChar.equals('o') || currentChar.equals('i') || currentChar.equals('d') && tokenValue.length() < 4) {
+                while (letterList.contains(currentChar) && tokenValue.length() < 4 && letterList.contains(peekedChar)) {
                     // Create string void
                     currentChar = buff.getNextChar();
+                    peekedChar = buff.peekNextChar();
                     tokenValue += currentChar;
 
                     if (tokenValue.equals("void")) {
@@ -755,20 +805,21 @@ class Lexer {
                         else {
                             //TODO: Test This
                             String id = getId(tokenValue);
-                            token.setAll("id", id, lineNumber);
+                            token.setAllWithoutId(id, lineNumber);
                             return token;
                         }
                     }
                 }
                 //TODO: Test This
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
             else if (peekedChar.equals('a')) {
-                while (currentChar.equals('v') || currentChar.equals('a') || currentChar.equals('r') && tokenValue.length() < 3) {
+                while (letterList.contains(currentChar) && tokenValue.length() < 3 && letterList.contains(peekedChar)) {
                     // Create string var
                     currentChar = buff.getNextChar();
+                    peekedChar = buff.peekNextChar();
                     tokenValue += currentChar;
 
                     if (tokenValue.equals("var")) {
@@ -782,20 +833,20 @@ class Lexer {
                         else {
                             //TODO: Test This
                             String id = getId(tokenValue);
-                            token.setAll("id", id, lineNumber);
+                            token.setAllWithoutId(id, lineNumber);
                             return token;
                         }
                     }
                 }
                 //TODO: Test This
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
             else {
                 //TODO: Test This
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
         }
@@ -805,9 +856,10 @@ class Lexer {
             Character peekedChar = buff.peekNextChar();
 
             if (peekedChar.equals('u')) {
-                while (currentChar.equals('p') || currentChar.equals('u') || currentChar.equals('b') || currentChar.equals('l') || currentChar.equals('i') || currentChar.equals('c') && tokenValue.length() < 6) {
+                while (letterList.contains(currentChar) && tokenValue.length() < 6 && letterList.contains(peekedChar)) {
                     // Create string public
                     currentChar = buff.getNextChar();
+                    peekedChar = buff.peekNextChar();
                     tokenValue += currentChar;
 
                     if (tokenValue.equals("public")) {
@@ -821,20 +873,21 @@ class Lexer {
                         else {
                             //TODO: Test This
                             String id = getId(tokenValue);
-                            token.setAll("id", id, lineNumber);
+                            token.setAllWithoutId(id, lineNumber);
                             return token;
                         }
                     }
                 }
                 //TODO: Test This
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
             else if (peekedChar.equals('r')) {
-                while (currentChar.equals('p') || currentChar.equals('r') || currentChar.equals('i') || currentChar.equals('v') || currentChar.equals('a') || currentChar.equals('t') || currentChar.equals('e') && tokenValue.length() < 7) {
+                while (letterList.contains(currentChar) && tokenValue.length() < 7 && letterList.contains(peekedChar)) {
                     // Create string private
                     currentChar = buff.getNextChar();
+                    peekedChar = buff.peekNextChar();
                     tokenValue += currentChar;
 
                     if (tokenValue.equals("private")) {
@@ -848,20 +901,20 @@ class Lexer {
                         else {
                             //TODO: Test This
                             String id = getId(tokenValue);
-                            token.setAll("id", id, lineNumber);
+                            token.setAllWithoutId(id, lineNumber);
                             return token;
                         }
                     }
                 }
                 //TODO: Test This
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
             else {
                 //TODO: Test This
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
         }
@@ -870,9 +923,10 @@ class Lexer {
             Character peekedChar = buff.peekNextChar();
 
             if (peekedChar.equals('t')) {
-                while (currentChar.equals('s') || currentChar.equals('t') || currentChar.equals('r') || currentChar.equals('u') || currentChar.equals('c') && tokenValue.length() < 6) {
+                while (letterList.contains(currentChar) && tokenValue.length() < 6 && letterList.contains(peekedChar)) {
                     // Create string struct
                     currentChar = buff.getNextChar();
+                    peekedChar = buff.peekNextChar();
                     tokenValue += currentChar;
 
                     if (tokenValue.equals("struct")) {
@@ -886,20 +940,21 @@ class Lexer {
                         else {
                             //TODO: Test This
                             String id = getId(tokenValue);
-                            token.setAll("id", id, lineNumber);
+                            token.setAllWithoutId(id, lineNumber);
                             return token;
                         }
                     }
                 }
                 //TODO: Test This
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
             else if (peekedChar.equals('e')) {
-                while (currentChar.equals('s') || currentChar.equals('e') || currentChar.equals('l') || currentChar.equals('f') && tokenValue.length() < 4) {
+                while (letterList.contains(currentChar) && tokenValue.length() < 4 && letterList.contains(peekedChar)) {
                     // Create string self
                     currentChar = buff.getNextChar();
+                    peekedChar = buff.peekNextChar();
                     tokenValue += currentChar;
 
                     if (tokenValue.equals("self")) {
@@ -913,20 +968,20 @@ class Lexer {
                         else {
                             //TODO: Test This
                             String id = getId(tokenValue);
-                            token.setAll("id", id, lineNumber);
+                            token.setAllWithoutId(id, lineNumber);
                             return token;
                         }
                     }
                 }
                 //TODO: Test This
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
             else {
                 //TODO: Test This
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
         }
@@ -935,9 +990,10 @@ class Lexer {
             Character peekedChar = buff.peekNextChar();
 
             if (peekedChar.equals('h')) {
-                while (currentChar.equals('w') || currentChar.equals('h') || currentChar.equals('i') || currentChar.equals('l') || currentChar.equals('e') && tokenValue.length() < 5) {
+                while (letterList.contains(currentChar) && tokenValue.length() < 5 && letterList.contains(peekedChar)) {
                     // Create string while
                     currentChar = buff.getNextChar();
+                    peekedChar = buff.peekNextChar();
                     tokenValue += currentChar;
 
                     if (tokenValue.equals("while")) {
@@ -951,20 +1007,21 @@ class Lexer {
                         else {
                             //TODO: Test This
                             String id = getId(tokenValue);
-                            token.setAll("id", id, lineNumber);
+                            token.setAllWithoutId(id, lineNumber);
                             return token;
                         }
                     }
                 }
                 //TODO: Test This
                 String id = getId(tokenValue);
-                token.setAll("id", tokenValue, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
             else if (peekedChar.equals('r')) {
-                while (currentChar.equals('w') || currentChar.equals('r') || currentChar.equals('i') || currentChar.equals('t') || currentChar.equals('e') && tokenValue.length() < 5) {
+                while (letterList.contains(currentChar) && tokenValue.length() < 5 && letterList.contains(peekedChar)) {
                     // Create string write
                     currentChar = buff.getNextChar();
+                    peekedChar = buff.peekNextChar();
                     tokenValue += currentChar;
 
                     if (tokenValue.equals("write")) {
@@ -978,20 +1035,20 @@ class Lexer {
                         else {
                             //TODO: Test This
                             String id = getId(tokenValue);
-                            token.setAll("id", id, lineNumber);
+                            token.setAllWithoutId(id, lineNumber);
                             return token;
                         }
                     }
                 }
                 //TODO: Test This
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
             else {
                 //TODO: Test This
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
         }
@@ -1004,9 +1061,10 @@ class Lexer {
             if (currentChar.equals('e')) {
 
                 if (peekedChar.equals('a')) {
-                    while (currentChar.equals('r') || currentChar.equals('e') || currentChar.equals('a') || currentChar.equals('d') && tokenValue.length() < 4) {
+                    while (letterList.contains(currentChar) && tokenValue.length() < 4 && letterList.contains(peekedChar)) {
                         // Create string read
                         currentChar = buff.getNextChar();
+                        peekedChar = buff.peekNextChar();
                         tokenValue += currentChar;
     
                         if (tokenValue.equals("read")) {
@@ -1020,20 +1078,21 @@ class Lexer {
                             else {
                                 //TODO: Test This
                                 String id = getId(tokenValue);
-                                token.setAll("id", id, lineNumber);
+                                token.setAllWithoutId(id, lineNumber);
                                 return token;
                             }
                         }
                     }
                     //TODO: Test This
                     String id = getId(tokenValue);
-                    token.setAll("id", id, lineNumber);
+                    token.setAllWithoutId(id, lineNumber);
                     return token;
                 }
                 else if (peekedChar.equals('t')) {
-                    while (currentChar.equals('r') || currentChar.equals('e') || currentChar.equals('t') || currentChar.equals('u') || currentChar.equals('n') && tokenValue.length() < 6) {
+                    while (letterList.contains(currentChar) && tokenValue.length() < 6 && letterList.contains(peekedChar)) {
                         // Create string return
                         currentChar = buff.getNextChar();
+                        peekedChar = buff.peekNextChar();
                         tokenValue += currentChar;
     
                         if (tokenValue.equals("return")) {
@@ -1047,27 +1106,27 @@ class Lexer {
                             else {
                                 //TODO: Test This
                                 String id = getId(tokenValue);
-                                token.setAll("id", id, lineNumber);
+                                token.setAllWithoutId(id, lineNumber);
                                 return token;
                             }
                         }
                     }
                     //TODO: Test This
                     String id = getId(tokenValue);
-                    token.setAll("id", id, lineNumber);
+                    token.setAllWithoutId(id, lineNumber);
                     return token;
                 }
                 else {
                     //TODO: Test This
                     String id = getId(tokenValue);
-                    token.setAll("id", id, lineNumber);
+                    token.setAllWithoutId(id, lineNumber);
                     return token;
                 }
             }
             else {
                 //TODO: Test This
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
         }
@@ -1076,9 +1135,10 @@ class Lexer {
             Character peekedChar = buff.peekNextChar();
 
             if (peekedChar.equals('e')) {
-                while (currentChar.equals('l') || currentChar.equals('e') || currentChar.equals('t') && tokenValue.length() < 3) {
+                while (letterList.contains(currentChar) && tokenValue.length() < 3 && letterList.contains(peekedChar)) {
                     // Create string let
                     currentChar = buff.getNextChar();
+                    peekedChar = buff.peekNextChar();
                     tokenValue += currentChar;
 
                     if (tokenValue.equals("let")) {
@@ -1092,20 +1152,20 @@ class Lexer {
                         else {
                             //TODO: Test This
                             String id = getId(tokenValue);
-                            token.setAll("id", id, lineNumber);
+                            token.setAllWithoutId(id, lineNumber);
                             return token;
                         }
                     }
                 }
                 //TODO: Test This
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
             else {
                 //TODO: Test This
                 String id = getId(tokenValue);
-                token.setAll("id", id, lineNumber);
+                token.setAllWithoutId(id, lineNumber);
                 return token;
             }
         }
@@ -1118,7 +1178,7 @@ class Lexer {
                 token.setAll("invalidid", id, lineNumber);
                 return token;
             }
-            token.setAll("id", id, lineNumber);
+            token.setAllWithoutId(id, lineNumber);
             return token;
         }
 
@@ -1226,6 +1286,8 @@ class Lexer {
         letterList = Arrays.asList(letters);
         digitsList = Arrays.asList(digits);
         reservedList = Arrays.asList(reserved);
+        reservedWordsList = Arrays.asList(reservedWords);
+        operatorsList = Arrays.asList(operators);
 
         // Split filepath
         String[] splitPath = filePath.split("/");
@@ -1234,12 +1296,6 @@ class Lexer {
         // Get filename without extension
         String[] splitFilename = file.split("\\.");
         String originalFilename = splitFilename[0];
-
-        // // Use for debugging
-        // for (int i = 0; i < 11; i++) {
-        //     // createToken();
-        //     buff.setReadLine();
-        // }
 
         // Initialize file names to output to
         String tokenFilename = originalFilename + ".outlextokens";
@@ -1270,11 +1326,16 @@ class Lexer {
         bwToken = new BufferedWriter(tokenFile);
         bwError = new BufferedWriter(errorFile);
 
+        // // Use for debugging
+        // for (int i = 0; i < 49; i++) {
+        //     buff.setReadLine();
+        // }
+
         // Read all tokens and write to files simultaneously
         while (!buff.isEndOfFile()) {
             TokenType token = createToken();
             writeToFiles(tokenPath, errorPath, token);
-            // token.printAll();
+            token.printAll();
         }
 
         // Close files

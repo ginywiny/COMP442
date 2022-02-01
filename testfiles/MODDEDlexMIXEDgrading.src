@@ -40,15 +40,10 @@ block comment
 */
 */
 
-/* this is a bigger imbricated 
-/* block 
-/* comment
-*/
-*/
-*/
 
 
 t*h*e*n
+if*
 th$*en
 
 if 	public	read
@@ -59,6 +54,21 @@ float	struct	inherits
 void	while	let
 func	impl
 
+i$f 	pu$lic	rea$d
+th$en	pri$vate	wr$ite
+el$se	fu$nc	ret$urn
+int$eger	va$r	se$lf
+flo$at	stru$ct	inher$its
+voi$d	wh$ile	l$et
+fun$c	im$pl
+
+if* 	public*	read*
+then*	private*	write*
+else*	func*	return*
+integer*	var*	self*
+float*	struct*	inherits*
+void*	while*	let*
+func*	impl*
 
 i*f 	pu*blic	re*ad
 th*en	pr*ivate	w*rite
@@ -68,3 +78,11 @@ fl*oat	stru*ct	inh*erits
 vo*id	wh*ile	l*et
 fu*nc	im*pl
 
+/* this is a bigger imbricated 
+/* block 
+/* comment
+*/ AND BROKEN
+*/
+
+
+these words will never be reached!

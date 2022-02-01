@@ -33,6 +33,20 @@ public class TokenType {
             this.valid = true;
         }
     }
+
+    public void setAllWithoutId(String valueBefore, int lineNumber) {
+        this.lineNumber = lineNumber; 
+
+        if (valueBefore.charAt(valueBefore.length() - 1) == '$') {
+            this.value = new StringBuilder(valueBefore).deleteCharAt(valueBefore.length()-1).toString();
+            this.type = "invalidid";
+            this.valid = false;
+        } else {
+            this.type = "id";
+            this.value = valueBefore;
+            this.valid = true;
+        }
+    }
     
     // See if token is valid or an error
     public Boolean isValid() {
