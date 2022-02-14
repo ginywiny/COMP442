@@ -14,6 +14,14 @@ floatX	structX	inheritsX
 voidX	whileX	letX
 funcX	implX
 
+iXfX 	puXblicaX	rXeadX
+thXenX	prXivateX	wrXiteX
+elsXeX	fuXncX	reXturnX
+inXtegXerX	varX	seXlfX
+flXoatX	strXuctX	inhXeritsX
+voXidX	whiXleX	letX
+funXcX	implX
+
 if+ 	publica+	read+
 then+	private+	write+
 else+	func+	return+
@@ -21,3 +29,12 @@ integer+	var+	self+
 float+	struct+	inherits+
 void+	while+	let+
 func+	impl+
+
+i*f 	pu*blic	re*ad
+th*en	pr*ivate	w*rite
+e*lse	func	return
+int*eger	v*ar	se*lf
+fl*oat	stru*ct	inh*erits
+vo*id	wh*ile	l*et
+fu*nc	im*pl
+
