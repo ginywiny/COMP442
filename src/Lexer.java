@@ -51,10 +51,13 @@ class Lexer {
 
     static Character INVALIDSIGN = '$';
 
+    static FileReader inSrcFile;
     static FileWriter tokenFile;
     static FileWriter errorFile;
     static BufferedWriter bwToken;
     static BufferedWriter bwError;
+
+    static String filePath;
 
     /*---------------------------------------------------------------*/
     
@@ -111,18 +114,20 @@ class Lexer {
         Character peekedChar = buff.peekNextChar();
         String peekedString = peekedChar.toString();
 
-        // A reservedword CANNOT be used as a keyword! Meaning that, if you have then*, this would be an INVALID ID, and NOT id and Mult
-        if (reservedWordsList.contains(idString) && !digitsList.contains(peekedChar) && !peekedChar.equals('_') && !letterList.contains(peekedChar) && !peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r')) {
-            while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r')) {
-                currentChar = buff.getNextChar(); // Increment buffer
-                idString += currentChar; 
-                peekedChar = buff.peekNextChar();
-            }
-            idString += INVALIDSIGN; // Use as delimiter to set invalid variable!
-            return idString;
-        }
+        // // A reservedword CANNOT be used as a keyword! Meaning that, if you have then*, this would be an INVALID ID, and NOT id and Mult
+        // if (reservedWordsList.contains(idString) && !digitsList.contains(peekedChar) && !peekedChar.equals('_') && !letterList.contains(peekedChar) && !peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r')) {
+        //     while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r')) {
+        //         currentChar = buff.getNextChar(); // Increment buffer
+        //         idString += currentChar; 
+        //         peekedChar = buff.peekNextChar();
+        //     }
+        //     idString += INVALIDSIGN; // Use as delimiter to set invalid variable!
+        //     return idString;
+        // }
+
         // If word contains illegal character
-        else if (!operatorsList.contains(peekedString) && !digitsList.contains(peekedChar) && !peekedChar.equals('_') && !letterList.contains(peekedChar) && !peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r')) {
+        // else if (!operatorsList.contains(peekedString) && !digitsList.contains(peekedChar) && !peekedChar.equals('_') && !letterList.contains(peekedChar) && !peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r')) {
+        if (!operatorsList.contains(peekedString) && !digitsList.contains(peekedChar) && !peekedChar.equals('_') && !letterList.contains(peekedChar) && !peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r')) {
             while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r')) {
                 currentChar = buff.getNextChar(); // Increment buffer
                 idString += currentChar; 
@@ -326,11 +331,11 @@ class Lexer {
 
 
 
-    static TokenType createToken() throws Exception {
+    // static TokenType createToken() throws Exception {
+    TokenType createToken() throws Exception {
 
         lineNumber = buff.getLineNumber() + 1; // Indexed by 0, add 1
         Character currentChar = buff.getNextChar();
-        Character endFile = buff.peekNextChar();
         TokenType token = new TokenType(); // Initialize to [NAN, NAN, -1]
         // TODO: To fix
         if (currentChar == null) {
@@ -1269,26 +1274,32 @@ class Lexer {
 
 
     // Constructor
-    public Lexer() {
-        letterList = Arrays.asList(letters);
-        digitsList = Arrays.asList(digits);
-        reservedList = Arrays.asList(reserved);
-    }
-
-    public static void main(String args[]) throws Exception {
-
-        // Read filepath
-        String filePath = args[0];
-        FileReader in = new FileReader(filePath);
-        buff = new BufferFuncs(in);
-
-        // Initialize given lexical elements
+    public Lexer(String readFilePath) {
         letterList = Arrays.asList(letters);
         digitsList = Arrays.asList(digits);
         reservedList = Arrays.asList(reserved);
         reservedWordsList = Arrays.asList(reservedWords);
         operatorsList = Arrays.asList(operators);
 
+        // Read filepath
+        filePath = readFilePath;
+        try {
+            inSrcFile = new FileReader(filePath);
+            buff = new BufferFuncs(inSrcFile); 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void closeFileReading() throws Exception {
+        inSrcFile.close();
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public String getFileName() {
         // Split filepath
         String[] splitPath = filePath.split("/");
         String file = splitPath[splitPath.length - 1];
@@ -1296,52 +1307,88 @@ class Lexer {
         // Get filename without extension
         String[] splitFilename = file.split("\\.");
         String originalFilename = splitFilename[0];
-
-        // Initialize file names to output to
-        String tokenFilename = originalFilename + ".outlextokens";
-        String errorFilename = originalFilename + ".outlexerrors";
-        String tokenPath = "";
-        String errorPath = "";
-
-        for (int i = 0; i < splitPath.length - 1; i++) {
-            tokenPath += splitPath[i] + "/";
-            errorPath += splitPath[i] + "/";
-        }
-        tokenPath += tokenFilename;
-        errorPath += errorFilename;
-
-        // Delete files before making new ones;
-        File myFile = new File(tokenPath);
-        if (myFile.exists() && myFile.isFile()) {
-            myFile.delete();
-        }
-        myFile = new File(errorPath);
-        if (myFile.exists() && myFile.isFile()) {
-            myFile.delete();
-        }
-
-        // Initialize writers to files (true == append to file!)
-        tokenFile = new FileWriter(tokenPath, true);
-        errorFile = new FileWriter(errorPath, true);
-        bwToken = new BufferedWriter(tokenFile);
-        bwError = new BufferedWriter(errorFile);
-
-        // // Use for debugging
-        // for (int i = 0; i < 49; i++) {
-        //     buff.setReadLine();
-        // }
-
-        // Read all tokens and write to files simultaneously
-        while (!buff.isEndOfFile()) {
-            TokenType token = createToken();
-            writeToFiles(tokenPath, errorPath, token);
-            token.printAll();
-        }
-
-        // Close files
-        bwToken.close();
-        bwError.close();
-
-        in.close(); // Close filereader
+        return originalFilename;
     }
+
+    // Get the next token and avoid empty tokens
+    public TokenType getNextToken() throws Exception{
+        TokenType token = new TokenType();
+        
+        // If token is empty (space, newline, etc.), loop until next token
+        while (token.getType().equals("NAN")  && !buff.isEndOfFile()) {
+            token = createToken();
+        }
+
+        return token;
+    }
+
+    // public static void main(String args[]) throws Exception {
+
+    //     // Read filepath
+    //     String filePath = args[0];
+    //     FileReader inSrcFile = new FileReader(filePath);
+    //     buff = new BufferFuncs(inSrcFile);
+
+    //     // Initialize given lexical elements
+    //     letterList = Arrays.asList(letters);
+    //     digitsList = Arrays.asList(digits);
+    //     reservedList = Arrays.asList(reserved);
+    //     reservedWordsList = Arrays.asList(reservedWords);
+    //     operatorsList = Arrays.asList(operators);
+
+    //     // Split filepath
+    //     String[] splitPath = filePath.split("/");
+    //     String file = splitPath[splitPath.length - 1];
+
+    //     // Get filename without extension
+    //     String[] splitFilename = file.split("\\.");
+    //     String originalFilename = splitFilename[0];
+
+    //     // Initialize file names to output to
+    //     String tokenFilename = originalFilename + ".outlextokens";
+    //     String errorFilename = originalFilename + ".outlexerrors";
+    //     String tokenPath = "";
+    //     String errorPath = "";
+
+    //     for (int i = 0; i < splitPath.length - 1; i++) {
+    //         tokenPath += splitPath[i] + "/";
+    //         errorPath += splitPath[i] + "/";
+    //     }
+    //     tokenPath += tokenFilename;
+    //     errorPath += errorFilename;
+
+    //     // Delete files before making new ones;
+    //     File myFile = new File(tokenPath);
+    //     if (myFile.exists() && myFile.isFile()) {
+    //         myFile.delete();
+    //     }
+    //     myFile = new File(errorPath);
+    //     if (myFile.exists() && myFile.isFile()) {
+    //         myFile.delete();
+    //     }
+
+    //     // Initialize writers to files (true == append to file!)
+    //     tokenFile = new FileWriter(tokenPath, true);
+    //     errorFile = new FileWriter(errorPath, true);
+    //     bwToken = new BufferedWriter(tokenFile);
+    //     bwError = new BufferedWriter(errorFile);
+
+    //     // // Use for debugging
+    //     // for (int i = 0; i < 49; i++) {
+    //     //     buff.setReadLine();
+    //     // }
+
+    //     // Read all tokens and write to files simultaneously
+    //     while (!buff.isEndOfFile()) {
+    //         TokenType token = createToken();
+    //         writeToFiles(tokenPath, errorPath, token);
+    //         token.printAll();
+    //     }
+
+    //     // Close files
+    //     bwToken.close();
+    //     bwError.close();
+
+    //     inSrcFile.close(); // Close filereader
+    // }
 }
