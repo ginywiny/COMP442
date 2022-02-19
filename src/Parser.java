@@ -6,9 +6,11 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Collections;
 import java.util.Stack;
+import java.util.LinkedList;
 
 public class Parser {
 
@@ -129,26 +131,65 @@ public class Parser {
 
         // Swap last to first order
         String[] normalProductionList = normalProduction.split("\\s");
-        for (int i = normalProductionList.length - 1; i >= 0; i--) {
+        for (int i = 0; i < normalProductionList.length; i++) {
             String emptyCheck = normalProductionList[i].replaceAll("\\s", "");
             if (emptyCheck.length() == 0) {
                 continue;
             }
-            reversedRulesArray.add(emptyCheck);
+            reversedRulesArray.add(0, emptyCheck);
         }
 
         return reversedRulesArray;
     }
 
+    // Print the derivation string (change to output file)
     static void printDerivations() {
         String derivationString = "";
         derivationString += "START => ";
+        // LinkedList<String> stackOut = new LinkedList<>();
+        Stack<String> stackOut = new Stack<>();
 
-        for (int i = derivationList.size() - 1; i >= 0 ; i--) {
-            derivationString += derivationList.get(i) + " ";
+        String tempStack = parseStack.peek();
+        while (!parseStack.empty()) {
+            tempStack = parseStack.peek();
+            if (tempStack.equals(("$"))) {
+                break;
+            }
+            tempStack = parseStack.pop();
+            // stackOut.add(tempStack);
+            stackOut.push(tempStack);
+            derivationString += tempStack + " ";
+        }
+
+        while (!stackOut.empty()) {
+            // parseStack.push(stackOut.remove());
+            parseStack.push(stackOut.pop());
         }
 
         System.out.println(derivationString);
+    }
+
+    // Add derivations to the list
+    // TODO" TRACK DERIVATIONS FROM THE STACK INSTEAD!!!!
+    // THIS IS NO GOOOOOOOOOOOOOOOD!!
+    static void addDerivation(List<String> productions) {
+        if (derivationList.size() == 0) {
+            for (int i = 0; i < productions.size(); i++) {
+                derivationList.add(0, productions.get(i));
+            }
+        }
+        else {
+            for (int i = 0; i < derivationList.size(); i++) {
+                String nonTerminalCheck = derivationList.get(i);
+                if (nonTerminalSymbolsList.contains(nonTerminalCheck)) {
+                    for (int j = 0; j < productions.size(); j++) {
+                        derivationList.remove(i);
+                        derivationList.add(i, productions.get(j));
+                    }
+                    break;
+                }
+            }
+        }
     }
 
 
@@ -177,7 +218,11 @@ public class Parser {
 
                 // If terminal matches the top stack symbol (x == a)
                 if (currentToken.getType().equals(topStack)) {
-                    derivationList.add(topStack);
+                    List<String> tempProd = new ArrayList<>();
+                    tempProd.add(topStack);
+                    // addDerivation(tempProd); // Add to deriation list
+                    // derivationList.add(topStack);
+
                     parseStack.pop();
                     currentToken = lexer.getNextToken();
                 }
@@ -199,9 +244,10 @@ public class Parser {
                 if (reversedNonTerminalRule != null) {
                     parseStack.pop();
                     for (int i = 0; i < reversedNonTerminalRule.size(); i++) {
-                        derivationList.add(reversedNonTerminalRule.get(i));
+                        // derivationList.add(reversedNonTerminalRule.get(i));
                         parseStack.push(reversedNonTerminalRule.get(i));
                     }
+                    // addDerivation(reversedNonTerminalRule); // Add to deriation list
                 }
                 else {
                     // TODO: skipErrors()
@@ -236,23 +282,16 @@ public class Parser {
         // Generate rule dictionary map
         readRules();
 
-        // String[] testSearch = {"row", "column"};
-        // HashMap<List<String>, String> map2 = new HashMap<>();
-        // map2.put(Collections.unmodifiableList(Arrays.asList("row", "col")), "Good1");
-        // System.out.println("Hashmap value: " + map2.get(Arrays.asList(testSearch)));
-
-
-        // List<String> test = getReversedRule("START", "struct");
-        // test = getReversedRule("asdasdasd", "struasdasdasct");
+        // List<String> test = getReversedRule("ARITHEXPR", "lpar");
 
         // Run parser
         parse();
 
-        // TokenType test;
-        // for (int i = 0; i < 15; i++) {
+        // TokenType test2 = new TokenType();
+        // for (int i = 0; i < 40; i++) {
         //     // test = lexer.createToken();
-        //     test = lexer.getNextToken();
-        //     test.printAll();
+        //     test2 = lexer.getNextToken();
+        //     test2.printAll();
         // }
 
 
