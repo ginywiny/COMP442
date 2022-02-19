@@ -3,8 +3,10 @@ import java.io.*;
 import java.io.FileReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.security.spec.ECFieldF2m;
 import java.util.Arrays;
 import java.util.List;
+import java.util.spi.CurrencyNameProvider;
 
 class Lexer {
 
@@ -157,11 +159,12 @@ class Lexer {
         Character peekedChar = buff.peekNextChar();
 
         // Step 1: Check for valid starting character [nonzero] digit* | [0]
-        if (!digitsList.contains(startChar) || (startChar.equals('0') && (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r')))) {
+        if (!digitsList.contains(startChar) || (startChar.equals('0') && (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r') && !operatorsList.contains(peekedChar.toString())))) {
             intString = getInvalidString(startChar.toString());
             return intString;
         }
-        else if (startChar.equals('0') && (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r'))) {
+        // If single digit [0-9]
+        else if (!peekedChar.equals('.') && (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || operatorsList.contains(peekedChar.toString()))) {
             intString += startChar;
             return intString;
         }
@@ -170,11 +173,6 @@ class Lexer {
         intString += startChar;
 
         while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r') && (digitsList.contains(peekedChar) || peekedChar.equals('.'))) {
-            // Get digits 
-            currentChar = buff.getNextChar(); // Increment buffer
-            intString += currentChar; 
-            peekedChar = buff.peekNextChar();
-
             if (peekedChar.equals('.')) {
                 currentChar = buff.getNextChar(); // Increment buffer
                 intString += currentChar; // Add the fraction (.) to the type
@@ -191,7 +189,7 @@ class Lexer {
                 floatString += fractionString;
                 peekedChar = buff.peekNextChar();
 
-                if (fractionString.charAt(fractionString.length() -1 ) == INVALIDSIGN || peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                if (fractionString.charAt(fractionString.length() -1 ) == INVALIDSIGN || peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || operatorsList.contains(peekedChar.toString())) {
                     return floatString;
                 }
                 else if (peekedChar.equals('e')) {
@@ -199,9 +197,15 @@ class Lexer {
                     floatString += exponentString;
                     return floatString;
                 }
+                // else if (operatorsList.contains(peekedChar.toString()) && .)
             }
+
+            // Get digits 
+            currentChar = buff.getNextChar(); // Increment buffer
+            intString += currentChar; 
+            peekedChar = buff.peekNextChar();
         }
-        if (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r') && (!digitsList.contains(peekedChar))) {
+        if (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r') && (!digitsList.contains(peekedChar) && !operatorsList.contains(peekedChar.toString()))) {
             intString = getInvalidString(startChar.toString());
             return intString;
         }
@@ -219,17 +223,27 @@ class Lexer {
         exponentString += currentChar;
 
         // if (currentChar.equals('e') && (peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || digitsList.contains(peekedChar))) {
-        if (currentChar.equals('e') && (peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r'))) {
+        if (currentChar.equals('e') && (peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || operatorsList.contains(peekedChar.toString()))) {
             exponentString += INVALIDSIGN;
             return exponentString;
         }
 
-        // Step 2: Get +/- integer
-        if (peekedChar.equals('-') || (digitsList.contains(peekedChar) && !peekedChar.equals('0'))) {
-            currentChar = buff.getNextChar();
-            peekedChar = buff.peekNextChar();
-            exponentString += currentChar;
+        currentChar = buff.getNextChar();
+        peekedChar = buff.peekNextChar();
+        exponentString += currentChar;
 
+        if (currentChar.equals('0') && digitsList.contains(peekedChar)) {
+            while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r') && !operatorsList.contains(peekedChar.toString())) {
+                currentChar = buff.getNextChar();
+                peekedChar = buff.peekNextChar();
+                exponentString += currentChar;
+            }
+            exponentString += INVALIDSIGN;
+            return exponentString; 
+        }
+
+        // Step 2: Get +/- integer
+        if (peekedChar.equals('-') || (digitsList.contains(peekedChar))) {
             while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r') && digitsList.contains(peekedChar)) {
                 currentChar = buff.getNextChar();
                 peekedChar = buff.peekNextChar();
@@ -240,7 +254,7 @@ class Lexer {
             }
         }
         // Set invalid if problem found
-        if (peekedChar.equals('0') || (!digitsList.contains(peekedChar) && !peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r'))) {
+        if (peekedChar.equals('0') || (!operatorsList.contains(peekedChar.toString()) && !digitsList.contains(peekedChar) && !peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r'))) {
             while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r')) {
                 currentChar = buff.getNextChar();
                 peekedChar = buff.peekNextChar();
@@ -256,21 +270,28 @@ class Lexer {
 
         Character currentChar = buff.getNextChar();
         String floatString = "";
+        Character peekedChar = buff.peekNextChar();
+        floatString += currentChar;
 
         // Step 1: Check if valid digit or if ending in: .digit* nonzero | [.0]
         if (!digitsList.contains(currentChar)) {
+            floatString += INVALIDSIGN;
             return floatString;
         }
 
+        // // End in .0 or .[1-9] 
+        // else if ((operatorsList.contains(peekedChar.toString()) || peekedChar.equals('e')) && digitsList.contains(currentChar)) {
+        //     floatString += currentChar;
+        //     return floatString;
+        // }
+
+        // End in .0 or .[1-9] 
         else if (currentChar.equals('0')) {
-            floatString += currentChar;
+            // floatString += currentChar;
             return floatString;
         }
 
         // Step 2: Check if digit or nonzero: .[digit* nonzero] | .0
-        Character peekedChar = buff.peekNextChar();
-        floatString += currentChar;
-
         // Check for nonzero: .digit* [nonzero] | .0
         // Check for long stream of 0's, and if there is a digit after them (eg. 10.0001) 
         while (!peekedChar.equals(' ') && !peekedChar.equals('	') && !peekedChar.equals('\n') && !peekedChar.equals('\r') && (digitsList.contains(peekedChar))) {
@@ -323,6 +344,7 @@ class Lexer {
 
             floatString += currentChar; 
         }
+        
         return floatString;
     }
 
@@ -1320,6 +1342,63 @@ class Lexer {
         }
 
         return token;
+    }
+
+    // For debugging
+    public void skipReadLine(int lineSkips) throws Exception{
+        for (int i = 0; i < lineSkips; i++) {
+            buff.setReadLine();
+        }
+    }
+
+    public void writeTokenFiles() throws Exception {
+        // Split filepath
+        String[] splitPath = filePath.split("/");
+        String file = splitPath[splitPath.length - 1];
+
+        // Get filename without extension
+        String[] splitFilename = file.split("\\.");
+        String originalFilename = splitFilename[0];
+
+        // Initialize file names to output to
+        String tokenFilename = originalFilename + ".outlextokens";
+        String errorFilename = originalFilename + ".outlexerrors";
+        String tokenPath = "";
+        String errorPath = "";
+
+        for (int i = 0; i < splitPath.length - 1; i++) {
+            tokenPath += splitPath[i] + "/";
+            errorPath += splitPath[i] + "/";
+        }
+        tokenPath += tokenFilename;
+        errorPath += errorFilename;
+
+        // Delete files before making new ones;
+        File myFile = new File(tokenPath);
+        if (myFile.exists() && myFile.isFile()) {
+            myFile.delete();
+        }
+        myFile = new File(errorPath);
+        if (myFile.exists() && myFile.isFile()) {
+            myFile.delete();
+        }
+
+        // Initialize writers to files (true == append to file!)
+        tokenFile = new FileWriter(tokenPath, true);
+        errorFile = new FileWriter(errorPath, true);
+        bwToken = new BufferedWriter(tokenFile);
+        bwError = new BufferedWriter(errorFile);
+
+        // Read all tokens and write to files simultaneously
+        while (!buff.isEndOfFile()) {
+            TokenType token = createToken();
+            writeToFiles(tokenPath, errorPath, token);
+            // token.printAll();
+        }
+
+        // Close files
+        bwToken.close();
+        bwError.close();
     }
 
     // public static void main(String args[]) throws Exception {

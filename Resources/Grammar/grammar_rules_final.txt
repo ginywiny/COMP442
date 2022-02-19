@@ -27,8 +27,8 @@ FACTOR1 -> REPTIDNEST1 FACTOR2 .
 FACTOR1 -> openpar APARAMS closepar FACTOR2 .
 FACTOR2 -> dot id FACTOR1 .
 FACTOR2 -> .
-FACTOR -> intlit  . 
-FACTOR -> floatlit  . 
+FACTOR -> intnum  . 
+FACTOR -> floatnum  . 
 FACTOR -> openpar ARITHEXPR closepar  . 
 FACTOR -> not FACTOR  . 
 FACTOR -> SIGN FACTOR  . 

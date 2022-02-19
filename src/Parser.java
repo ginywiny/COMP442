@@ -6,18 +6,18 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Collections;
 import java.util.Stack;
-import java.util.LinkedList;
 
 public class Parser {
 
     static String RULEARROW = "->";
+    static String LAMBDATRANSITION = "&epsilon";
 
     // Rules
-    static String rulesFilePath = "/home/michael/Documents/School/COMP442/COMP442_ProjectRepo/Resources/Grammar/table.csv"; // Absolute path CHANGE THIS WHEN UPLOADING, RELATE TO PROJECT DIR
+    // static String rulesFilePath = "/home/michael/Documents/School/COMP442/COMP442_ProjectRepo/Resources/Grammar/table.csv"; // Absolute path CHANGE THIS WHEN UPLOADING, RELATE TO PROJECT DIR
+    static String rulesFilePath = "/home/michael/Documents/School/COMP442/COMP442_ProjectRepo/Resources/Grammar/table2.csv"; // Absolute path CHANGE THIS WHEN UPLOADING, RELATE TO PROJECT DIR
     // static String rulesFilePath = "../Resources/Grammar/table.csv"; //TODO: UNCOMMMENT WHEN RUNNING NORMALLY! 
     // static String rulesFilePath = "Resources/Grammar/table.csv"; // TODO: UNCOMMENT WHEN DEBUGGING
     static HashMap<List<String>, String> ruleMap = new HashMap<>();;
@@ -41,10 +41,16 @@ public class Parser {
         "VARIABLE3", "VISIBILITY"};
     static List<String> nonTerminalSymbolsList;
         
+    // static String[] terminalSymbols = {
+    //     "," , "+", "-", "|", "[", "intLit", "]", "=", "struct", "id", "{", "}", ";", "(", ")", "floatLit", "!", ":"
+    //     , "void", ".", "*", "/", "&", "inherits", "eq", "geq", "gt", "leq", "lt", "neq", "if", "then", "else", "read"
+    //     , "return", "while", "write", "float", "integer", "private", "public", "func", "impl", "let" 
+    // };
     static String[] terminalSymbols = {
-        "," , "+", "-", "|", "[", "intLit", "]", "=", "struct", "id", "{", "}", ";", "(", ")", "floatLit", "!", ":"
-        , "void", ".", "*", "/", "&", "inherits", "eq", "geq", "gt", "leq", "lt", "neq", "if", "then", "else", "read"
-        , "return", "while", "write", "float", "integer", "private", "public", "func", "impl", "let" 
+        "comma" , "plus", "minus", "or", "arrow", "opensqbr", "closesqbr", "assign", "struct", "id", "opencubr",
+        "closecubr", "semi", "openpar", "closepar", "not", "colon", "floatnum", "intnum",
+        "void", "dot", "mult", "div", "and", "inherits", "eq", "geq", "gt", "leq", "lt", "noteq", "if", "then", "else", "read",
+        "return", "while", "write", "float", "integer", "private", "public", "func", "impl", "let" 
     };
     static List<String> terminalSymbolsList;
 
@@ -213,16 +219,16 @@ public class Parser {
         // Parse the file
         while (!topStack.equals("$")) {
             topStack = parseStack.peek();
+
+            // Remove lambda from derivations
+            if (topStack.equals(LAMBDATRANSITION)) {
+                parseStack.pop();
+            }
             // Check if top of stack is a terminal (x element of T)
-            if (terminalSymbolsList.contains(topStack)) {
+            else if (terminalSymbolsList.contains(topStack)) {
 
                 // If terminal matches the top stack symbol (x == a)
                 if (currentToken.getType().equals(topStack)) {
-                    List<String> tempProd = new ArrayList<>();
-                    tempProd.add(topStack);
-                    // addDerivation(tempProd); // Add to deriation list
-                    // derivationList.add(topStack);
-
                     parseStack.pop();
                     currentToken = lexer.getNextToken();
                 }
@@ -235,6 +241,7 @@ public class Parser {
             }
             // Skip comments
             else if (currentToken.getType().equals("inlinecmt") || currentToken.getType().equals("blockcmt")) {
+                System.out.println("Skipped comment: " + currentToken.getValue());
                 currentToken = lexer.getNextToken();
             }
             // If top of stack is a non-terminal
@@ -244,14 +251,13 @@ public class Parser {
                 if (reversedNonTerminalRule != null) {
                     parseStack.pop();
                     for (int i = 0; i < reversedNonTerminalRule.size(); i++) {
-                        // derivationList.add(reversedNonTerminalRule.get(i));
                         parseStack.push(reversedNonTerminalRule.get(i));
                     }
-                    // addDerivation(reversedNonTerminalRule); // Add to deriation list
                 }
                 else {
                     // TODO: skipErrors()
                     // TODO: error = true
+                    System.out.println("Error at: " + currentToken.getValue() + " " + currentToken.getLineNumber());
                     errorFlag = true;
                 }
             }
@@ -282,14 +288,14 @@ public class Parser {
         // Generate rule dictionary map
         readRules();
 
-        // List<String> test = getReversedRule("ARITHEXPR", "lpar");
+        lexer.writeTokenFiles();
 
         // Run parser
-        parse();
+        // parse();
 
+        // lexer.skipReadLine(11);
         // TokenType test2 = new TokenType();
         // for (int i = 0; i < 40; i++) {
-        //     // test = lexer.createToken();
         //     test2 = lexer.getNextToken();
         //     test2.printAll();
         // }
