@@ -123,6 +123,7 @@ public class Parser {
         }
     }
 
+    // Row:Col
     static List<String> getReversedRule(String row, String col) {
         List<String> reversedRulesArray = new ArrayList<>();
 
@@ -176,8 +177,6 @@ public class Parser {
     }
 
     // Add derivations to the list
-    // TODO" TRACK DERIVATIONS FROM THE STACK INSTEAD!!!!
-    // THIS IS NO GOOOOOOOOOOOOOOOD!!
     static void addDerivation(List<String> productions) {
         if (derivationList.size() == 0) {
             for (int i = 0; i < productions.size(); i++) {
@@ -205,9 +204,6 @@ public class Parser {
         parseStack.push("$");
         parseStack.push("START");
 
-        // derivationList.add("START");
-        // derivationList.add("=>");
-
         // Get current token and top of stack
         TokenType currentToken = lexer.getNextToken();
         String topStack = parseStack.peek();
@@ -217,13 +213,33 @@ public class Parser {
         while (!topStack.equals("$")) {
             topStack = parseStack.peek();
 
+            if (currentToken.getType().equals("EOF")) {
+                // Get $ from the EOF token from the LEXER
+                List<String> reversedNonTerminalRule = getReversedRule(topStack, currentToken.getValue()); // Get REPTPROG0:$
+                if (reversedNonTerminalRule != null) {
+                    parseStack.pop();
+                    for (int i = 0; i < reversedNonTerminalRule.size(); i++) {
+                        parseStack.push(reversedNonTerminalRule.get(i));
+                    }
+                    // No more tokens! Set to null
+                    currentToken = new TokenType();
+                    // System.out.println("EOF Stack Contents: " + Arrays.toString(parseStack.toArray()));
+                }
+                else {
+                    // TODO: skipErrors()
+                    // TODO: error = true
+                    System.out.println("Error at: " + currentToken.getValue() + " " + currentToken.getLineNumber());
+                    errorFlag = true;
+                }
+            }
+
             // Remove lambda from derivations
-            if (topStack.equals(LAMBDATRANSITION)) {
+            else if (topStack.equals(LAMBDATRANSITION)) {
                 parseStack.pop();
+                topStack = parseStack.peek();
             }
             // Check if top of stack is a terminal (x element of T)
             else if (terminalSymbolsList.contains(topStack)) {
-
                 // If terminal matches the top stack symbol (x == a)
                 if (currentToken.getType().equals(topStack)) {
                     parseStack.pop();
@@ -234,11 +250,10 @@ public class Parser {
                     // TODO: error = true
                     errorFlag = true;
                 }
-
             }
             // Skip comments
             else if (currentToken.getType().equals("inlinecmt") || currentToken.getType().equals("blockcmt")) {
-                System.out.println("Skipped comment: " + currentToken.getValue());
+                // System.out.println("Skipped comment: " + currentToken.getValue());
                 currentToken = lexer.getNextToken();
             }
             // If top of stack is a non-terminal
@@ -285,18 +300,27 @@ public class Parser {
         // Generate rule dictionary map
         readRules();
 
-        // lexer.writeTokenFiles();
+        // // Use to generate the files
+        // try {
+        //     lexer.writeTokenFiles();
+        // }
+        // catch (Exception e) {
+        //     System.out.println("We stopped here");
+        // }
 
-        // Run parser
-        // TODO: Fix REPTPROG0 issue
-        parse();
-
-        // lexer.skipReadLine(11);
+        // lexer.skipReadLine(70);
         // TokenType test2 = new TokenType();
         // for (int i = 0; i < 40; i++) {
         //     test2 = lexer.getNextToken();
         //     test2.printAll();
         // }
+
+
+
+        // Run parser
+        parse();
+
+        
 
 
         

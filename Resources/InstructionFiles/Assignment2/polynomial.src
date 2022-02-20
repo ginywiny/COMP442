@@ -11,9 +11,9 @@ struct LINEAR inherits POLYNOMIAL {
 };
 
 struct QUADRATIC inherits POLYNOMIAL {
-	private let float a;
-	private let float b;
-	private let float c;
+	private let a: float;
+	private let b: float;
+	private let c: float;
 	public  func build(A: float, B: float, C: float) -> QUADRATIC;
 	public  func evaluate(x: float) -> float;
 };

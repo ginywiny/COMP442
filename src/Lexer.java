@@ -550,7 +550,7 @@ class Lexer {
                     if (tokenValue.equals("if")) {
                         // Check if end of word or if word continues and is actually an ID
                         peekedChar = buff.peekNextChar();
-                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || operatorsList.contains(peekedChar.toString())) {
                             // TODO: Test This
                             token.setAll(tokenValue, tokenValue, lineNumber);
                             return token;
@@ -579,7 +579,7 @@ class Lexer {
 
                         // Check if end of word or if word continues and is actually an ID
                         peekedChar = buff.peekNextChar();
-                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || operatorsList.contains(peekedChar.toString())) {
                             // TODO: Test This
                             token.setAll(tokenValue, tokenValue, lineNumber);
                             return token;
@@ -613,7 +613,7 @@ class Lexer {
     
                             // Check if end of word or if word continues and is actually an ID
                             peekedChar = buff.peekNextChar();
-                            if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                            if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || operatorsList.contains(peekedChar.toString())) {
                                 // TODO: Test this
                                 token.setAll(tokenValue, tokenValue, lineNumber);
                                 return token;
@@ -643,7 +643,7 @@ class Lexer {
     
                             // Check if end of word or if word continues and is actually an ID
                             peekedChar = buff.peekNextChar();
-                            if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                            if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || operatorsList.contains(peekedChar.toString())) {
                                 // TODO: Test This
                                 token.setAll(tokenValue, tokenValue, lineNumber);
                                 return token;
@@ -684,7 +684,7 @@ class Lexer {
                     if (tokenValue.equals("then")) {
                         // Check if end of word or if word continues and is actually an ID
                         peekedChar = buff.peekNextChar();
-                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || operatorsList.contains(peekedChar.toString())) {
                             // TODO: Test This
                             token.setAll(tokenValue, tokenValue, lineNumber);
                             return token;
@@ -723,7 +723,7 @@ class Lexer {
                     if (tokenValue.equals("else")) {
                         // Check if end of word or if word continues and is actually an ID
                         peekedChar = buff.peekNextChar();
-                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || operatorsList.contains(peekedChar.toString())) {
                             // TODO: Test this
                             token.setAll(tokenValue, tokenValue, lineNumber);
                             return token;
@@ -758,7 +758,7 @@ class Lexer {
                     if (tokenValue.equals("float")) {
                         // Check if end of word or if word continues and is actually an ID
                         peekedChar = buff.peekNextChar();
-                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || operatorsList.contains(peekedChar.toString())) {
                             //TODO: Test this
                             token.setAll(tokenValue, tokenValue, lineNumber);
                             return token;
@@ -786,7 +786,7 @@ class Lexer {
                     if (tokenValue.equals("func")) {
                         // Check if end of word or if word continues and is actually an ID
                         peekedChar = buff.peekNextChar();
-                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || operatorsList.contains(peekedChar.toString())) {
                             // TODO: Test this
                             token.setAll(tokenValue, tokenValue, lineNumber);
                             return token;
@@ -826,7 +826,7 @@ class Lexer {
                     if (tokenValue.equals("void")) {
                         // Check if end of word or if word continues and is actually an ID
                         peekedChar = buff.peekNextChar();
-                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || operatorsList.contains(peekedChar.toString())) {
                             //TODO: Test this
                             token.setAll(tokenValue, tokenValue, lineNumber);
                             return token;
@@ -854,7 +854,7 @@ class Lexer {
                     if (tokenValue.equals("var")) {
                         // Check if end of word or if word continues and is actually an ID
                         peekedChar = buff.peekNextChar();
-                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || operatorsList.contains(peekedChar.toString())) {
                             // TODO: Test this
                             token.setAll(tokenValue, tokenValue, lineNumber);
                             return token;
@@ -894,7 +894,7 @@ class Lexer {
                     if (tokenValue.equals("public")) {
                         // Check if end of word or if word continues and is actually an ID
                         peekedChar = buff.peekNextChar();
-                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || operatorsList.contains(peekedChar.toString())) {
                             // TODO: Test this
                             token.setAll(tokenValue, tokenValue, lineNumber);
                             return token;
@@ -922,7 +922,7 @@ class Lexer {
                     if (tokenValue.equals("private")) {
                         // Check if end of word or if word continues and is actually an ID
                         peekedChar = buff.peekNextChar();
-                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || operatorsList.contains(peekedChar.toString())) {
                             // TODO: Test this
                             token.setAll(tokenValue, tokenValue, lineNumber);
                             return token;
@@ -961,7 +961,7 @@ class Lexer {
                     if (tokenValue.equals("struct")) {
                         // Check if end of word or if word continues and is actually an ID
                         peekedChar = buff.peekNextChar();
-                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || operatorsList.contains(peekedChar.toString())) {
                             // TODO: Test this
                             token.setAll(tokenValue, tokenValue, lineNumber);
                             return token;
@@ -989,7 +989,7 @@ class Lexer {
                     if (tokenValue.equals("self")) {
                         // Check if end of word or if word continues and is actually an ID
                         peekedChar = buff.peekNextChar();
-                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || operatorsList.contains(peekedChar.toString())) {
                             // TODO: Test this
                             token.setAll(tokenValue, tokenValue, lineNumber);
                             return token;
@@ -1028,7 +1028,7 @@ class Lexer {
                     if (tokenValue.equals("while")) {
                         // Check if end of word or if word continues and is actually an ID
                         peekedChar = buff.peekNextChar();
-                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || operatorsList.contains(peekedChar.toString())) {
                             // TODO: Test this
                             token.setAll(tokenValue, tokenValue, lineNumber);
                             return token;
@@ -1056,7 +1056,7 @@ class Lexer {
                     if (tokenValue.equals("write")) {
                         // Check if end of word or if word continues and is actually an ID
                         peekedChar = buff.peekNextChar();
-                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || operatorsList.contains(peekedChar.toString())) {
                             // TODO: Test this
                             token.setAll(tokenValue, tokenValue, lineNumber);
                             return token;
@@ -1099,7 +1099,7 @@ class Lexer {
                         if (tokenValue.equals("read")) {
                             // Check if end of word or if word continues and is actually an ID
                             peekedChar = buff.peekNextChar();
-                            if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                            if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || operatorsList.contains(peekedChar.toString())) {
                                 // TODO: Test this
                                 token.setAll(tokenValue, tokenValue, lineNumber);
                                 return token;
@@ -1127,7 +1127,7 @@ class Lexer {
                         if (tokenValue.equals("return")) {
                             // Check if end of word or if word continues and is actually an ID
                             peekedChar = buff.peekNextChar();
-                            if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                            if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || operatorsList.contains(peekedChar.toString())) {
                                 // TODO: Test this
                                 token.setAll(tokenValue, tokenValue, lineNumber);
                                 return token;
@@ -1173,7 +1173,7 @@ class Lexer {
                     if (tokenValue.equals("let")) {
                         // Check if end of word or if word continues and is actually an ID
                         peekedChar = buff.peekNextChar();
-                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r')) {
+                        if (peekedChar.equals(' ') || peekedChar.equals('	') || peekedChar.equals('\n') || peekedChar.equals('\r') || operatorsList.contains(peekedChar.toString())) {
                             // TODO: Test this
                             token.setAll(tokenValue, tokenValue, lineNumber);
                             return token;
