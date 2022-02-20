@@ -60,6 +60,7 @@ class Lexer {
     static BufferedWriter bwError;
 
     static String filePath;
+    static String dirFilePathWithoutName;
 
     /*---------------------------------------------------------------*/
     
@@ -1322,6 +1323,17 @@ class Lexer {
         return filePath;
     }
 
+    public String getFilePathWithoutName() {
+        // Split filepath
+        dirFilePathWithoutName = "";
+        String[] splitPath = filePath.split("/");
+        for (int i = 0; i < splitPath.length - 1; i++) {
+            dirFilePathWithoutName += splitPath[i] + "/";
+        }
+
+        return dirFilePathWithoutName;
+    }
+
     public String getLineNumber() {
         String lineNumberString = String.valueOf(lineNumber);
         return lineNumberString;
@@ -1351,6 +1363,7 @@ class Lexer {
         // Write EOF character
         if (buff.isEndOfFile()) {
             token.setAll("EOF", "$", lineNumber);
+            inSrcFile.close();
         }
 
         return token;
