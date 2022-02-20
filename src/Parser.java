@@ -16,11 +16,12 @@ public class Parser {
     static String LAMBDATRANSITION = "&epsilon";
 
     // Rules
-    // static String rulesFilePath = "/home/michael/Documents/School/COMP442/COMP442_ProjectRepo/Resources/Grammar/table.csv"; // Absolute path CHANGE THIS WHEN UPLOADING, RELATE TO PROJECT DIR
-    static String rulesFilePath = "/home/michael/Documents/School/COMP442/COMP442_ProjectRepo/Resources/Grammar/table2.csv"; // Absolute path CHANGE THIS WHEN UPLOADING, RELATE TO PROJECT DIR
+    static String rulesFilePath = "/home/michael/Documents/School/COMP442/COMP442_ProjectRepo/Resources/Grammar/table.csv"; // Absolute path CHANGE THIS WHEN UPLOADING, RELATE TO PROJECT DIR
     // static String rulesFilePath = "../Resources/Grammar/table.csv"; //TODO: UNCOMMMENT WHEN RUNNING NORMALLY! 
     // static String rulesFilePath = "Resources/Grammar/table.csv"; // TODO: UNCOMMENT WHEN DEBUGGING
-    static HashMap<List<String>, String> ruleMap = new HashMap<>();;
+    static String firstFollowSetsFilePath = "/home/michael/Documents/School/COMP442/COMP442_ProjectRepo/Resources/Grammar/first_follow_sets.csv";
+    static HashMap<List<String>, String> ruleMap = new HashMap<>();
+    static HashMap<List<String>, List<String>> firstFollowMap = new HashMap<>();
 
     // Output files
     static FileWriter derivationFile;
@@ -103,6 +104,7 @@ public class Parser {
             List<String> currentNonTerminalRow = nonTerminals.get(i);
 
             // Start at 1 to skip empty 0 column of terminals
+            // for (int j = 1; j < currentNonTerminalRow.size(); j++){
             for (int j = 1; j < terminals.size(); j++){
                 // Check if the column is empty
                 String currentNonTerminalCol = currentNonTerminalRow.get(j);
@@ -122,6 +124,82 @@ public class Parser {
             }
         }
     }
+
+
+
+
+
+
+    // Put all first and follow sets into a hashmap
+    static void readFirstFollowSets() throws Exception {
+        // Parse first follow sets file and create arraylist of all contents
+        List<String[]> contents = new ArrayList<>();
+        FileReader temp = new FileReader(firstFollowSetsFilePath);
+        try(BufferedReader br = new BufferedReader(temp)) {
+            String line = "";
+            while ((line = br.readLine()) != null) {
+                contents.add(line.split(","));
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        temp.close();
+
+        // Read all terminals (columns) from the csv file 
+        List<String> terminals = new ArrayList<>();
+        for (int i = 0; i < contents.get(0).length; i++) {
+            terminals.add(contents.get(0)[i]);
+        }
+
+        // Get the arraylist of state transitions for each NONTERMINAL
+        // Start from 1 to skip the terminal row
+        List<List<String>> nonTerminals = new ArrayList<>();
+        for (int i = 1; i < contents.size(); i++) {
+            String[] terminalRow = contents.get(i);
+            List<String> currentRowList = new ArrayList<>(); 
+
+            for (int j = 0; j < terminalRow.length; j++) {
+                currentRowList.add(terminalRow[j]);
+            }
+            nonTerminals.add(currentRowList);
+        }
+
+        
+        // Loop through the non-terminals
+        for (int i = 0; i < nonTerminals.size(); i++) {
+            // Get the row for the non-terminal
+            List<String> currentNonTerminalRow = nonTerminals.get(i);
+
+            // Start at 1 to skip empty 0 column of terminals
+            for (int j = 1; j < currentNonTerminalRow.size(); j++){
+                // Check if the column is empty
+                String currentNonTerminalCol = currentNonTerminalRow.get(j);
+                String emptyCheck = currentNonTerminalCol.replaceAll("\\s", "");
+                if (emptyCheck.length() == 0) {
+                    continue;
+                }
+
+                // Print and save rule to hashmap
+                int row = i + 1;
+                String rowNonTerminal = currentNonTerminalRow.get(0); // Nonterminal: START, ARRAYSIZE, etc.
+                String colTerminal = terminals.get(j); // Column set: First, follow
+
+                String rowColSet = currentNonTerminalRow.get(j); // Get the set list as a string
+                String[] rowColSetArr = rowColSet.split(" ");
+                List<String> setList = Arrays.asList(rowColSetArr);
+
+                // System.out.println("Row: " + row + " Col: " + j + " " + rowNonTerminal + " " + colTerminal + " " + setList);
+                firstFollowMap.put(Collections.unmodifiableList(Arrays.asList(rowNonTerminal, colTerminal)), setList); // (row, col)
+            }
+        }
+    }
+
+
+
+
+
+
+
 
     // Row:Col
     static List<String> getReversedRule(String row, String col) {
@@ -149,6 +227,7 @@ public class Parser {
         return reversedRulesArray;
     }
 
+    // TODO: Change for file output (derivation file)
     // Print the derivation string (change to output file)
     static void printDerivations() {
         String derivationString = "";
@@ -285,6 +364,18 @@ public class Parser {
 
     }
 
+
+
+    // TODO: Change for error file output
+    public void skipErrors() {
+        String line = lexer.getLineNumber();
+        System.out.println("Syntax error at: " + line);
+
+        if ()
+    }
+
+    
+
     public static void main(String args[]) throws Exception{
 
         // Initialize terminal and non-terminal arraylist to search from when parsing
@@ -299,6 +390,14 @@ public class Parser {
 
         // Generate rule dictionary map
         readRules();
+        // String test = ruleMap.get(Arrays.asList("START", "$"));
+
+        // Generate first follow sets dictionary map
+        readFirstFollowSets();
+        // List<String> firstSet = firstFollowMap.get(Arrays.asList("START", "first"));
+        // firstSet = firstFollowMap.get(Arrays.asList("START", "follow"));
+        // firstSet = firstFollowMap.get(Arrays.asList("ARRAYSIZE1", "follow"));
+
 
         // // Use to generate the files
         // try {

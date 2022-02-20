@@ -6,7 +6,7 @@ public class BufferFuncs {
 
     BufferFuncs(FileReader file) {
         // this.buff = new BufferedReader(file);
-        this.buff = new LineNumberReader(file);
+        buff = new LineNumberReader(file);
     }
 
 

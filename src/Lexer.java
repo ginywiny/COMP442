@@ -359,7 +359,6 @@ class Lexer {
         lineNumber = buff.getLineNumber() + 1; // Indexed by 0, add 1
         Character currentChar = buff.getNextChar();
         TokenType token = new TokenType(); // Initialize to [NAN, NAN, -1]
-        // TODO: To fix
         if (currentChar == null) {
             return token;
         }
@@ -370,7 +369,7 @@ class Lexer {
         // New line, increment line count
         // Dont use \r return line, since that will increment the count again!
         if (currentChar.equals('\n')) {
-            return token; // TODO: Fix this
+            return token;
         }
         else if (currentChar.equals('=')) {
             Character peekedChar = buff.peekNextChar();
@@ -1321,6 +1320,11 @@ class Lexer {
 
     public String getFilePath() {
         return filePath;
+    }
+
+    public String getLineNumber() {
+        String lineNumberString = String.valueOf(lineNumber);
+        return lineNumberString;
     }
 
     public String getFileName() {
