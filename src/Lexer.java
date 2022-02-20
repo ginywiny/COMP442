@@ -451,6 +451,7 @@ class Lexer {
                     }
                     else {
                         tokenValue += currentChar;
+                        // System.out.println("CURRENT: " + tokenValue);
                     }
 
                     peekedChar = buff.peekNextChar(); // Check for */
@@ -464,6 +465,7 @@ class Lexer {
                             currentChar = buff.getNextChar();
                             tokenValue += currentChar;
                             token.setAll("blockcmt", tokenValue, startLineCount);
+                            return token;
                         }
                     }
                     // If comments not closed
@@ -1336,9 +1338,15 @@ class Lexer {
     public TokenType getNextToken() throws Exception{
         TokenType token = new TokenType();
         
+        // TODO: Check if we need to place THIS in an IF/ELSE as well!
         // If token is empty (space, newline, etc.), loop until next token
         while (token.getType().equals("NAN")  && !buff.isEndOfFile()) {
             token = createToken();
+        }
+        
+        // Write EOF character
+        if (buff.isEndOfFile()) {
+            token.setAll("EOF", "$", lineNumber);
         }
 
         return token;
@@ -1391,9 +1399,10 @@ class Lexer {
 
         // Read all tokens and write to files simultaneously
         while (!buff.isEndOfFile()) {
-            TokenType token = createToken();
+            // TokenType token = createToken();
+            TokenType token = getNextToken();
             writeToFiles(tokenPath, errorPath, token);
-            // token.printAll();
+            token.printAll();
         }
 
         // Close files

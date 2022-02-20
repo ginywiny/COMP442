@@ -201,9 +201,6 @@ public class Parser {
 
     // Parse the tokens
     static Boolean parse() throws Exception {
-        List<String> derivationString = new ArrayList<>(); 
-        List<String> startString = new ArrayList<>(); 
-
         // Base case to start syntax analysis
         parseStack.push("$");
         parseStack.push("START");
@@ -288,10 +285,11 @@ public class Parser {
         // Generate rule dictionary map
         readRules();
 
-        lexer.writeTokenFiles();
+        // lexer.writeTokenFiles();
 
         // Run parser
-        // parse();
+        // TODO: Fix REPTPROG0 issue
+        parse();
 
         // lexer.skipReadLine(11);
         // TokenType test2 = new TokenType();
