@@ -358,29 +358,38 @@ public class Parser {
 
     }
 
-    // TODO: Change for error file output
-    // TODO: Figure out fix for terminal on top of stack: first set is Null, follow set is Null, NEVER WORKS! INFINITE LOOP Test 1 polynomial.src
     static public void skipErrors() throws Exception {
+        // TODO: Fix comment message
         String line = lexer.getLineNumber();
-        String errorMessage = "Syntax error: " + currentToken.getValue() + "line: " + line + " expected: " + "JOE MAMA";
+        String errorMessage = "Syntax error: " + currentToken.getValue() + " at line: " + line + " expected: " + "JOE MAMA";
         System.out.println(errorMessage);
-        
-        // TODO: Comment to remove writing to files
-        // writeParserOutputFiles(errorMessage, false); // TODO: Uncomment when skipErrors works!
 
-        List<String> firstSet = firstFollowMap.get(Arrays.asList(parseStack.peek(), "first")); // FIRST(top())
-        List<String> followSet = firstFollowMap.get(Arrays.asList(parseStack.peek(), "follow")); // FOLLOW(top())
+        // Write to error file
+        writeParserOutputFiles(errorMessage, false);
 
+        String stackTop = parseStack.peek();
+        List<String> firstSet = firstFollowMap.get(Arrays.asList(stackTop, "first")); // FIRST(top())
+        List<String> followSet = firstFollowMap.get(Arrays.asList(stackTop, "follow")); // FOLLOW(top())
+
+        // If a terminal!
+        if (firstSet == null && followSet == null) {
+            // Make terminal the first set
+            firstSet = new ArrayList<>();
+            firstSet.add(stackTop);
+            followSet = new ArrayList<>();
+            followSet.add("NAN");
+        }
+        // If non-terminal has no firstSet
         if (firstSet == null) {
             firstSet = new ArrayList<>();
             firstSet.add("NAN");
         }
+        // If non-terminal has no followSet
         if (followSet == null) {
             followSet = new ArrayList<>();
             followSet.add("NAN");
         }
 
-        // TODO: Figure out fix for terminal on top of stack: first set is Null, follow set is Null, NEVER WORKS! INFINITE LOOP Test 1 polynomial.src
         if (currentToken.getType().equals("EOF") || followSet.contains(currentToken.getType())) {
             parseStack.pop();
         }
