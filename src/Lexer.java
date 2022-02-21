@@ -3,10 +3,8 @@ import java.io.*;
 import java.io.FileReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.security.spec.ECFieldF2m;
 import java.util.Arrays;
 import java.util.List;
-import java.util.spi.CurrencyNameProvider;
 
 class Lexer {
 
