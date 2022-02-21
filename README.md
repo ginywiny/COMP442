@@ -12,11 +12,11 @@ Compiler design
 ## How to run as executable
 1. Open console
 2. Enter src directory: `cd src`
-3. Run program with `java -jar parsedriver.jar <testfile>`
+3. Run program with `java -jar parserdriver.jar <testfile>`
 4. Testfiles are found within the testfiles directory
-5. Test 1: `java -jar parsedriver.jar ../testfiles/bubblesort.src`
-6. Test 2: `java -jar parsedriver.jar ../testfiles/polynomial.src`
-7. Test 3: `java -jar parsedriver.jar ../testfiles/polynomial_EDITED.src`
+5. Test 1: `java -jar parserdriver.jar ../testfiles/bubblesort.src`
+6. Test 2: `java -jar parserdriver.jar ../testfiles/polynomial.src`
+7. Test 3: `java -jar parserdriver.jar ../testfiles/polynomial_EDITED.src`
 8. Derivation and error files are all found within the same testfiles directory
 
 ## How to run without executable
