@@ -50,6 +50,7 @@ class Lexer {
     static BufferFuncs buff;
     static int lineNumber = 1;
     static int prevLine = 1;
+    static Boolean eofFlag;
 
     static Character INVALIDSIGN = '$';
 
@@ -1304,6 +1305,7 @@ class Lexer {
         reservedList = Arrays.asList(reserved);
         reservedWordsList = Arrays.asList(reservedWords);
         operatorsList = Arrays.asList(operators);
+        eofFlag = false;
 
         // Read filepath
         filePath = readFilePath;
@@ -1363,10 +1365,16 @@ class Lexer {
         // Write EOF character
         if (buff.isEndOfFile()) {
             token.setAll("EOF", "$", lineNumber);
+            eofFlag = true;
             inSrcFile.close();
         }
 
         return token;
+    }
+
+    // Check if we are at the EOF
+    public Boolean isEndOfFile() throws Exception{
+        return eofFlag;
     }
 
     // For debugging
