@@ -60,6 +60,7 @@ public class Parser {
     // Parser stack 
     static Stack<String> parseStack = new Stack<>();
     static List<String> derivationList = new ArrayList<>();
+    static Boolean parserTermination = false;
 
     // Lexer
     static Lexer lexer;
@@ -230,46 +231,26 @@ public class Parser {
         derivationString += "START => ";
         Stack<String> stackOut = new Stack<>();
 
-        String tempStack = parseStack.peek();
-        while (!parseStack.empty()) {
-            tempStack = parseStack.peek();
-            if (tempStack.equals(("$"))) {
-                break;
+        if (!parseStack.isEmpty()) {
+            String tempStack = parseStack.peek();
+            while (!parseStack.empty()) {
+                tempStack = parseStack.peek();
+                if (tempStack.equals(("$"))) {
+                    break;
+                }
+                tempStack = parseStack.pop();
+                stackOut.push(tempStack);
+                derivationString += tempStack + " ";
             }
-            tempStack = parseStack.pop();
-            stackOut.push(tempStack);
-            derivationString += tempStack + " ";
-        }
-
-        while (!stackOut.empty()) {
-            parseStack.push(stackOut.pop());
+    
+            while (!stackOut.empty()) {
+                parseStack.push(stackOut.pop());
+            }
         }
 
         // Write derivation to parser file
         writeParserOutputFiles(derivationString, true); // TODO: Comment to remove writing to files
         System.out.println(derivationString);
-    }
-
-
-    // Add derivations to the list
-    static void addDerivation(List<String> productions) {
-        if (derivationList.size() == 0) {
-            for (int i = 0; i < productions.size(); i++) {
-                derivationList.add(0, productions.get(i));
-            }
-        }
-        else {
-            for (int i = 0; i < derivationList.size(); i++) {
-                String nonTerminalCheck = derivationList.get(i);
-                if (nonTerminalSymbolsList.contains(nonTerminalCheck)) {
-                    for (int j = 0; j < productions.size(); j++) {
-                        derivationList.remove(i);
-                        derivationList.add(i, productions.get(j));
-                    }
-                    break;
-                }
-            }
-        }
     }
 
 
@@ -299,7 +280,8 @@ public class Parser {
                     }
                     // No more tokens! Set to null
                     currentToken = new TokenType();
-                    // System.out.println("EOF Stack Contents: " + Arrays.toString(parseStack.toArray()));
+                    currentToken.setAll("EMERGENCY END", "NAN", -1);
+                    parserTermination = true; // Stop parsing!
                 }
                 else {
                     System.out.println("Error at: " + currentToken.getValue() + " " + currentToken.getLineNumber());
@@ -340,8 +322,10 @@ public class Parser {
                         parseStack.push(reversedNonTerminalRule.get(i));
                     }
                 }
+                else if (currentToken.getType().equals("EMERGENCY END")) {
+                    parseStack.pop();
+                }
                 else {
-                    System.out.println("Error at: " + currentToken.getValue() + " " + currentToken.getLineNumber());
                     skipErrors();
                     errorFlag = true;
                 }
@@ -361,12 +345,6 @@ public class Parser {
     static public void skipErrors() throws Exception {
         // TODO: Fix comment message
         String line = lexer.getLineNumber();
-        String errorMessage = "Syntax error: " + currentToken.getValue() + " at line: " + line + " expected: " + "JOE MAMA";
-        System.out.println(errorMessage);
-
-        // Write to error file
-        writeParserOutputFiles(errorMessage, false);
-
         String stackTop = parseStack.peek();
         List<String> firstSet = firstFollowMap.get(Arrays.asList(stackTop, "first")); // FIRST(top())
         List<String> followSet = firstFollowMap.get(Arrays.asList(stackTop, "follow")); // FOLLOW(top())
@@ -377,25 +355,40 @@ public class Parser {
             firstSet = new ArrayList<>();
             firstSet.add(stackTop);
             followSet = new ArrayList<>();
-            followSet.add("NAN");
+            followSet.add("NA");
         }
         // If non-terminal has no firstSet
         if (firstSet == null) {
             firstSet = new ArrayList<>();
-            firstSet.add("NAN");
+            firstSet.add("NA");
         }
         // If non-terminal has no followSet
         if (followSet == null) {
             followSet = new ArrayList<>();
-            followSet.add("NAN");
+            followSet.add("NA");
         }
 
+        // Writing error message
+        if (!firstSet.contains("NA")) {
+            String expected = "[ ";
+            for (int i = 0; i < firstSet.size(); i++) {
+                expected += firstSet.get(i) + " ";
+            }
+            expected += "]";
+            String errorMessage = "Syntax error: " + "[ " + currentToken.getValue() + " ]" + " at line: " + line + " expected: " + expected;
+            System.out.println(errorMessage);
+            writeParserOutputFiles(errorMessage, false); // Write to error file
+        }
+
+        // Error handling
         if (currentToken.getType().equals("EOF") || followSet.contains(currentToken.getType())) {
             parseStack.pop();
         }
         else {
-            while (!firstSet.contains(currentToken.getType()) || (firstSet.contains(LAMBDATRANSITION) && !followSet.contains(currentToken.getType())) ) {
+            while (((!firstSet.contains(currentToken.getType()) || (firstSet.contains(LAMBDATRANSITION) && !followSet.contains(currentToken.getType()))) && !lexer.isEndOfFile())) {
                 currentToken = lexer.getNextToken();
+                // if (lexer.isEndOfFile()) {
+                // }
             }
         }
 

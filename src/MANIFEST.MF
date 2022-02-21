@@ -1,2 +1,2 @@
-Main-Class: Lexer
+Main-Class: Parser
 
