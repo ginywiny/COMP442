@@ -16,10 +16,10 @@ public class Parser {
     static String LAMBDATRANSITION = "&epsilon";
 
     // Rules
-    static String rulesFilePath = "/home/michael/Documents/School/COMP442/COMP442_ProjectRepo/Resources/Grammar/table.csv"; // Absolute path CHANGE THIS WHEN UPLOADING, RELATE TO PROJECT DIR
-    // static String rulesFilePath = "../Resources/Grammar/table.csv"; //TODO: UNCOMMMENT WHEN RUNNING NORMALLY! 
-    // static String rulesFilePath = "Resources/Grammar/table.csv"; // TODO: UNCOMMENT WHEN DEBUGGING
-    static String firstFollowSetsFilePath = "/home/michael/Documents/School/COMP442/COMP442_ProjectRepo/Resources/Grammar/first_follow_sets.csv";
+    // static String rulesFilePath = "/home/michael/Documents/School/COMP442/COMP442_ProjectRepo/Resources/Grammar/table.csv"; // Absolute path CHANGE THIS WHEN UPLOADING, RELATE TO PROJECT DIR
+    static String rulesFilePath = "../Resources/Grammar/table.csv"; //TODO: UNCOMMMENT WHEN RUNNING NORMALLY! 
+    // static String firstFollowSetsFilePath = "/home/michael/Documents/School/COMP442/COMP442_ProjectRepo/Resources/Grammar/first_follow_sets.csv"; // ABS PATH, CHANGE WHEN UPLOADING
+    static String firstFollowSetsFilePath = "../Resources/Grammar/first_follow_sets.csv";
     static HashMap<List<String>, String> ruleMap = new HashMap<>();
     static HashMap<List<String>, List<String>> firstFollowMap = new HashMap<>();
 
