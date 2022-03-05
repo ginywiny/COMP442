@@ -6,9 +6,12 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Collections;
 import java.util.Stack;
+
+import javax.security.auth.Subject;
 
 public class Parser {
 
@@ -16,10 +19,10 @@ public class Parser {
     static String LAMBDATRANSITION = "&epsilon";
 
     // Rules
-    // static String rulesFilePath = "/home/michael/Documents/School/COMP442/COMP442_ProjectRepo/Resources/Grammar/table.csv"; // Absolute path CHANGE THIS WHEN UPLOADING, RELATE TO PROJECT DIR
-    static String rulesFilePath = "../Resources/Grammar/table.csv"; //TODO: UNCOMMMENT WHEN RUNNING NORMALLY! 
-    // static String firstFollowSetsFilePath = "/home/michael/Documents/School/COMP442/COMP442_ProjectRepo/Resources/Grammar/first_follow_sets.csv"; // ABS PATH, CHANGE WHEN UPLOADING
-    static String firstFollowSetsFilePath = "../Resources/Grammar/first_follow_sets.csv";
+    static String rulesFilePath = "/home/michael/Documents/School/COMP442/COMP442_ProjectRepo/Resources/Grammar/table.csv"; // Absolute path CHANGE THIS WHEN UPLOADING, RELATE TO PROJECT DIR
+    // static String rulesFilePath = "../Resources/Grammar/table.csv"; //TODO: UNCOMMMENT WHEN RUNNING NORMALLY! 
+    static String firstFollowSetsFilePath = "/home/michael/Documents/School/COMP442/COMP442_ProjectRepo/Resources/Grammar/first_follow_sets.csv"; // ABS PATH, CHANGE WHEN UPLOADING
+    // static String firstFollowSetsFilePath = "../Resources/Grammar/first_follow_sets.csv";
     static HashMap<List<String>, String> ruleMap = new HashMap<>();
     static HashMap<List<String>, List<String>> firstFollowMap = new HashMap<>();
 
@@ -66,6 +69,17 @@ public class Parser {
     static Lexer lexer;
     static TokenType currentToken;
 
+    // AST
+    static Stack<String> semanticStack = new Stack<>();
+    static AST ast; 
+    static int indentCount = 0;
+
+    static String[] semanticTypes = {
+        "_leaf_", "_epsilon_", "_dimlist_", "_param_", "_funchead_", 
+        "_paramlist_", "_funclist_", "_impl_", "_inheritslist_", "_memberlist_",
+        "_vardecl_"
+    };
+    static List<String> semanticTypesList;
 
 
 
@@ -133,6 +147,7 @@ public class Parser {
     }
 
 
+    // TODO: update this later with the added semantic attributes
     // Put all first and follow sets into a hashmap
     static void readFirstFollowSets() throws Exception {
         // Parse first follow sets file and create arraylist of all contents
@@ -250,7 +265,17 @@ public class Parser {
 
         // Write derivation to parser file
         writeParserOutputFiles(derivationString, true); // TODO: Comment to remove writing to files
-        System.out.println(derivationString);
+        //System.out.println(derivationString);
+    }
+
+    static void printIndentedTree() {
+        String output = "";
+        for (int i = 0; i < indentCount; i++) {
+            output += "-";
+        }
+        output += parseStack.peek();
+
+        System.out.println(output);
     }
 
 
@@ -265,6 +290,10 @@ public class Parser {
         currentToken = lexer.getNextToken();
         String topStack = parseStack.peek();
         Boolean errorFlag = false;
+
+        // Start AST root with start symbol
+        // ast = new AST(currentToken);
+        ast = new AST("ROOT");
 
         // Parse the file
         while (!topStack.equals("$")) {
@@ -294,7 +323,9 @@ public class Parser {
             else if (topStack.equals(LAMBDATRANSITION)) {
                 parseStack.pop();
                 topStack = parseStack.peek();
+                indentCount--;
             }
+
             // Check if top of stack is a terminal (x element of T)
             else if (terminalSymbolsList.contains(topStack)) {
                 // If terminal matches the top stack symbol (x == a)
@@ -307,20 +338,35 @@ public class Parser {
                     errorFlag = true;
                 }
             }
+
+
             // Skip comments
             else if (currentToken.getType().equals("inlinecmt") || currentToken.getType().equals("blockcmt")) {
                 // System.out.println("Skipped comment: " + currentToken.getValue());
                 currentToken = lexer.getNextToken();
             }
+
+
             // If top of stack is a non-terminal
-            else {
+            else if (nonTerminalSymbolsList.contains(topStack)) {
+                // Create subtree
+                AST subAst = new AST(topStack);
+
                 List<String> reversedNonTerminalRule = getReversedRule(topStack, currentToken.getType());
                 // If the non-terminal rule exists
                 if (reversedNonTerminalRule != null) {
                     parseStack.pop();
                     for (int i = 0; i < reversedNonTerminalRule.size(); i++) {
                         parseStack.push(reversedNonTerminalRule.get(i));
+
+                        // Create ast nodes for children
+                        AST childAst = new AST(reversedNonTerminalRule.get(i));
+                        // Link children to subtree root
+                        subAst.addChild(childAst);
                     }
+                    // Link to main node
+                    ast.addChild(subAst);
+                    indentCount++;
                 }
                 else if (currentToken.getType().equals("EMERGENCY END")) {
                     parseStack.pop();
@@ -330,7 +376,17 @@ public class Parser {
                     errorFlag = true;
                 }
             }
+
+
+            else if (semanticTypesList.contains(topStack)) {
+                if (topStack.equals("_leaf_")) {
+
+                }
+            }
+
+            
             getDerivationOutput();
+            // printIndentedTree();
         }
 
         if (!topStack.equals("$") || errorFlag.equals(true)) {
@@ -435,6 +491,8 @@ public class Parser {
         // Initialize terminal and non-terminal arraylist to search from when parsing
         nonTerminalSymbolsList = Arrays.asList(nonTerminalSymbols);
         terminalSymbolsList = Arrays.asList(terminalSymbols);
+        semanticTypesList = Arrays.asList(semanticTypes);
+
         // Test read src file
         lexer = new Lexer(args[0]);
         // Generate rule dictionary map
@@ -482,6 +540,30 @@ public class Parser {
 
         // Run parser
         parse();
+        System.out.println("------------End of parse--------------");
+
+        AST root = ast;
+        List<AST> currChildren = new ArrayList<>();
+        LinkedList<AST> queue = new LinkedList<>();
+        
+        while (root != null) {
+            String line = "";
+            for (int i = 0; i < indentCount; i++) {
+                line += "-";
+            }
+            System.out.println(line + root.getType());
+            
+            currChildren = root.getChildren();
+            if (currChildren != null) {
+                for (int i = 0; i < currChildren.size(); i++) {
+                System.out.println(line + "-" + currChildren.get(i).getType());
+                queue.add(currChildren.get(i));
+                }
+                if (queue.size() > 0) {
+                    root = queue.poll();
+                }
+            }
+        }
 
 
         // Close reading and writing files
