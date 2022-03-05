@@ -1,0 +1,3 @@
+struct POLYNOMIAL {
+	public func evaluate(x: float) -> float;
+};
