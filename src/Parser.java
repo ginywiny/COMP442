@@ -17,21 +17,31 @@ public class Parser {
     static String LAMBDATRANSITION = "&epsilon";
 
     // Rules
+    // Assignment 2 grammar
     // static String rulesFilePath = "/home/michael/Documents/School/COMP442/COMP442_ProjectRepo/Resources/Grammar/table.csv"; // Absolute path CHANGE THIS WHEN UPLOADING, RELATE TO PROJECT DIR
-    static String rulesFilePath = "/home/michael/Documents/School/COMP442/COMP442_ProjectRepo/Resources/Grammar/table_semantic.csv"; // Absolute path CHANGE THIS WHEN UPLOADING, RELATE TO PROJECT DIR
     // static String rulesFilePath = "../Resources/Grammar/table.csv"; //TODO: UNCOMMMENT WHEN RUNNING NORMALLY! 
-    static String firstFollowSetsFilePath = "/home/michael/Documents/School/COMP442/COMP442_ProjectRepo/Resources/Grammar/first_follow_sets.csv"; // ABS PATH, CHANGE WHEN UPLOADING
-    // static String firstFollowSetsFilePath = "../Resources/Grammar/first_follow_sets.csv";
+    
+    // Assignment 3 grammar
+    // static String rulesFilePath = "/home/michael/Documents/School/COMP442/COMP442_ProjectRepo/Resources/Grammar/table_semantic.csv"; // Absolute path CHANGE THIS WHEN UPLOADING, RELATE TO PROJECT DIR
+    static String rulesFilePath = "../Resources/Grammar/table_semantic.csv"; // Absolute path CHANGE THIS WHEN UPLOADING, RELATE TO PROJECT DIR
+    
+    // static String firstFollowSetsFilePath = "/home/michael/Documents/School/COMP442/COMP442_ProjectRepo/Resources/Grammar/first_follow_sets.csv"; // ABS PATH, CHANGE WHEN UPLOADING
+    static String firstFollowSetsFilePath = "../Resources/Grammar/first_follow_sets.csv"; // TODO: Uncomment when submitting!
+    
     static HashMap<List<String>, String> ruleMap = new HashMap<>();
     static HashMap<List<String>, List<String>> firstFollowMap = new HashMap<>();
 
     // Output files
     static FileWriter derivationFile;
     static FileWriter errorSyntaxFile;
+    static FileWriter outastFile;
     static BufferedWriter bwDerivation;
     static BufferedWriter bwSyntaxError;
+    static BufferedWriter bwoutast;
     static String syntaxDerivationPath; 
     static String syntaxErrorPath;
+    static String outastPath; 
+
 
     // Terminals and NonTerminals from Rules
     static String[] nonTerminalSymbols =  {
@@ -112,7 +122,6 @@ public class Parser {
         "_prog_",
         "_addop_",
         "_multop_"
-
     };
     static List<String> semanticPopCount1List;
 
@@ -122,7 +131,6 @@ public class Parser {
         "_dot_",
         "_readstatement_",
         "_whilestatement_",
-        "_dot_"
     };
     static List<String> semanticPopCount2List;
 
@@ -190,12 +198,9 @@ public class Parser {
                 }
 
                 // Print and save rule to hashmap
-                int row = i + 1;
                 String rowNonTerminal = currentNonTerminalRow.get(0);
                 String colTerminal = terminals.get(j);
                 String rowColLanguage = currentNonTerminalRow.get(j);
-
-                // System.out.println("Row: " + row + " Col: " + j + " " + rowNonTerminal + " " + colTerminal + " " + rowColLanguage);
                 ruleMap.put(Collections.unmodifiableList(Arrays.asList(rowNonTerminal, colTerminal)), rowColLanguage); // (row, col)
             }
         }
@@ -320,7 +325,7 @@ public class Parser {
 
         // Write derivation to parser file
         // writeParserOutputFiles(derivationString, true); // TODO: Comment to remove writing to files
-        System.out.println(derivationString);
+        // System.out.println(derivationString); // TODO: Uncomment to show derivations!
     }
 
 
@@ -428,8 +433,6 @@ public class Parser {
             }
 
             else if (semanticTypesList.contains(topStack)) {
-                // TODO: Use semantic check method here
-                // createNodeOrTree(topStack);
                 createNodeOrTree(topStack);
                 topStack = parseStack.peek();
             }
@@ -561,7 +564,7 @@ public class Parser {
             String errorMessage = "Syntax error: " + "[ " + currentToken.getValue() + " ]" + " at line: " + line + " expected: " + expected;
             System.out.println(errorMessage);
 
-
+            // TODO: Uncomment to write derviations from Assignment2
             // writeParserOutputFiles(errorMessage, false); // Write to error file
         }
 
@@ -572,8 +575,6 @@ public class Parser {
         else {
             while (((!firstSet.contains(currentToken.getType()) || (firstSet.contains(LAMBDATRANSITION) && !followSet.contains(currentToken.getType()))) && !lexer.isEndOfFile())) {
                 currentToken = lexer.getNextToken();
-                // if (lexer.isEndOfFile()) {
-                // }
             }
         }
 
@@ -594,8 +595,12 @@ public class Parser {
     // Close files used to reading and writing
     static void closeReadingWritingFiles() throws Exception{
         // Close writing files
-        bwDerivation.close();
-        bwSyntaxError.close();
+        // TODO: Move to method or Uncomment when writing derivations and errors
+        // bwDerivation.close();
+        // bwSyntaxError.close();
+        
+        
+        bwoutast.close();
         // Close FileReader
         lexer.closeFileReading();
     }
@@ -613,7 +618,7 @@ public class Parser {
     }
 
     // Used to print the contents from the AST
-    static public void printDfsOutput() {
+    static public void printDfsOutput() throws Exception {
         List<AST> currChildren = new ArrayList<>();
         Stack<AST> stack = new Stack<>();
         Stack<Integer> depthStack = new Stack<>();
@@ -649,12 +654,16 @@ public class Parser {
                 renamedType = nodeType;
             }
             outputLine += renamedType;
+
+            // Writing to output file
             System.out.println(outputLine);
+            bwoutast.write(outputLine);
+            bwoutast.newLine();
         }
 
     }
 
-    // Add key value mapping for renaming
+    // Add key value mapping for renaming of semantic attributes
     static public void makeAttributeMap() {
         renamingMap.put("_prog_", "Prog");
         renamingMap.put("Prog", "Prog");
@@ -742,25 +751,40 @@ public class Parser {
         readFirstFollowSets();
 
 
-        //---------------------File writer initialization------------
+        //---------------------File path initialization------------
         // Delete old files and create new ones
         syntaxDerivationPath = lexer.getFilePathWithoutName() + "/" + lexer.getFileName() + ".outderivation";
         syntaxErrorPath = lexer.getFilePathWithoutName() + "/" + lexer.getFileName() + ".outsyntaxerrors";
-        // Delete files before making new ones;
-        File myFile = new File(syntaxDerivationPath);
-        if (myFile.exists() && myFile.isFile()) {
-            myFile.delete();
-        }
-        myFile = new File(syntaxErrorPath);
-        if (myFile.exists() && myFile.isFile()) {
-            myFile.delete();
-        }
-        // Initialize writers to files (true == append to file!)
-        derivationFile = new FileWriter(syntaxDerivationPath, true);
-        errorSyntaxFile = new FileWriter(syntaxErrorPath, true);
-        bwDerivation = new BufferedWriter(derivationFile);
-        bwSyntaxError = new BufferedWriter(errorSyntaxFile);
+        outastPath = lexer.getFilePathWithoutName() + "/" + lexer.getFileName() + ".outast";
         //-----------------------------------------------------------
+
+        //---------------------File Writer initialization------------
+        // Delete files before making new ones;
+        // Create outast file
+        File myFile = new File(outastPath);
+        if (myFile.exists() && myFile.isFile()) {
+            myFile.delete();
+        }
+        outastFile = new FileWriter(outastPath, true);
+        bwoutast = new BufferedWriter(outastFile);
+        
+        // TODO: Move this file writing to a different method to display derivations and errors
+        // // Create syntax derivation file
+        // myFile = new File(syntaxDerivationPath);
+        // if (myFile.exists() && myFile.isFile()) {
+        //     myFile.delete();
+        // }
+        // // Create syntax derivation error file
+        // myFile = new File(syntaxErrorPath);
+        // if (myFile.exists() && myFile.isFile()) {
+        //     myFile.delete();
+        // }
+        // // Initialize writers to files (true == append to file!)
+        // derivationFile = new FileWriter(syntaxDerivationPath, true);
+        // errorSyntaxFile = new FileWriter(syntaxErrorPath, true);
+        // bwDerivation = new BufferedWriter(derivationFile);
+        // bwSyntaxError = new BufferedWriter(errorSyntaxFile);
+        // //-----------------------------------------------------------
         
 
 

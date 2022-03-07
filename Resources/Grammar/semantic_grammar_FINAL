@@ -25,29 +25,24 @@ EXPR1 ->  .
 EXPR1 -> RELOP ARITHEXPR _relexpr_ .
 
 FACTOR -> id _leaf_ FACTOR1 .
-# Add variable before _dot_??
 FACTOR1 -> _epsilon_ REPTIDNEST1 _indicelist_ _dot_ FACTOR2 .
 FACTOR1 -> openpar _epsilon_ APARAMS _aparamslist_ _dot_ closepar FACTOR2 .
 FACTOR2 -> dot id _leaf_ FACTOR1 .
 FACTOR2 -> .
 
-# look into not, and sign
 FACTOR -> intnum  _intnum_ . 
 FACTOR -> floatnum  _floatnum_ . 
 FACTOR -> openpar _epsilon_ ARITHEXPR _arithexpr_ closepar . 
 FACTOR -> not _epsilon_ FACTOR _factor_ _notfactor_ . 
 FACTOR -> SIGN _epsilon_ FACTOR _factor_ _signfactor_ .
 
-# Maybe it is failing here????
 FPARAMS -> id _leaf_ colon TYPE _epsilon_ _epsilon_ REPTFPARAMS3 _fparamslist_ _fparams_ REPTFPARAMS4  . 
 FPARAMS ->  . 
 
 FPARAMSTAIL -> comma id _leaf_ colon TYPE _epsilon_ REPTFPARAMSTAIL4 _fparamstaillist_ . 
 FUNCBODY -> opencubr _epsilon_ REPTFUNCBODY1 _statorvardecllist_ closecubr  . 
 
-# Add _funchead_ ???
 FUNCDECL -> FUNCHEAD semi  . 
-# Add _funchead_ ???
 FUNCDEF -> FUNCHEAD FUNCBODY  . 
 FUNCHEAD -> func id _leaf_ openpar _epsilon_ FPARAMS _paramlist_ closepar arrow RETURNTYPE . 
 
@@ -56,7 +51,6 @@ IMPLDEF -> impl id _leaf_ opencubr _epsilon_ REPTIMPLDEF3 _funclist_ closecubr  
 
 INDICE -> opensqbr ARITHEXPR closesqbr  . 
 
-## TODO: DO WE ADD _memberdecl_ MEMBERDECL -> FUNCDECL _funcdecl_ _memberdecl_ ????????
 MEMBERDECL -> FUNCDECL _funcdecl_ . 
 MEMBERDECL -> VARDECL _vardecl_ . 
 
@@ -133,7 +127,6 @@ STATBLOCK ->  .
 
 
 STATEMENT -> id _leaf_ STATEMENT1 .
-# Do i add _variable_ after indicelist????
 STATEMENT1 -> _epsilon_ REPTIDNEST1 _indicelist_ _dot_ STATEMENT3 . 
 STATEMENT1 -> openpar _epsilon_ APARAMS _aparamslist_ _dot_ closepar STATEMENT2 . 
 STATEMENT2 -> dot id _leaf_ STATEMENT1 .
