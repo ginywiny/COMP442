@@ -66,7 +66,6 @@ public class Parser {
     // AST
     static Stack<AST> semanticStack = new Stack<>();
     static AST ast; 
-    static int indentCount = 0;
     static TokenType leafStore;
 
     // TODO: Create list for epsilon transitions
@@ -80,7 +79,7 @@ public class Parser {
         "_relopleq_", "_relopgeq_", "_statement_", "_voidtype_", "_addop_", "_factor_", "_plussign_", "_minussign_",
         "_statblocklist_", "_ifstatement_", "_whilestatement_", "_readstatement_", "_writestatement_",
         "_returnstatement_", "_structdecl_", "_impldefdecl_", "_funcdefdecl_", "_integertype_", "_floattype_", 
-        "_idtype_", "_arraysize_", "_publicvisibility_", "_privatevisibility_"
+        "_idtype_", "_arraysize_", "_publicvisibility_", "_privatevisibility_", "_assignstatement_"
     };
     static List<String> semanticTypesList;
 
@@ -320,21 +319,10 @@ public class Parser {
         }
 
         // Write derivation to parser file
-        writeParserOutputFiles(derivationString, true); // TODO: Comment to remove writing to files
+        // writeParserOutputFiles(derivationString, true); // TODO: Comment to remove writing to files
         System.out.println(derivationString);
     }
 
-
-
-    static void printAstTree() {
-        String output = "";
-        for (int i = 0; i < indentCount; i++) {
-            output += "-";
-        }
-        output += parseStack.peek();
-
-        System.out.println(output);
-    }
 
 
     // Parse the tokens
@@ -384,7 +372,6 @@ public class Parser {
             else if (topStack.equals(LAMBDATRANSITION)) {
                 parseStack.pop();
                 topStack = parseStack.peek();
-                indentCount--;
             }
 
             // Check if top of stack is a terminal (x element of T)
@@ -393,7 +380,12 @@ public class Parser {
                 if (currentToken.getType().equals(topStack)) {
                     leafStore = currentToken; // Store this to add node when _leaf_ is called
                     parseStack.pop();
-                    currentToken = lexer.getNextToken();
+                    try {
+                        currentToken = lexer.getNextToken();
+                    }
+                    catch (Exception e) {
+                        throw e;
+                    }
                 }
                 else {
                     skipErrors();
@@ -424,15 +416,7 @@ public class Parser {
                     parseStack.pop();
                     for (int i = 0; i < reversedNonTerminalRule.size(); i++) {
                         parseStack.push(reversedNonTerminalRule.get(i));
-
-                        // // Create ast nodes for children
-                        // AST childAst = new AST(reversedNonTerminalRule.get(i));
-                        // // Link children to subtree root
-                        // subAst.addChild(childAst);
                     }
-                    // Link to main node
-                    // ast.addChild(subAst);
-                    indentCount++;
                 }
                 else if (currentToken.getType().equals("EMERGENCY END")) {
                     parseStack.pop();
@@ -576,7 +560,9 @@ public class Parser {
             expected += "]";
             String errorMessage = "Syntax error: " + "[ " + currentToken.getValue() + " ]" + " at line: " + line + " expected: " + expected;
             System.out.println(errorMessage);
-            writeParserOutputFiles(errorMessage, false); // Write to error file
+
+
+            // writeParserOutputFiles(errorMessage, false); // Write to error file
         }
 
         // Error handling
