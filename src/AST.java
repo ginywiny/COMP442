@@ -4,8 +4,8 @@ import java.util.List;
 public class AST {
 
     // To fix with more info
-    // private TokenType data = null;
-    private String type = "";
+    private TokenType token = null;
+    // private String type = "";
 
     private List<AST> children = new ArrayList();
     private AST parent = null;
@@ -17,9 +17,19 @@ public class AST {
     //     // this.depth = 0;
     // }
 
-    public AST(String type) {
+    // public AST(String type) {
+    //     this.children = new ArrayList();
+    //     this.type = type;
+    // }
+
+    public AST() {
         this.children = new ArrayList();
-        this.type = type;
+        this.token = new TokenType();
+    }
+
+    public AST(TokenType token) {
+        this.children = new ArrayList();
+        this.token = token;
     }
 
     public void setParentNode(AST parent) {
@@ -40,8 +50,15 @@ public class AST {
         return this.parent == null;
     }
 
-    public String getType() {
-        return this.type;
+    public TokenType getToken() {
+        return this.token;
     }
 
+    public void setASTToken(String type, String value, int lineNumber) {
+        this.token.setAll(type, value, lineNumber);
+    }
+
+    public void setASTToken(TokenType token) {
+        this.token = token;
+    }
 }

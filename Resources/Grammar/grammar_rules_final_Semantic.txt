@@ -1,27 +1,32 @@
-START -> PROG  . 
+START -> PROG  _prog_ . 
+PROG -> REPTPROG0  . 
+REPTPROG0 -> _epsilon_ STRUCTORIMPLORFUNC _structimplorfunclist_ REPTPROG0  . 
+REPTPROG0 ->  . 
 
-ADDOP -> plus  . 
-ADDOP -> minus  . 
-ADDOP -> or  . 
 
-APARAMS -> EXPR REPTAPARAMS1  . 
+ADDOP -> plus _plusop_ . 
+ADDOP -> minus _minusop_ . 
+ADDOP -> or _orop_ . 
+
+APARAMS -> EXPR _expr_ REPTAPARAMS1  . 
 APARAMS ->  . 
 
-APARAMSTAIL -> comma EXPR  . 
+APARAMSTAIL -> comma EXPR _expr_ . 
 
-ARITHEXPR -> TERM RIGHTRECARITHEXPR  . 
+ARITHEXPR -> TERM _term_ RIGHTRECARITHEXPR  . 
 
 ARRAYSIZE -> opensqbr ARRAYSIZE1 .
 ARRAYSIZE1 -> intnum _leaf_ closesqbr . 
 ARRAYSIZE1 -> closesqbr  . 
 
-ASSIGNOP -> assign  . 
+ASSIGNOP -> assign _assign_ . 
 
-EXPR -> ARITHEXPR  EXPR1 . 
+EXPR -> ARITHEXPR _arithexpr_ EXPR1 . 
 EXPR1 ->  .
-EXPR1 -> RELOP ARITHEXPR  .
+EXPR1 -> RELOP ARITHEXPR _relexpr_ .
 
 
+# CHANGED-----------------------------------
 FACTOR -> id FACTOR1 .
 FACTOR1 -> REPTIDNEST1 FACTOR2 .
 FACTOR1 -> openpar APARAMS closepar FACTOR2 .
@@ -34,44 +39,61 @@ FACTOR -> not FACTOR  .
 FACTOR -> SIGN FACTOR  . 
 
 
-# Do we need _param_ or just _paramlist_??
-FPARAMS -> id _leaf_ colon TYPE _leaf_ _epsilon_ REPTFPARAMS3 _dimlist_ _param_ REPTFPARAMS4  . 
+
+
+# Do I keep _dot_ for FACTOR1 after _aparamslist_ ????
+
+FACTOR -> id _leaf_ FACTOR1 .
+FACTOR1 -> _epsilon_ REPTIDNEST1 _indicelist_ _dot_ FACTOR2 .
+FACTOR1 -> openpar _epsilon_ APARAMS _aparamslist_ _dot_ closepar FACTOR2 .
+FACTOR2 -> dot id _leaf_ FACTOR1 .
+FACTOR2 -> .
+FACTOR -> intnum  _intnum_ . 
+FACTOR -> floatnum  _floatnum_ . 
+FACTOR -> openpar ARITHEXPR closepar _arithexpr_ . 
+FACTOR -> not FACTOR _notfactor_ . 
+FACTOR -> SIGN FACTOR _signfactor_ .
+#-------------------------------------------
+
+
+
+FPARAMS -> id _leaf_ colon TYPE _epsilon_ REPTFPARAMS3 _fparamslist_ _fparams_ REPTFPARAMS4  . 
 FPARAMS ->  . 
 
-FPARAMSTAIL -> comma id _leaf_ colon TYPE REPTFPARAMSTAIL4  . 
+FPARAMSTAIL -> comma id _leaf_ colon TYPE _epsilon_ REPTFPARAMSTAIL4 _fparamstaillist_ _fparamstail_ . 
 
-FUNCBODY -> opencubr REPTFUNCBODY1 closecubr  . 
+FUNCBODY -> opencubr _epsilon_ REPTFUNCBODY1 _statorvardecllist_ closecubr  . 
 
-FUNCDECL -> FUNCHEAD _funchead_ semi  . 
+FUNCDECL -> FUNCHEAD semi  . 
 
 FUNCDEF -> FUNCHEAD FUNCBODY  . 
 
-FUNCHEAD -> func id _leaf_ openpar _epsilon_ FPARAMS _paramlist_ closepar arrow RETURNTYPE _leaf_  . 
+FUNCHEAD -> func id _leaf_ openpar _epsilon_ FPARAMS _paramlist_ closepar arrow RETURNTYPE . 
 
-IMPLDEF -> impl id _leaf_ opencubr _epsilon_ REPTIMPLDEF3 _funclist_ _impl_ closecubr  . 
+
+IMPLDEF -> impl id _leaf_ opencubr _epsilon_ REPTIMPLDEF3 _funclist_ closecubr  . 
 
 INDICE -> opensqbr ARITHEXPR closesqbr  . 
 
-MEMBERDECL -> FUNCDECL  . 
-MEMBERDECL -> VARDECL  . 
+MEMBERDECL -> FUNCDECL _funcdecl_ . 
+MEMBERDECL -> VARDECL _vardecl_ . 
 
-MULTOP -> mult  . 
-MULTOP -> div  . 
-MULTOP -> and  . 
+MULTOP -> mult _multop_ . 
+MULTOP -> div _divop_ . 
+MULTOP -> and _andop_ . 
 
 OPTSTRUCTDECL2 -> inherits id _leaf_ REPTOPTSTRUCTDECL22  . 
 OPTSTRUCTDECL2 ->  . 
 
-PROG -> REPTPROG0  . 
 
-RELEXPR -> ARITHEXPR RELOP ARITHEXPR  . 
+RELEXPR -> ARITHEXPR _arithexpr_ RELOP ARITHEXPR _arithexpr_ . 
 
-RELOP -> eq  . 
-RELOP -> noteq  . 
-RELOP -> lt  . 
-RELOP -> gt  . 
-RELOP -> leq  . 
-RELOP -> geq  . 
+RELOP -> eq _relopeq_ . 
+RELOP -> noteq _relopnoteq_ . 
+RELOP -> lt _reloplt_ . 
+RELOP -> gt _relopgt_ . 
+RELOP -> leq _relopleq_ . 
+RELOP -> geq _relopgeq_ . 
 
 REPTAPARAMS1 -> APARAMSTAIL REPTAPARAMS1  . 
 REPTAPARAMS1 ->  . 
@@ -94,16 +116,15 @@ REPTIDNEST1 ->  .
 REPTIMPLDEF3 -> FUNCDEF REPTIMPLDEF3  . 
 REPTIMPLDEF3 ->  . 
 
-REPTOPTSTRUCTDECL22 -> comma id _leaf_ REPTOPTSTRUCTDECL22  . 
+REPTOPTSTRUCTDECL22 -> comma id REPTOPTSTRUCTDECL22  . 
 REPTOPTSTRUCTDECL22 ->  . 
 
-REPTPROG0 -> STRUCTORIMPLORFUNC REPTPROG0  . 
-REPTPROG0 ->  . 
 
-REPTSTATBLOCK1 -> STATEMENT REPTSTATBLOCK1  . 
+
+REPTSTATBLOCK1 -> STATEMENT _statement_ REPTSTATBLOCK1  . 
 REPTSTATBLOCK1 ->  . 
 
-REPTSTRUCTDECL4 -> VISIBILITY _leaf_ MEMBERDECL REPTSTRUCTDECL4  . 
+REPTSTRUCTDECL4 -> VISIBILITY MEMBERDECL REPTSTRUCTDECL4  . 
 REPTSTRUCTDECL4 ->  . 
 
 REPTVARDECL4 -> ARRAYSIZE REPTVARDECL4  . 
@@ -111,31 +132,35 @@ REPTVARDECL4 ->  .
 
 
 RETURNTYPE -> TYPE  . 
-RETURNTYPE -> void  . 
+RETURNTYPE -> void _voidtype_ . 
 
-RIGHTRECARITHEXPR -> ADDOP TERM RIGHTRECARITHEXPR  . 
+RIGHTRECARITHEXPR -> ADDOP TERM _term_ _arithexpr_ RIGHTRECARITHEXPR _addop_ . 
 RIGHTRECARITHEXPR -> . 
 
 
 RIGHTRECTERM ->  . 
-RIGHTRECTERM -> MULTOP FACTOR RIGHTRECTERM  . 
+RIGHTRECTERM -> MULTOP FACTOR _factor_ RIGHTRECTERM _multop_ . 
 
-SIGN -> plus  . 
-SIGN -> minus  . 
+SIGN -> plus _plussign_ . 
+SIGN -> minus _minussign_ . 
 
 
 
 STATBLOCK -> opencubr REPTSTATBLOCK1 closecubr  . 
-STATBLOCK -> STATEMENT  . 
+STATBLOCK -> STATEMENT _statement_ . 
 STATBLOCK ->  . 
 
+
+
+
+#---------Old----------------------------
 
 STATEMENT -> id STATEMENT1 .
 STATEMENT1 -> REPTIDNEST1 STATEMENT3 . 
 STATEMENT1 -> openpar APARAMS closepar STATEMENT2 . 
-STATEMENT2 -> dot id STATEMENT1.
+STATEMENT2 -> dot id STATEMENT1 .
 STATEMENT2 -> semi .
-STATEMENT3 -> dot id STATEMENT1.
+STATEMENT3 -> dot id STATEMENT1 .
 STATEMENT3 -> ASSIGNOP EXPR semi . 
 STATEMENT -> if openpar RELEXPR closepar then STATBLOCK else STATBLOCK semi  . 
 STATEMENT -> while openpar RELEXPR closepar STATBLOCK semi  . 
@@ -144,26 +169,46 @@ STATEMENT -> write openpar EXPR closepar semi  .
 STATEMENT -> return openpar EXPR closepar semi  . 
 
 
-#Do we need inheritslist and memberlist? 
-STRUCTDECL -> struct id _leaf_ _epsilon_ OPTSTRUCTDECL2 _inheritslist_ opencubr _epsilon_ REPTSTRUCTDECL4 _memberlist_ _structdecl_ closecubr semi  . 
+
+# Do I keep _dot_ for STATEMENT1 or vice-versa????
+
+STATEMENT -> id _leaf_ STATEMENT1 .
+STATEMENT1 -> _epsilon_ REPTIDNEST1 _indicelist_ _dot_ STATEMENT3 . 
+STATEMENT1 -> openpar _epsilon_ APARAMS _aparamslist_ _dot_ closepar STATEMENT2 . 
+STATEMENT2 -> dot id _leaf_ STATEMENT1 .
+STATEMENT2 -> _fcall_ semi .
+STATEMENT3 -> dot id _leaf_ STATEMENT1 .
+STATEMENT3 -> ASSIGNOP EXPR _expr_ _assign_ semi . 
+STATEMENT -> if openpar RELEXPR _relexpr_ closepar then _epsilon_ STATBLOCK _statblocklist_ else _epsilon_ STATBLOCK _statblocklist_ semi _ifstatement_ . 
+STATEMENT -> while openpar RELEXPR _relexpr_ closepar _epsilon_ STATBLOCK _statblocklist_ semi _whilestatement_ . 
+STATEMENT -> read openpar VARIABLE closepar semi _readstatement_ . 
+STATEMENT -> write openpar EXPR _expr_ closepar semi _writestatement_ . 
+STATEMENT -> return openpar EXPR _expr_ closepar semi _returnstatement_ . 
+#----------New--------------------------
 
 
-STRUCTORIMPLORFUNC -> STRUCTDECL  . 
-STRUCTORIMPLORFUNC -> IMPLDEF  . 
-STRUCTORIMPLORFUNC -> FUNCDEF  . 
 
-TERM -> FACTOR RIGHTRECTERM  . 
-
-TYPE -> integer  . 
-TYPE -> float  . 
-TYPE -> id  . 
-
-VARDECL -> let id _leaf_ colon TYPE _leaf_ _epsilon_ REPTVARDECL4 _dimlist_ _vardecl_ semi  . 
-
-VARDECLORSTAT -> VARDECL  . 
-VARDECLORSTAT -> STATEMENT  . 
+STRUCTDECL -> struct id _leaf_ _epsilon_ OPTSTRUCTDECL2 _inheritslist_ opencubr _epsilon_ REPTSTRUCTDECL4 _memberlist_ closecubr semi  . 
 
 
+STRUCTORIMPLORFUNC -> STRUCTDECL _structdecl_ . 
+STRUCTORIMPLORFUNC -> IMPLDEF _impldefdecl_ . 
+STRUCTORIMPLORFUNC -> FUNCDEF _funcdefdecl_ . 
+
+TERM -> FACTOR _factor_ RIGHTRECTERM  . 
+
+TYPE -> integer _integertype_ . 
+TYPE -> float _floattype_ . 
+TYPE -> id _idtype_ . 
+
+VARDECL -> let id _leaf_ colon TYPE _epsilon_ REPTVARDECL4 _arraysize_ semi  . 
+
+VARDECLORSTAT -> VARDECL _vardecl_ . 
+VARDECLORSTAT -> STATEMENT _statement_ . 
+
+
+
+#---------Old----------------------------
 VARIABLE -> id VARIABLE1 .
 VARIABLE1 -> REPTIDNEST1 VARIABLE3 .
 VARIABLE1 -> openpar APARAMS closepar VARIABLE2 . 
@@ -172,6 +217,20 @@ VARIABLE3 -> dot id VARIABLE1 .
 VARIABLE3 ->  .
 
 
-VISIBILITY -> public  . 
-VISIBILITY -> private  . 
+
+
+VARIABLE -> id _leaf_ VARIABLE1 .
+VARIABLE1 -> _epsilon_ REPTIDNEST1 _indicelist_ _dot_ VARIABLE3 .
+VARIABLE1 -> openpar _epsilon_ APARAMS _aparamslist_ _dot_ closepar VARIABLE2 . 
+VARIABLE2 -> dot id _leaf_ VARIABLE1 .
+VARIABLE3 -> dot id _leaf_ VARIABLE1 .
+VARIABLE3 ->  .
+#----------New--------------------------
+
+
+
+
+
+VISIBILITY -> public _publicvisibility_ . 
+VISIBILITY -> private _privatevisibility_ . 
 
