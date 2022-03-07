@@ -1,0 +1,179 @@
+START -> PROG  _prog_ . 
+PROG -> REPTPROG0  . 
+REPTPROG0 -> STRUCTORIMPLORFUNC REPTPROG0  . 
+REPTPROG0 ->  . 
+
+ADDOP -> plus _plusop_ . 
+ADDOP -> minus _minusop_ . 
+ADDOP -> or _orop_ . 
+
+APARAMS -> _epsilon_ EXPR _expr_ REPTAPARAMS1  . 
+APARAMS ->  . 
+
+APARAMSTAIL -> comma _epsilon_ EXPR _expr_ . 
+
+ARITHEXPR -> _epsilon_ TERM _term_ RIGHTRECARITHEXPR  . 
+
+ARRAYSIZE -> opensqbr ARRAYSIZE1 .
+ARRAYSIZE1 -> intnum _leaf_ closesqbr . 
+ARRAYSIZE1 -> closesqbr  . 
+
+ASSIGNOP -> assign _assign_ . 
+
+EXPR -> _epsilon_ ARITHEXPR _arithexpr_ EXPR1 . 
+EXPR1 ->  .
+EXPR1 -> RELOP ARITHEXPR _relexpr_ .
+
+FACTOR -> id _leaf_ FACTOR1 .
+# Add variable before _dot_??
+FACTOR1 -> _epsilon_ REPTIDNEST1 _indicelist_ _dot_ FACTOR2 .
+FACTOR1 -> openpar _epsilon_ APARAMS _aparamslist_ _dot_ closepar FACTOR2 .
+FACTOR2 -> dot id _leaf_ FACTOR1 .
+FACTOR2 -> .
+
+# look into not, and sign
+FACTOR -> intnum  _intnum_ . 
+FACTOR -> floatnum  _floatnum_ . 
+FACTOR -> openpar _epsilon_ ARITHEXPR _arithexpr_ closepar . 
+FACTOR -> not _epsilon_ FACTOR _factor_ _notfactor_ . 
+FACTOR -> SIGN _epsilon_ FACTOR _factor_ _signfactor_ .
+
+# Maybe it is failing here????
+FPARAMS -> id _leaf_ colon TYPE _epsilon_ _epsilon_ REPTFPARAMS3 _fparamslist_ _fparams_ REPTFPARAMS4  . 
+FPARAMS ->  . 
+
+FPARAMSTAIL -> comma id _leaf_ colon TYPE _epsilon_ REPTFPARAMSTAIL4 _fparamstaillist_ . 
+FUNCBODY -> opencubr _epsilon_ REPTFUNCBODY1 _statorvardecllist_ closecubr  . 
+
+# Add _funchead_ ???
+FUNCDECL -> FUNCHEAD semi  . 
+# Add _funchead_ ???
+FUNCDEF -> FUNCHEAD FUNCBODY  . 
+FUNCHEAD -> func id _leaf_ openpar _epsilon_ FPARAMS _paramlist_ closepar arrow RETURNTYPE . 
+
+
+IMPLDEF -> impl id _leaf_ opencubr _epsilon_ REPTIMPLDEF3 _funclist_ closecubr  . 
+
+INDICE -> opensqbr ARITHEXPR closesqbr  . 
+
+## TODO: DO WE ADD _memberdecl_ MEMBERDECL -> FUNCDECL _funcdecl_ _memberdecl_ ????????
+MEMBERDECL -> FUNCDECL _funcdecl_ . 
+MEMBERDECL -> VARDECL _vardecl_ . 
+
+MULTOP -> mult _mulop_ . 
+MULTOP -> div _divop_ . 
+MULTOP -> and _andop_ . 
+
+OPTSTRUCTDECL2 -> inherits id _leaf_ REPTOPTSTRUCTDECL22  . 
+OPTSTRUCTDECL2 ->  . 
+
+
+RELEXPR -> _epsilon_ ARITHEXPR _arithexpr_ RELOP _epsilon_ ARITHEXPR _arithexpr_ . 
+
+RELOP -> eq _relopeq_ . 
+RELOP -> noteq _relopnoteq_ . 
+RELOP -> lt _reloplt_ . 
+RELOP -> gt _relopgt_ . 
+RELOP -> leq _relopleq_ . 
+RELOP -> geq _relopgeq_ . 
+
+REPTAPARAMS1 -> APARAMSTAIL REPTAPARAMS1  . 
+REPTAPARAMS1 ->  . 
+
+REPTFPARAMS3 -> ARRAYSIZE REPTFPARAMS3  . 
+REPTFPARAMS3 ->  . 
+
+REPTFPARAMS4 -> FPARAMSTAIL REPTFPARAMS4  . 
+REPTFPARAMS4 ->  . 
+
+REPTFPARAMSTAIL4 -> ARRAYSIZE REPTFPARAMSTAIL4  . 
+REPTFPARAMSTAIL4 ->  . 
+
+REPTFUNCBODY1 -> VARDECLORSTAT REPTFUNCBODY1  . 
+REPTFUNCBODY1 ->  . 
+
+REPTIDNEST1 -> INDICE REPTIDNEST1  . 
+REPTIDNEST1 ->  . 
+
+REPTIMPLDEF3 -> FUNCDEF REPTIMPLDEF3  . 
+REPTIMPLDEF3 ->  . 
+
+REPTOPTSTRUCTDECL22 -> comma id _leaf_ REPTOPTSTRUCTDECL22  . 
+REPTOPTSTRUCTDECL22 ->  . 
+
+
+REPTSTATBLOCK1 -> _epsilon_ STATEMENT _statement_ REPTSTATBLOCK1  . 
+REPTSTATBLOCK1 ->  . 
+
+REPTSTRUCTDECL4 -> VISIBILITY MEMBERDECL REPTSTRUCTDECL4  . 
+REPTSTRUCTDECL4 ->  . 
+
+REPTVARDECL4 -> ARRAYSIZE REPTVARDECL4  . 
+REPTVARDECL4 ->  . 
+
+
+RETURNTYPE -> TYPE  . 
+RETURNTYPE -> void _voidtype_ . 
+
+RIGHTRECARITHEXPR -> ADDOP _epsilon_ TERM _term_ _addop_ RIGHTRECARITHEXPR . 
+RIGHTRECARITHEXPR -> . 
+
+
+RIGHTRECTERM ->  . 
+RIGHTRECTERM -> MULTOP _epsilon_ FACTOR _factor_ _multop_ RIGHTRECTERM . 
+
+SIGN -> plus _plussign_ . 
+SIGN -> minus _minussign_ . 
+
+
+
+STATBLOCK -> opencubr REPTSTATBLOCK1 closecubr  . 
+STATBLOCK -> _epsilon_ STATEMENT _statement_ . 
+STATBLOCK ->  . 
+
+
+STATEMENT -> id _leaf_ STATEMENT1 .
+# Do i add _variable_ after indicelist????
+STATEMENT1 -> _epsilon_ REPTIDNEST1 _indicelist_ _dot_ STATEMENT3 . 
+STATEMENT1 -> openpar _epsilon_ APARAMS _aparamslist_ _dot_ closepar STATEMENT2 . 
+STATEMENT2 -> dot id _leaf_ STATEMENT1 .
+STATEMENT2 -> semi .
+STATEMENT3 -> dot id _leaf_ STATEMENT1 .
+STATEMENT3 -> ASSIGNOP _epsilon_ _epsilon_ EXPR _expr_ semi _assignstatement_ . 
+STATEMENT -> if openpar RELEXPR _relexpr_ closepar then _epsilon_ STATBLOCK _statblocklist_ else _epsilon_ STATBLOCK _statblocklist_ semi _ifstatement_ . 
+STATEMENT -> while openpar RELEXPR _relexpr_ closepar _epsilon_ STATBLOCK _statblocklist_ semi _whilestatement_ . 
+STATEMENT -> read openpar VARIABLE closepar semi _readstatement_ . 
+STATEMENT -> write openpar _epsilon_ EXPR _expr_ closepar semi _writestatement_ . 
+STATEMENT -> return openpar _epsilon_ EXPR _expr_ closepar semi _returnstatement_ . 
+
+
+STRUCTDECL -> struct id _leaf_ _epsilon_ OPTSTRUCTDECL2 _inheritslist_ opencubr _epsilon_ REPTSTRUCTDECL4 _memberlist_ closecubr semi  . 
+STRUCTORIMPLORFUNC -> _epsilon_ STRUCTDECL _structdecl_ . 
+STRUCTORIMPLORFUNC -> _epsilon_ IMPLDEF _impldefdecl_ . 
+STRUCTORIMPLORFUNC -> _epsilon_ FUNCDEF _funcdefdecl_ . 
+
+
+
+
+TERM -> _epsilon_ FACTOR _factor_ RIGHTRECTERM  . 
+
+TYPE -> integer _integertype_ . 
+TYPE -> float _floattype_ . 
+TYPE -> id _idtype_ . 
+
+VARDECL -> let id _leaf_ colon TYPE _epsilon_ REPTVARDECL4 _arraysize_ semi  . 
+VARDECLORSTAT -> VARDECL _vardecl_ . 
+VARDECLORSTAT -> _epsilon_ STATEMENT _statement_ . 
+
+
+VARIABLE -> id _leaf_ VARIABLE1 .
+VARIABLE1 -> _epsilon_ REPTIDNEST1 _indicelist_ _dot_ VARIABLE3 .
+VARIABLE1 -> openpar _epsilon_ APARAMS _aparamslist_ _dot_ closepar VARIABLE2 . 
+VARIABLE2 -> dot id _leaf_ VARIABLE1 .
+VARIABLE3 -> dot id _leaf_ VARIABLE1 .
+VARIABLE3 ->  .
+
+
+VISIBILITY -> public _publicvisibility_ . 
+VISIBILITY -> private _privatevisibility_ . 
+
