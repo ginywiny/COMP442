@@ -6,7 +6,6 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Collections;
 import java.util.Stack;
@@ -47,11 +46,6 @@ public class Parser {
         "VARIABLE3", "VISIBILITY"};
     static List<String> nonTerminalSymbolsList;
         
-    // static String[] terminalSymbols = {
-    //     "," , "+", "-", "|", "[", "intLit", "]", "=", "struct", "id", "{", "}", ";", "(", ")", "floatLit", "!", ":"
-    //     , "void", ".", "*", "/", "&", "inherits", "eq", "geq", "gt", "leq", "lt", "neq", "if", "then", "else", "read"
-    //     , "return", "while", "write", "float", "integer", "private", "public", "func", "impl", "let" 
-    // };
     static String[] terminalSymbols = {
         "comma" , "plus", "minus", "or", "arrow", "opensqbr", "closesqbr", "assign", "struct", "id", "opencubr",
         "closecubr", "semi", "openpar", "closepar", "not", "colon", "floatnum", "intnum",
@@ -77,8 +71,8 @@ public class Parser {
 
     // TODO: Create list for epsilon transitions
     static String[] semanticTypes = {
-        "_prog_", "_structimplorfunclist_", "_plusop_", "_leaf_", "_minusop_", "_orop_" , "_epsilon_",
-        "_dimlist_", "_expr_", "_term_", "_assign_", "_relexpr_", "_mulop_",
+        "_prog_", "_plusop_", "_leaf_", "_minusop_", "_orop_" , "_epsilon_",
+        "_expr_", "_term_", "_assign_", "_relexpr_", "_mulop_",
         "_funclist_", "_inheritslist_", "_memberlist_", "_dot_", "_indicelist_",
         "_aparamslist_", "_intnum_", "_floatnum_", "_arithexpr_", "_notfactor_", "_signfactor_", "_fparamslist_",
         "_vardecl_", "_fparams_", "_fparamstaillist_", "_statorvardecllist_", "_paramlist_",
@@ -91,7 +85,7 @@ public class Parser {
     static List<String> semanticTypesList;
 
     static String[] semanticListTypes = {
-        "_structimplorfunclist_", "_indicelist_", "_fparamslist_", "_fparamstaillist_", "_statorvardecllist_",
+        "_indicelist_", "_fparamslist_", "_fparamstaillist_", "_statorvardecllist_",
         "_paramlist_", "_funclist_", "_aparamslist_", "_statblocklist_", "_inheritslist_", "_memberlist_",
         "_arraysize_", "_factor_", "_term_", "_arithexpr_", "_expr_", "_statement_", "_fparams_",
         "_structdecl_", "_impldefdecl_", "_funcdefdecl_", "_assignstatement_"
@@ -105,6 +99,8 @@ public class Parser {
         
     };
     static List<String> semanticLeafNodeList;
+
+    static HashMap<String, String> renamingMap;
 
 
     // returnstatement = returnstat or getstat????
@@ -630,6 +626,7 @@ public class Parser {
         syntaxErrorPath = lexer.getFilePathWithoutName() + "/" + lexer.getFileName() + ".outsyntaxerrors";
     }
 
+    // Used to print the contents from the AST
     static public void printDfsOutput() {
         List<AST> currChildren = new ArrayList<>();
         Stack<AST> stack = new Stack<>();
@@ -637,6 +634,10 @@ public class Parser {
         AST root = ast;
         AST curr = new AST();
         int currDepth = 0;
+
+        // Skip first ROOT node and move directly to Prog
+        root = root.getChildren().get(0);
+
         stack.push(root);
         depthStack.push(currDepth);
 
@@ -657,10 +658,77 @@ public class Parser {
                 outputLine += "| ";
             }
             
-            outputLine += nodeType;
+            String renamedType = renamingMap.get(nodeType);
+            if (renamedType == null) {
+                renamedType = nodeType;
+            }
+            outputLine += renamedType;
             System.out.println(outputLine);
         }
 
+    }
+
+    // Add key value mapping for renaming
+    static public void makeAttributeMap() {
+        renamingMap.put("_prog_", "Prog");
+        renamingMap.put("Prog", "Prog");
+        renamingMap.put("_plusop_", "Plus");
+        renamingMap.put("_leaf_", "Id");
+        renamingMap.put("_minusop_", "Minus");
+        renamingMap.put("_orop_", "Or");
+        renamingMap.put("_expr_", "Expr");
+        renamingMap.put("_term_", "Term");
+        renamingMap.put("_arraysize_", "DimList");
+        renamingMap.put("_assign_", "Assign");
+        renamingMap.put("_relexpr_", "RelExpr");
+        renamingMap.put("_mulop_", "Mult");
+        renamingMap.put("_funclist_", "FuncDefList");
+        renamingMap.put("_inheritslist_", "InherList");
+        renamingMap.put("_memberlist_", "MembList");
+        renamingMap.put("_dot_", "Dot");
+        renamingMap.put("_indicelist_", "IndexList");
+        renamingMap.put("_aparamslist_", "aParams");
+        renamingMap.put("_intnum_", "Num");
+        renamingMap.put("_floatnum_", "Num");
+        renamingMap.put("_arithexpr_", "ArithExpr");
+        renamingMap.put("_notfactor_", "Not");
+        renamingMap.put("_signfactor_", "Sign");
+        renamingMap.put("_fparamslist_", "FParamList");
+        renamingMap.put("_vardecl_", "VarDecl");
+        renamingMap.put("_fparams_", "FParam");
+        renamingMap.put("_fparamstaillist_", "DimList");
+        renamingMap.put("_statorvardecllist_", "StatOrVarDecl");
+        renamingMap.put("_paramlist_", "FParamList");
+        renamingMap.put("_funcdecl_", "FuncDef");
+        renamingMap.put("_multop_", "MultOp");
+        renamingMap.put("_divop_", "Div");
+        renamingMap.put("_andop_", "And");
+        renamingMap.put("_relopeq_", "Eq");
+        renamingMap.put("_relopnoteq_", "Noteq");
+        renamingMap.put("_reloplt_", "Lt");
+        renamingMap.put("_relopgt_", "Gt");
+        renamingMap.put("_relopleq_", "Leq");
+        renamingMap.put("_relopgeq_", "Geq");
+        renamingMap.put("_statement_", "Stat");
+        renamingMap.put("_voidtype_", "Void");
+        renamingMap.put("_addop_", "AddOp");
+        renamingMap.put("_factor_", "Factor");
+        renamingMap.put("_plussign_", "PlusSign");
+        renamingMap.put("_minussign_", "MinusSign");
+        renamingMap.put("_statblocklist_", "StatBlock");
+        renamingMap.put("_ifstatement_", "IfStat");
+        renamingMap.put("_whilestatement_", "WhileStat");
+        renamingMap.put("_readstatement_", "ReadStat");
+        renamingMap.put("_writestatement_", "WriteStat");
+        renamingMap.put("_returnstatement_", "ReturnStat");
+        renamingMap.put("_structdecl_", "StructDecl");
+        renamingMap.put("_impldefdecl_", "ImplDecl");
+        renamingMap.put("_funcdefdecl_", "FuncDefDecl");
+        renamingMap.put("_integertype_", "Integer");
+        renamingMap.put("_floattype_", "Float");
+        renamingMap.put("_idtype_", "Id");
+        renamingMap.put("_publicvisibility_", "Public");
+        renamingMap.put("_privatevisibility_", "Private");
     }
 
 
@@ -676,6 +744,8 @@ public class Parser {
         semanticPopCount1List = Arrays.asList(semanticPopCount1);
         semanticPopCount2List = Arrays.asList(semanticPopCount2);
         semanticPopCount3List = Arrays.asList(semanticPopCount3);
+        renamingMap = new HashMap<>();
+        makeAttributeMap();
 
         //----------------------Rule file reading----------------------
         // Test read src file
@@ -684,7 +754,6 @@ public class Parser {
         readRules();
         // Generate first follow sets dictionary map
         readFirstFollowSets();
-
 
 
         //---------------------File writer initialization------------
