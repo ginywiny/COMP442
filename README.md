@@ -7,7 +7,7 @@ To fix this, manually add an EOF symbol, or simply open the testfile in a text e
 The files are NOT modified! They are only updated with an EOF
 
 
-# Assignment 3
+# Assignment 3 (Current)
 ## Making an executable .jar if not available
 1. Open console
 2. Enter src directory: `cd src`
@@ -23,6 +23,7 @@ The files are NOT modified! They are only updated with an EOF
 4. Testfiles are found within the testfiles directory
 5. Test 1: `java -jar ASTdriver.jar ../testfiles/bubblesort.src`
 6. Test 2: `java -jar ASTdriver.jar ../testfiles/polynomial.src`
+6. Test 2: `java -jar ASTdriver.jar ../testfiles/test.src`
 8. AST tree output files are found within the same testfiles directory
 
 ## How to run without executable
@@ -33,6 +34,7 @@ The files are NOT modified! They are only updated with an EOF
 5. Testfiles are found within testfiles directory
 6. Test 1: `java Parser ../testfiles/bubblesort.src`
 7. Test 2: `java Parser ../testfiles/polynomial.src`
+7. Test 2: `java Parser ../testfiles/test.src`
 8. AST tree output files are found within the same testfiles directory
 
 
@@ -41,7 +43,7 @@ The files are NOT modified! They are only updated with an EOF
 
 
 
-# Assignment 2
+# Assignment 2 (Old, this does not output derivations currently anymore)
 ## Making an executable .jar if not available
 1. Open console
 2. Enter src directory: `cd src`
