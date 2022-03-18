@@ -1,0 +1,10 @@
+Prog
+| FuncDefDecl
+| | id
+| | FParamList
+| | void
+| | StatOrVarDecl
+| | | VarDecl
+| | | | id
+| | | | integer
+| | | | DimList

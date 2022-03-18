@@ -1,0 +1,513 @@
+Prog
+| FuncDefDecl
+| | id
+| | FParamList
+| | | id
+| | | integer
+| | | FParam
+| | | | FParamList
+| | | id
+| | | integer
+| | | DimList
+| | void
+| | StatOrVarDecl
+| | | VarDecl
+| | | | id
+| | | | integer
+| | | | DimList
+| | | VarDecl
+| | | | id
+| | | | integer
+| | | | DimList
+| | | VarDecl
+| | | | id
+| | | | integer
+| | | | DimList
+| | | VarDecl
+| | | | id
+| | | | integer
+| | | | DimList
+| | | Stat
+| | | | Dot
+| | | | | id
+| | | | | IndexList
+| | | | assign
+| | | | _assignstatement_
+| | | | | Expr
+| | | | | | ArithExpr
+| | | | | | | Term
+| | | | | | | | Factor
+| | | | | | | | | Dot
+| | | | | | | | | | id
+| | | | | | | | | | IndexList
+| | | Stat
+| | | | Dot
+| | | | | id
+| | | | | IndexList
+| | | | assign
+| | | | _assignstatement_
+| | | | | Expr
+| | | | | | ArithExpr
+| | | | | | | Term
+| | | | | | | | Factor
+| | | | | | | | | intnum
+| | | Stat
+| | | | Dot
+| | | | | id
+| | | | | IndexList
+| | | | assign
+| | | | _assignstatement_
+| | | | | Expr
+| | | | | | ArithExpr
+| | | | | | | Term
+| | | | | | | | Factor
+| | | | | | | | | intnum
+| | | Stat
+| | | | Dot
+| | | | | id
+| | | | | IndexList
+| | | | assign
+| | | | _assignstatement_
+| | | | | Expr
+| | | | | | ArithExpr
+| | | | | | | Term
+| | | | | | | | Factor
+| | | | | | | | | intnum
+| | | Stat
+| | | | WhileStat
+| | | | | RelExpr
+| | | | | | ArithExpr
+| | | | | | | Term
+| | | | | | | | Factor
+| | | | | | | | | Dot
+| | | | | | | | | | id
+| | | | | | | | | | IndexList
+| | | | | | lt
+| | | | | | ArithExpr
+| | | | | | | Term
+| | | | | | | | Factor
+| | | | | | | | | Dot
+| | | | | | | | | | id
+| | | | | | | | | | IndexList
+| | | | | | | minus
+| | | | | | | AddOp
+| | | | | | | | Term
+| | | | | | | | | Factor
+| | | | | | | | | | intnum
+| | | | | StatBlock
+| | | | | | Stat
+| | | | | | | WhileStat
+| | | | | | | | RelExpr
+| | | | | | | | | ArithExpr
+| | | | | | | | | | Term
+| | | | | | | | | | | Factor
+| | | | | | | | | | | | Dot
+| | | | | | | | | | | | | id
+| | | | | | | | | | | | | IndexList
+| | | | | | | | | lt
+| | | | | | | | | ArithExpr
+| | | | | | | | | | Term
+| | | | | | | | | | | Factor
+| | | | | | | | | | | | Dot
+| | | | | | | | | | | | | id
+| | | | | | | | | | | | | IndexList
+| | | | | | | | | | minus
+| | | | | | | | | | AddOp
+| | | | | | | | | | | Term
+| | | | | | | | | | | | Factor
+| | | | | | | | | | | | | Dot
+| | | | | | | | | | | | | | id
+| | | | | | | | | | | | | | IndexList
+| | | | | | | | | | minus
+| | | | | | | | | | AddOp
+| | | | | | | | | | | Term
+| | | | | | | | | | | | Factor
+| | | | | | | | | | | | | intnum
+| | | | | | | | StatBlock
+| | | | | | | | | Stat
+| | | | | | | | | | IfStat
+| | | | | | | | | | | RelExpr
+| | | | | | | | | | | | ArithExpr
+| | | | | | | | | | | | | Term
+| | | | | | | | | | | | | | Factor
+| | | | | | | | | | | | | | | Dot
+| | | | | | | | | | | | | | | | id
+| | | | | | | | | | | | | | | | IndexList
+| | | | | | | | | | | | | | | | | Term
+| | | | | | | | | | | | | | | | | | Factor
+| | | | | | | | | | | | | | | | | | | Dot
+| | | | | | | | | | | | | | | | | | | | id
+| | | | | | | | | | | | | | | | | | | | IndexList
+| | | | | | | | | | | | gt
+| | | | | | | | | | | | ArithExpr
+| | | | | | | | | | | | | Term
+| | | | | | | | | | | | | | Factor
+| | | | | | | | | | | | | | | Dot
+| | | | | | | | | | | | | | | | id
+| | | | | | | | | | | | | | | | IndexList
+| | | | | | | | | | | | | | | | | Term
+| | | | | | | | | | | | | | | | | | Factor
+| | | | | | | | | | | | | | | | | | | Dot
+| | | | | | | | | | | | | | | | | | | | id
+| | | | | | | | | | | | | | | | | | | | IndexList
+| | | | | | | | | | | | | | | | | plus
+| | | | | | | | | | | | | | | | | AddOp
+| | | | | | | | | | | | | | | | | | Term
+| | | | | | | | | | | | | | | | | | | Factor
+| | | | | | | | | | | | | | | | | | | | intnum
+| | | | | | | | | | | StatBlock
+| | | | | | | | | | | | Stat
+| | | | | | | | | | | | | Dot
+| | | | | | | | | | | | | | id
+| | | | | | | | | | | | | | IndexList
+| | | | | | | | | | | | | assign
+| | | | | | | | | | | | | _assignstatement_
+| | | | | | | | | | | | | | Expr
+| | | | | | | | | | | | | | | ArithExpr
+| | | | | | | | | | | | | | | | Term
+| | | | | | | | | | | | | | | | | Factor
+| | | | | | | | | | | | | | | | | | Dot
+| | | | | | | | | | | | | | | | | | | id
+| | | | | | | | | | | | | | | | | | | IndexList
+| | | | | | | | | | | | | | | | | | | | Term
+| | | | | | | | | | | | | | | | | | | | | Factor
+| | | | | | | | | | | | | | | | | | | | | | Dot
+| | | | | | | | | | | | | | | | | | | | | | | id
+| | | | | | | | | | | | | | | | | | | | | | | IndexList
+| | | | | | | | | | | | Stat
+| | | | | | | | | | | | | Dot
+| | | | | | | | | | | | | | id
+| | | | | | | | | | | | | | IndexList
+| | | | | | | | | | | | | | | Term
+| | | | | | | | | | | | | | | | Factor
+| | | | | | | | | | | | | | | | | Dot
+| | | | | | | | | | | | | | | | | | id
+| | | | | | | | | | | | | | | | | | IndexList
+| | | | | | | | | | | | | assign
+| | | | | | | | | | | | | _assignstatement_
+| | | | | | | | | | | | | | Expr
+| | | | | | | | | | | | | | | ArithExpr
+| | | | | | | | | | | | | | | | Term
+| | | | | | | | | | | | | | | | | Factor
+| | | | | | | | | | | | | | | | | | Dot
+| | | | | | | | | | | | | | | | | | | id
+| | | | | | | | | | | | | | | | | | | IndexList
+| | | | | | | | | | | | | | | | | | | | Term
+| | | | | | | | | | | | | | | | | | | | | Factor
+| | | | | | | | | | | | | | | | | | | | | | Dot
+| | | | | | | | | | | | | | | | | | | | | | | id
+| | | | | | | | | | | | | | | | | | | | | | | IndexList
+| | | | | | | | | | | | | | | | | | | | plus
+| | | | | | | | | | | | | | | | | | | | AddOp
+| | | | | | | | | | | | | | | | | | | | | Term
+| | | | | | | | | | | | | | | | | | | | | | Factor
+| | | | | | | | | | | | | | | | | | | | | | | intnum
+| | | | | | | | | | | | Stat
+| | | | | | | | | | | | | Dot
+| | | | | | | | | | | | | | id
+| | | | | | | | | | | | | | IndexList
+| | | | | | | | | | | | | | | Term
+| | | | | | | | | | | | | | | | Factor
+| | | | | | | | | | | | | | | | | Dot
+| | | | | | | | | | | | | | | | | | id
+| | | | | | | | | | | | | | | | | | IndexList
+| | | | | | | | | | | | | | | plus
+| | | | | | | | | | | | | | | AddOp
+| | | | | | | | | | | | | | | | Term
+| | | | | | | | | | | | | | | | | Factor
+| | | | | | | | | | | | | | | | | | intnum
+| | | | | | | | | | | | | assign
+| | | | | | | | | | | | | _assignstatement_
+| | | | | | | | | | | | | | Expr
+| | | | | | | | | | | | | | | ArithExpr
+| | | | | | | | | | | | | | | | Term
+| | | | | | | | | | | | | | | | | Factor
+| | | | | | | | | | | | | | | | | | Dot
+| | | | | | | | | | | | | | | | | | | id
+| | | | | | | | | | | | | | | | | | | IndexList
+| | | | | | | | | | | StatBlock
+| | | | | | | | | Stat
+| | | | | | | | | | Dot
+| | | | | | | | | | | id
+| | | | | | | | | | | IndexList
+| | | | | | | | | | assign
+| | | | | | | | | | _assignstatement_
+| | | | | | | | | | | Expr
+| | | | | | | | | | | | ArithExpr
+| | | | | | | | | | | | | Term
+| | | | | | | | | | | | | | Factor
+| | | | | | | | | | | | | | | Dot
+| | | | | | | | | | | | | | | | id
+| | | | | | | | | | | | | | | | IndexList
+| | | | | | | | | | | | | plus
+| | | | | | | | | | | | | AddOp
+| | | | | | | | | | | | | | Term
+| | | | | | | | | | | | | | | Factor
+| | | | | | | | | | | | | | | | intnum
+| | | | | | Stat
+| | | | | | | Dot
+| | | | | | | | id
+| | | | | | | | IndexList
+| | | | | | | assign
+| | | | | | | _assignstatement_
+| | | | | | | | Expr
+| | | | | | | | | ArithExpr
+| | | | | | | | | | Term
+| | | | | | | | | | | Factor
+| | | | | | | | | | | | Dot
+| | | | | | | | | | | | | id
+| | | | | | | | | | | | | IndexList
+| | | | | | | | | | plus
+| | | | | | | | | | AddOp
+| | | | | | | | | | | Term
+| | | | | | | | | | | | Factor
+| | | | | | | | | | | | | intnum
+| FuncDefDecl
+| | id
+| | FParamList
+| | | id
+| | | integer
+| | | FParam
+| | | | FParamList
+| | | id
+| | | integer
+| | | DimList
+| | void
+| | StatOrVarDecl
+| | | VarDecl
+| | | | id
+| | | | integer
+| | | | DimList
+| | | VarDecl
+| | | | id
+| | | | integer
+| | | | DimList
+| | | Stat
+| | | | Dot
+| | | | | id
+| | | | | IndexList
+| | | | assign
+| | | | _assignstatement_
+| | | | | Expr
+| | | | | | ArithExpr
+| | | | | | | Term
+| | | | | | | | Factor
+| | | | | | | | | Dot
+| | | | | | | | | | id
+| | | | | | | | | | IndexList
+| | | Stat
+| | | | Dot
+| | | | | id
+| | | | | IndexList
+| | | | assign
+| | | | _assignstatement_
+| | | | | Expr
+| | | | | | ArithExpr
+| | | | | | | Term
+| | | | | | | | Factor
+| | | | | | | | | intnum
+| | | Stat
+| | | | WhileStat
+| | | | | RelExpr
+| | | | | | ArithExpr
+| | | | | | | Term
+| | | | | | | | Factor
+| | | | | | | | | Dot
+| | | | | | | | | | id
+| | | | | | | | | | IndexList
+| | | | | | lt
+| | | | | | ArithExpr
+| | | | | | | Term
+| | | | | | | | Factor
+| | | | | | | | | Dot
+| | | | | | | | | | id
+| | | | | | | | | | IndexList
+| | | | | StatBlock
+| | | | | | Stat
+| | | | | | | WriteStat
+| | | | | | | | Expr
+| | | | | | | | | ArithExpr
+| | | | | | | | | | Term
+| | | | | | | | | | | Factor
+| | | | | | | | | | | | Dot
+| | | | | | | | | | | | | id
+| | | | | | | | | | | | | IndexList
+| | | | | | | | | | | | | | Term
+| | | | | | | | | | | | | | | Factor
+| | | | | | | | | | | | | | | | Dot
+| | | | | | | | | | | | | | | | | id
+| | | | | | | | | | | | | | | | | IndexList
+| | | | | | Stat
+| | | | | | | Dot
+| | | | | | | | id
+| | | | | | | | IndexList
+| | | | | | | assign
+| | | | | | | _assignstatement_
+| | | | | | | | Expr
+| | | | | | | | | ArithExpr
+| | | | | | | | | | Term
+| | | | | | | | | | | Factor
+| | | | | | | | | | | | Dot
+| | | | | | | | | | | | | id
+| | | | | | | | | | | | | IndexList
+| | | | | | | | | | plus
+| | | | | | | | | | AddOp
+| | | | | | | | | | | Term
+| | | | | | | | | | | | Factor
+| | | | | | | | | | | | | intnum
+| FuncDefDecl
+| | id
+| | FParamList
+| | void
+| | StatOrVarDecl
+| | | VarDecl
+| | | | id
+| | | | integer
+| | | | DimList
+| | | | | intnum
+| | | Stat
+| | | | Dot
+| | | | | id
+| | | | | IndexList
+| | | | | | Term
+| | | | | | | Factor
+| | | | | | | | intnum
+| | | | assign
+| | | | _assignstatement_
+| | | | | Expr
+| | | | | | ArithExpr
+| | | | | | | Term
+| | | | | | | | Factor
+| | | | | | | | | intnum
+| | | Stat
+| | | | Dot
+| | | | | id
+| | | | | IndexList
+| | | | | | Term
+| | | | | | | Factor
+| | | | | | | | intnum
+| | | | assign
+| | | | _assignstatement_
+| | | | | Expr
+| | | | | | ArithExpr
+| | | | | | | Term
+| | | | | | | | Factor
+| | | | | | | | | intnum
+| | | Stat
+| | | | Dot
+| | | | | id
+| | | | | IndexList
+| | | | | | Term
+| | | | | | | Factor
+| | | | | | | | intnum
+| | | | assign
+| | | | _assignstatement_
+| | | | | Expr
+| | | | | | ArithExpr
+| | | | | | | Term
+| | | | | | | | Factor
+| | | | | | | | | intnum
+| | | Stat
+| | | | Dot
+| | | | | id
+| | | | | IndexList
+| | | | | | Term
+| | | | | | | Factor
+| | | | | | | | intnum
+| | | | assign
+| | | | _assignstatement_
+| | | | | Expr
+| | | | | | ArithExpr
+| | | | | | | Term
+| | | | | | | | Factor
+| | | | | | | | | intnum
+| | | Stat
+| | | | Dot
+| | | | | id
+| | | | | IndexList
+| | | | | | Term
+| | | | | | | Factor
+| | | | | | | | intnum
+| | | | assign
+| | | | _assignstatement_
+| | | | | Expr
+| | | | | | ArithExpr
+| | | | | | | Term
+| | | | | | | | Factor
+| | | | | | | | | intnum
+| | | Stat
+| | | | Dot
+| | | | | id
+| | | | | IndexList
+| | | | | | Term
+| | | | | | | Factor
+| | | | | | | | intnum
+| | | | assign
+| | | | _assignstatement_
+| | | | | Expr
+| | | | | | ArithExpr
+| | | | | | | Term
+| | | | | | | | Factor
+| | | | | | | | | intnum
+| | | Stat
+| | | | Dot
+| | | | | id
+| | | | | IndexList
+| | | | | | Term
+| | | | | | | Factor
+| | | | | | | | intnum
+| | | | assign
+| | | | _assignstatement_
+| | | | | Expr
+| | | | | | ArithExpr
+| | | | | | | Term
+| | | | | | | | Factor
+| | | | | | | | | intnum
+| | | Stat
+| | | | Dot
+| | | | | id
+| | | | | aParams
+| | | | | | Expr
+| | | | | | | ArithExpr
+| | | | | | | | Term
+| | | | | | | | | Factor
+| | | | | | | | | | Dot
+| | | | | | | | | | | id
+| | | | | | | | | | | IndexList
+| | | | | | Expr
+| | | | | | | ArithExpr
+| | | | | | | | Term
+| | | | | | | | | Factor
+| | | | | | | | | | intnum
+| | | Stat
+| | | | Dot
+| | | | | id
+| | | | | aParams
+| | | | | | Expr
+| | | | | | | ArithExpr
+| | | | | | | | Term
+| | | | | | | | | Factor
+| | | | | | | | | | Dot
+| | | | | | | | | | | id
+| | | | | | | | | | | IndexList
+| | | | | | Expr
+| | | | | | | ArithExpr
+| | | | | | | | Term
+| | | | | | | | | Factor
+| | | | | | | | | | intnum
+| | | Stat
+| | | | Dot
+| | | | | id
+| | | | | aParams
+| | | | | | Expr
+| | | | | | | ArithExpr
+| | | | | | | | Term
+| | | | | | | | | Factor
+| | | | | | | | | | Dot
+| | | | | | | | | | | id
+| | | | | | | | | | | IndexList
+| | | | | | Expr
+| | | | | | | ArithExpr
+| | | | | | | | Term
+| | | | | | | | | Factor
+| | | | | | | | | | intnum

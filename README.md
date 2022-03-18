@@ -43,7 +43,7 @@ The files are NOT modified! They are only updated with an EOF
 
 
 
-# Assignment 2 (Old, this does not output derivations currently anymore)
+# Assignment 2 (Old)
 ## Making an executable .jar if not available
 1. Open console
 2. Enter src directory: `cd src`
