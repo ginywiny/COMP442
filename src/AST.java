@@ -5,22 +5,12 @@ public class AST {
 
     // To fix with more info
     private TokenType token = null;
-    // private String type = "";
-
     private List<AST> children = new ArrayList();
     private AST parent = null;
     public static int depth = 0;
-
-    // public AST(TokenType token) {
-    //     this.data = token;
-    //     this.children = null;
-    //     // this.depth = 0;
-    // }
-
-    // public AST(String type) {
-    //     this.children = new ArrayList();
-    //     this.type = type;
-    // }
+    public SymbolTable m_symtab = null;
+    public SymbolTableEntry m_symtabentry = null;
+    public String m_moonVarName = new String();
 
     public AST() {
         this.children = new ArrayList();
@@ -60,5 +50,12 @@ public class AST {
 
     public void setASTToken(TokenType token) {
         this.token = token;
+    }
+
+    public void accept (Visitor visitor) throws Exception {
+        for (AST child: this.getChildren()) {
+            child.accept(visitor);
+        }
+        visitor.visit(this);
     }
 }

@@ -6,8 +6,8 @@ public class TokenType {
 
 
     TokenType(){
-        this.type = "NAN";
-        this.value = "NAN";
+        this.type = "NAN"; //Ex.  id
+        this.value = "NAN"; //Ex. variableTemp
         this.lineNumber = -1;
         this.valid = false;
     }
