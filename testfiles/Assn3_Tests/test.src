@@ -1,3 +1,5 @@
 func f() -> void {
+    let j: float;
     let n: integer;
+    let k: integer[2][3];
 }

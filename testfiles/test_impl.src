@@ -1,0 +1,6 @@
+impl POLYNOMIAL {   
+  func evaluate(x: float) -> float
+  {
+    return (0);
+  }
+}

@@ -40,6 +40,10 @@ public class AST {
         return this.parent == null;
     }
 
+    public AST getParent() {
+        return this.parent;
+    }
+
     public TokenType getToken() {
         return this.token;
     }
