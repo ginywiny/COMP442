@@ -94,7 +94,8 @@ public class Parser {
         "_relopleq_", "_relopgeq_", "_statement_", "_voidtype_", "_addop_", "_factor_", "_plussign_", "_minussign_",
         "_statblocklist_", "_ifstatement_", "_whilestatement_", "_readstatement_", "_writestatement_",
         "_returnstatement_", "_structdecl_", "_impldefdecl_", "_funcdefdecl_", "_integertype_", "_floattype_", 
-        "_idtype_", "_arraysize_", "_publicvisibility_", "_privatevisibility_", "_assignstatement_", "_memberfunc_", "_memberdecl_"
+        "_idtype_", "_arraysize_", "_publicvisibility_", "_privatevisibility_", "_assignstatement_", "_memberfunc_", 
+        "_memberdecl_", "_emptyarray_"
     };
     static List<String> semanticTypesList;
 
@@ -127,7 +128,7 @@ public class Parser {
         "_notfactor_",
         "_prog_",
         // "_addop_",
-        "_multop_"
+        "_multop_",
     };
     static List<String> semanticPopCount1List;
 
@@ -506,6 +507,15 @@ public class Parser {
             parserTermination = true; // Terminate parsing!
             parseStack.pop(); // Remove the semantic attribute from the parse stack
         }
+        
+        else if (semanticType.equals("_emptyarray_")) {
+            String emptyArrayFlag = renamingMap.get("_emptyarray_");
+            TokenType emptyFlagToken = new TokenType();
+            emptyFlagToken.setAll(emptyArrayFlag, emptyArrayFlag, -1);
+            currNode.setASTToken(emptyFlagToken);
+            semanticStack.push(currNode);
+            parseStack.pop(); // Remove the semantic attribute from the parse stack
+        }
     }
 
 
@@ -600,7 +610,10 @@ public class Parser {
          
             case "dimlist":
                 return new ASTNodeDimList(nodeToken, children);
-         
+            
+            case "emptyarray":
+                return new ASTNodeEmptyArray(nodeToken);
+
             case "assign":
                 return new ASTNodeAssign(nodeToken);
          
@@ -617,7 +630,8 @@ public class Parser {
                 return new ASTNodeMembList(nodeToken, children);
          
             case "dot":
-                return new ASTNodeDot(nodeToken, children.get(0), children.get(1));
+                // return new ASTNodeDot(nodeToken, children.get(0), children.get(1));
+                return new ASTNodeDot(nodeToken, children);
          
             case "indexlist":
                 return new ASTNodeIndexList(nodeToken, children);
@@ -635,10 +649,12 @@ public class Parser {
                 return new ASTNodeArithExpr(nodeToken, children);
          
             case "not":
-                return new ASTNodeNotFactor(nodeToken, children.get(0));
+                // return new ASTNodeNotFactor(nodeToken, children.get(0));
+                return new ASTNodeNotFactor(nodeToken, children);
          
             case "sign":
-                return new ASTNodeSignFactor(nodeToken, children.get(0));
+                // return new ASTNodeSignFactor(nodeToken, children.get(0));
+                return new ASTNodeSignFactor(nodeToken, children);
          
             case "vardecl":
                 return new ASTNodeVarDecl(nodeToken, children);
@@ -694,10 +710,12 @@ public class Parser {
          
             // THIS IS THE OPERATIOON: y * x, NOT THE OPERAND (*)
             case "multop":
-                return new ASTNodeMultOp(nodeToken, children.get(0), children.get(1));
+                // return new ASTNodeMultOp(nodeToken, children.get(0), children.get(1));
+                return new ASTNodeMultOp(nodeToken, children);
 
             case "factor":
-                return new ASTNodeFactor(nodeToken, children.get(0));
+                // return new ASTNodeFactor(nodeToken, children.get(0));
+                return new ASTNodeFactor(nodeToken, children);
          
             case "plussign":
                 return new ASTNodePlusSign(nodeToken);
@@ -713,19 +731,23 @@ public class Parser {
 
             case "assignstat":
                 // return new ASTNodeAssignStatement(nodeToken, children.get(0), children.get(1));
-                return new ASTNodeAssignStatement(nodeToken);
+                return new ASTNodeAssignStatement(nodeToken, children);
          
             case "whilestat":
-                return new ASTNodeWhileStatement(nodeToken, children.get(0), children.get(1));
+                // return new ASTNodeWhileStatement(nodeToken, children.get(0), children.get(1));
+                return new ASTNodeWhileStatement(nodeToken, children);
          
             case "readstat":
-                return new ASTNodeReadStatement(nodeToken, children.get(0), children.get(1));
+                // return new ASTNodeReadStatement(nodeToken, children.get(0), children.get(1));
+                return new ASTNodeReadStatement(nodeToken, children);
          
             case "writestat":
-                return new ASTNodeWriteStatement(nodeToken, children.get(0));
+                // return new ASTNodeWriteStatement(nodeToken, children.get(0));
+                return new ASTNodeWriteStatement(nodeToken, children);
          
             case "returnstat":
-                return new ASTNodeReturnStatement(nodeToken, children.get(0));
+                // return new ASTNodeReturnStatement(nodeToken, children.get(0));
+                return new ASTNodeReturnStatement(nodeToken, children);
          
             case "structdecl":
                 return new ASTNodeStructDecl(nodeToken, children);
@@ -759,48 +781,6 @@ public class Parser {
                 return null;
         }
     }
-
-
-
-
-
-
-    static void createNodeType() throws Exception {
-        List<AST> currChildren = new ArrayList<>();
-        AST root = ast;
-        AST curr = new AST();
-
-        // Skip first ROOT node and move directly to Prog
-        root = root.getChildren().get(0);
-        root = returnExactAstNode(root); // Create PROG node type
-        ASTNodeTypeStack.push(root); 
-
-        while (!ASTNodeTypeStack.isEmpty()) {
-            curr = ASTNodeTypeStack.pop(); // Get node
-            if (curr == null) {
-                System.out.println("WAIT");
-            }
-            System.out.println(curr.getToken().getValue());
-            String nodeType = curr.getToken().getType();
-            if (nodeType == null) {
-                System.out.println("WAIT");
-            }
-            currChildren = curr.getChildren(); // Get children
-
-            for (int i = 0; i < currChildren.size(); i++) {
-                AST temp = returnExactAstNode(currChildren.get(i)); // Get the exact type
-                ASTNodeTypeStack.push(temp);
-            }
-        }
-        root.accept(creationVisitor);
-    }
-
-
-
-
-
-
-
 
 
 
@@ -1017,6 +997,7 @@ public class Parser {
         renamingMap.put("_privatevisibility_", "Private");
         renamingMap.put("_memberfunc_", "MemberFunc");
         renamingMap.put("_memberdecl_", "MemberDecl");
+        renamingMap.put("_emptyarray_", "EmptyArray");
     }
 
 
@@ -1094,8 +1075,6 @@ public class Parser {
         creationVisitor = new SymbolTableCreationVisitor(outSymbolTablePath);
         typeCheckVisitor = new TypeCheckingVisitor(outTypeCheckPath);
         
-        // createNodeType();
-
         AST root = returnExactAstNode(ast.getChildren().get(0)); // skip ROOT token
         root.accept(creationVisitor);
         // root.accept(typeCheckVisitor);

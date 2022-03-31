@@ -78,6 +78,11 @@ public class TypeCheckingVisitor implements Visitor {
     }
 
     @Override
+    public void visit(ASTNodeEmptyArray node) {
+        System.out.println();
+    }
+
+    @Override
     public void visit(ASTNodeAssign node) {
         System.out.println();
     }

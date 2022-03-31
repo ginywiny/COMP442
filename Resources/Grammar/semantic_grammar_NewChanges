@@ -16,7 +16,8 @@ ARITHEXPR -> _epsilon_ _epsilon_ TERM _term_ _arithexpr_ RIGHTRECARITHEXPR  .
 
 ARRAYSIZE -> opensqbr ARRAYSIZE1 .
 ARRAYSIZE1 -> intnum _leaf_ closesqbr . 
-ARRAYSIZE1 -> closesqbr  . 
+# old: ARRAYSIZE1 -> closesqbr  .
+ARRAYSIZE1 -> _emptyarray_ closesqbr  . 
 
 ASSIGNOP -> assign _assign_ . 
 

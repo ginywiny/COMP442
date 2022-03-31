@@ -74,9 +74,7 @@ public class SymbolTableCreationVisitor implements Visitor{
             child.m_symtab = p_node.m_symtab;
             child.accept(this);
         }
-        String tempvarname = this.getNewTempVarName();
-		p_node.m_symtabentry = new VariableTableEntry("tempvar", p_node.getToken().getType(), tempvarname, p_node.m_symtab.lookupName(p_node.getChildren().get(0).m_moonVarName).m_dims);
-		p_node.m_symtab.addEntry(p_node.m_symtabentry);
+
     }
 
     @Override
@@ -88,9 +86,7 @@ public class SymbolTableCreationVisitor implements Visitor{
             child.m_symtab = p_node.m_symtab;
             child.accept(this);
         }
-        String tempvarname = this.getNewTempVarName();
-		p_node.m_symtabentry = new VariableTableEntry("tempvar", p_node.getToken().getType(), tempvarname, p_node.m_symtab.lookupName(p_node.getChildren().get(0).m_moonVarName).m_dims);
-		p_node.m_symtab.addEntry(p_node.m_symtabentry);
+
     }
 
     @Override
@@ -102,9 +98,7 @@ public class SymbolTableCreationVisitor implements Visitor{
             child.m_symtab = p_node.m_symtab;
             child.accept(this);
         }
-        String tempvarname = this.getNewTempVarName();
-		p_node.m_symtabentry = new VariableTableEntry("tempvar", p_node.getToken().getType(), tempvarname, p_node.m_symtab.lookupName(p_node.getChildren().get(0).m_moonVarName).m_dims);
-		p_node.m_symtab.addEntry(p_node.m_symtabentry);
+
     }
 
     @Override
@@ -116,9 +110,7 @@ public class SymbolTableCreationVisitor implements Visitor{
             child.m_symtab = p_node.m_symtab;
             child.accept(this);
         }
-        String tempvarname = this.getNewTempVarName();
-		p_node.m_symtabentry = new VariableTableEntry("tempvar", p_node.getToken().getType(), tempvarname, p_node.m_symtab.lookupName(p_node.getChildren().get(0).m_moonVarName).m_dims);
-		p_node.m_symtab.addEntry(p_node.m_symtabentry);
+
     }
 
     @Override
@@ -155,6 +147,17 @@ public class SymbolTableCreationVisitor implements Visitor{
     }
 
     @Override
+    public void visit(ASTNodeEmptyArray p_node)  throws Exception {
+        System.out.println("Empty Array");
+        // propagate accepting the same visitor to all the children
+        // this effectively achieves Depth-First AST Traversal
+        for (AST child : p_node.getChildren() ) {
+            child.m_symtab = p_node.m_symtab;
+            child.accept(this);
+        }
+    }
+
+    @Override
     public void visit(ASTNodeAssign p_node) throws Exception{
         System.out.println("Assign");
         // propagate accepting the same visitor to all the children
@@ -174,6 +177,7 @@ public class SymbolTableCreationVisitor implements Visitor{
             child.m_symtab = p_node.m_symtab;
             child.accept(this);
         }
+
     }
 
     @Override
@@ -251,10 +255,10 @@ public class SymbolTableCreationVisitor implements Visitor{
 			child.m_symtab = p_node.m_symtab;
 			child.accept(this);
 		}
-		String tempvarname = this.getNewTempVarName();
-		String vartype = p_node.getToken().getType();
-		p_node.m_symtabentry = new VariableTableEntry("litval", vartype, tempvarname, new Vector<Integer>());
-		p_node.m_symtab.addEntry(p_node.m_symtabentry);
+		// String tempvarname = this.getNewTempVarName();
+		// String vartype = p_node.getToken().getType();
+		// p_node.m_symtabentry = new VariableTableEntry("litval", vartype, tempvarname, new Vector<Integer>());
+		// p_node.m_symtab.addEntry(p_node.m_symtabentry);
     }
 
     @Override
@@ -266,10 +270,10 @@ public class SymbolTableCreationVisitor implements Visitor{
 			child.m_symtab = p_node.m_symtab;
 			child.accept(this);
 		}
-		String tempvarname = this.getNewTempVarName();
-		String vartype = p_node.getToken().getType();
-		p_node.m_symtabentry = new VariableTableEntry("litval", vartype, tempvarname, new Vector<Integer>());
-		p_node.m_symtab.addEntry(p_node.m_symtabentry);
+		// String tempvarname = this.getNewTempVarName();
+		// String vartype = p_node.getToken().getType();
+		// p_node.m_symtabentry = new VariableTableEntry("litval", vartype, tempvarname, new Vector<Integer>());
+		// p_node.m_symtab.addEntry(p_node.m_symtabentry);
     }
 
     @Override
@@ -356,11 +360,14 @@ public class SymbolTableCreationVisitor implements Visitor{
             String varid = p_node.getChildren().get(2).getToken().getValue();
             // loop over the list of dimension nodes and aggregate here 
             Vector<Integer> dimlist = new Vector<Integer>();
-            for (AST dim : p_node.getChildren().get(2).getChildren()){
+            for (AST dim : p_node.getChildren().get(0).getChildren()){
                 // parameter dimension
                 Integer dimval = Integer.parseInt(dim.getToken().getValue()); 
                 dimlist.add(dimval); 
             }
+
+
+
             // create the symbol table entry for this variable
             // it will be picked-up by another node above later
             p_node.m_symtabentry = new VariableTableEntry("local", vartype, varid, dimlist);
@@ -377,14 +384,17 @@ public class SymbolTableCreationVisitor implements Visitor{
         String vartype = p_node.getChildren().get(1).getToken().getValue(); // Type
         Vector<Integer> dimList = new Vector<Integer>();
         AST dimListNode = p_node.getChildren().get(0);
-        if (dimListNode.getChildren().size() == 0) {
-            dimList.add(null);
-        }
-        else {
-            for (AST node : dimListNode.getChildren()) {
+
+        if (dimListNode.getChildren().size() > 0 && !dimListNode.getChildren().get(0).getToken().getValue().equals("EmptyArray")) {
+            for (AST node : dimListNode.getChildren()) { // array
                 Integer dimValue = Integer.parseInt(node.getToken().getValue());
                 dimList.add(dimValue);
             }
+        }
+
+
+        if (dimListNode.getChildren().size() > 0 && dimListNode.getChildren().get(0).getToken().getValue().equals("EmptyArray")) {
+            dimList.add(-420);
         }
         
         p_node.m_symtabentry = new VariableTableEntry("param", vartype, varid, dimList);
@@ -441,9 +451,7 @@ public class SymbolTableCreationVisitor implements Visitor{
             child.m_symtab = p_node.m_symtab;
             child.accept(this);
         }
-        String tempvarname = this.getNewTempVarName();
-		p_node.m_symtabentry = new VariableTableEntry("tempvar", p_node.getToken().getType(), tempvarname, p_node.m_symtab.lookupName(p_node.getChildren().get(0).m_moonVarName).m_dims);
-		p_node.m_symtab.addEntry(p_node.m_symtabentry);
+
     }
 
     @Override
@@ -455,9 +463,7 @@ public class SymbolTableCreationVisitor implements Visitor{
             child.m_symtab = p_node.m_symtab;
             child.accept(this);
         }
-        String tempvarname = this.getNewTempVarName();
-		p_node.m_symtabentry = new VariableTableEntry("tempvar", p_node.getToken().getType(), tempvarname, p_node.m_symtab.lookupName(p_node.getChildren().get(0).m_moonVarName).m_dims);
-		p_node.m_symtab.addEntry(p_node.m_symtabentry);
+
     }
 
     @Override
@@ -469,9 +475,7 @@ public class SymbolTableCreationVisitor implements Visitor{
             child.m_symtab = p_node.m_symtab;
             child.accept(this);
         }
-        String tempvarname = this.getNewTempVarName();
-		p_node.m_symtabentry = new VariableTableEntry("tempvar", p_node.getToken().getType(), tempvarname, p_node.m_symtab.lookupName(p_node.getChildren().get(0).m_moonVarName).m_dims);
-		p_node.m_symtab.addEntry(p_node.m_symtabentry);
+
     }
 
     @Override
@@ -483,9 +487,7 @@ public class SymbolTableCreationVisitor implements Visitor{
             child.m_symtab = p_node.m_symtab;
             child.accept(this);
         }
-        String tempvarname = this.getNewTempVarName();
-		p_node.m_symtabentry = new VariableTableEntry("tempvar", p_node.getToken().getType(), tempvarname, p_node.m_symtab.lookupName(p_node.getChildren().get(0).m_moonVarName).m_dims);
-		p_node.m_symtab.addEntry(p_node.m_symtabentry);
+
     }
 
     @Override
@@ -497,9 +499,7 @@ public class SymbolTableCreationVisitor implements Visitor{
             child.m_symtab = p_node.m_symtab;
             child.accept(this);
         }
-        String tempvarname = this.getNewTempVarName();
-		p_node.m_symtabentry = new VariableTableEntry("tempvar", p_node.getToken().getType(), tempvarname, p_node.m_symtab.lookupName(p_node.getChildren().get(0).m_moonVarName).m_dims);
-		p_node.m_symtab.addEntry(p_node.m_symtabentry);
+
     }
 
     @Override
@@ -511,9 +511,7 @@ public class SymbolTableCreationVisitor implements Visitor{
             child.m_symtab = p_node.m_symtab;
             child.accept(this);
         }
-        String tempvarname = this.getNewTempVarName();
-		p_node.m_symtabentry = new VariableTableEntry("tempvar", p_node.getToken().getType(), tempvarname, p_node.m_symtab.lookupName(p_node.getChildren().get(0).m_moonVarName).m_dims);
-		p_node.m_symtab.addEntry(p_node.m_symtabentry);
+
     }
 
     @Override
@@ -525,9 +523,7 @@ public class SymbolTableCreationVisitor implements Visitor{
             child.m_symtab = p_node.m_symtab;
             child.accept(this);
         }
-        String tempvarname = this.getNewTempVarName();
-		p_node.m_symtabentry = new VariableTableEntry("tempvar", p_node.getToken().getType(), tempvarname, p_node.m_symtab.lookupName(p_node.getChildren().get(0).m_moonVarName).m_dims);
-		p_node.m_symtab.addEntry(p_node.m_symtabentry);
+
     }
 
     @Override
@@ -539,9 +535,7 @@ public class SymbolTableCreationVisitor implements Visitor{
             child.m_symtab = p_node.m_symtab;
             child.accept(this);
         }
-        String tempvarname = this.getNewTempVarName();
-		p_node.m_symtabentry = new VariableTableEntry("tempvar", p_node.getToken().getType(), tempvarname, p_node.m_symtab.lookupName(p_node.getChildren().get(0).m_moonVarName).m_dims);
-		p_node.m_symtab.addEntry(p_node.m_symtabentry);
+
     }
 
     @Override
@@ -553,9 +547,7 @@ public class SymbolTableCreationVisitor implements Visitor{
             child.m_symtab = p_node.m_symtab;
             child.accept(this);
         }
-        String tempvarname = this.getNewTempVarName();
-		p_node.m_symtabentry = new VariableTableEntry("tempvar", p_node.getToken().getType(), tempvarname, p_node.m_symtab.lookupName(p_node.getChildren().get(0).m_moonVarName).m_dims);
-		p_node.m_symtab.addEntry(p_node.m_symtabentry);
+
     }
 
     @Override
@@ -589,9 +581,7 @@ public class SymbolTableCreationVisitor implements Visitor{
             child.m_symtab = p_node.m_symtab;
             child.accept(this);
         }
-        String tempvarname = this.getNewTempVarName();
-		p_node.m_symtabentry = new VariableTableEntry("tempvar", p_node.getToken().getType(), tempvarname, p_node.m_symtab.lookupName(p_node.getChildren().get(0).m_moonVarName).m_dims);
-		p_node.m_symtab.addEntry(p_node.m_symtabentry);
+
     }
 
     @Override
@@ -761,15 +751,12 @@ public class SymbolTableCreationVisitor implements Visitor{
         System.out.println("FuncDecl");
 
         if (!p_node.getParent().getToken().getType().equals("MemberDecl")) {
-
             // Function return type
             String ftype = p_node.getChildren().get(1).getToken().getValue();
             
             // Function name
             String fname = p_node.getChildren().get(3).getToken().getValue(); // ID
-
             SymbolTable localtable = new SymbolTable(1,fname, p_node.m_symtab);
-            Vector<VariableTableEntry> paramlist = new Vector<VariableTableEntry>();
 
             // Step 1 for Variables: Getting the function arguments
             AST FparamListItems = p_node.getChildren().get(2);
@@ -778,6 +765,10 @@ public class SymbolTableCreationVisitor implements Visitor{
             for (int i = 0; i < FparamListItems.getChildren().size(); i++) {
                 AST currNode = FparamListItems.getChildren().get(i);
                 String paramType = currNode.getChildren().get(1).getToken().getValue();
+                if (currNode.getChildren().get(0).getChildren().size() > 0 && currNode.getChildren().get(0).getChildren().get(0).getToken().getValue().equals("EmptyArray")) {
+                    paramType += "[]";
+                }
+                
                 dimTypeList.add(paramType);
             }
 
@@ -793,11 +784,9 @@ public class SymbolTableCreationVisitor implements Visitor{
                 inheritIdList.add(inheritId);
             }
 
-            p_node.m_symtabentry = new InheritedTableEntry(null, inheritIdList);
-            p_node.m_symtab.addEntry(p_node.m_symtabentry);
-
+            // p_node.m_symtabentry = new InheritedTableEntry(null, inheritIdList);
+            // p_node.m_symtab.addEntry(p_node.m_symtabentry);
         }
-
         
 		// propagate accepting the same visitor to all the children
 		// this effectively achieves Depth-First AST Traversal
@@ -863,15 +852,24 @@ public class SymbolTableCreationVisitor implements Visitor{
             String varid = nodeType.getChildren().get(2).getToken().getValue(); // Get id
             String vartype = nodeType.getChildren().get(1).getToken().getValue(); // Get type
             Vector<Integer> dimlist = new Vector<Integer>(); // Get dimensions
-            for (AST dim : nodeType.getChildren().get(0).getChildren()){
-                // parameter dimension
-                Integer dimval = Integer.parseInt(dim.getToken().getValue()); 
-                dimlist.add(dimval); 
+            AST dimListNode =  nodeType.getChildren().get(0);
+
+            if (dimListNode.getChildren().size() > 0 && !dimListNode.getChildren().get(0).getToken().getValue().equals("EmptyArray")) {
+                for (AST dim : dimListNode.getChildren()){
+                    // parameter dimension
+                    Integer dimval = Integer.parseInt(dim.getToken().getValue()); 
+                    dimlist.add(dimval); 
+                }
             }
+            if (dimListNode.getChildren().size() > 0 && dimListNode.getChildren().get(0).getToken().getValue().equals("EmptyArray")) {
+                dimlist.add(-420);
+            }
+            
 		    p_node.m_symtabentry = new MemberVariableTableEntry("data", vartype, varid, dimlist, visibility);
             p_node.m_symtab.addEntry(p_node.m_symtabentry);
         }
 
+        // TODO: Check for array fparam integer[]
         else if (nodeType.getToken().getType().equals("FuncDef")) {
 
             // Function return type
