@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import java.util.Vector;
 
 public class SymbolTableCreationVisitor implements Visitor{
@@ -351,7 +352,20 @@ public class SymbolTableCreationVisitor implements Visitor{
 			child.m_symtab = p_node.m_symtab;
 			child.accept(this);
 		}
-        if (!p_node.getParent().getToken().getType().equals("MemberDecl")) {
+
+        // Cheeck if we are in impl
+        AST isImplParent = new AST();
+        isImplParent = p_node;
+        Boolean writeFlag = true;
+        while (isImplParent != null) {
+            if (isImplParent.getToken().getValue().equals("ImplDecl")) {
+                writeFlag = false;
+                break;
+            }
+            isImplParent = isImplParent.getParent();
+        }
+
+        if (!p_node.getParent().getToken().getType().equals("MemberDecl") && writeFlag) {
             // Then, do the processing of this nodes' visitor
             // aggregate information from the subtree
             // get the type from the first child node and aggregate here 
@@ -366,39 +380,79 @@ public class SymbolTableCreationVisitor implements Visitor{
                 dimlist.add(dimval); 
             }
 
-
-
             // create the symbol table entry for this variable
             // it will be picked-up by another node above later
             p_node.m_symtabentry = new VariableTableEntry("local", vartype, varid, dimlist);
             p_node.m_symtab.addEntry(p_node.m_symtabentry);
         }
-		
+        // if in impldecl
+        else if (!writeFlag) {
+            // Then, do the processing of this nodes' visitor
+            // aggregate information from the subtree
+            // get the type from the first child node and aggregate here 
+            String vartype = p_node.getChildren().get(1).getToken().getValue();
+            // get the id from the second child node and aggregate here
+            String varid = p_node.getChildren().get(2).getToken().getValue();
+            // loop over the list of dimension nodes and aggregate here 
+            Vector<Integer> dimlist = new Vector<Integer>();
+            for (AST dim : p_node.getChildren().get(0).getChildren()){
+                // parameter dimension
+                Integer dimval = Integer.parseInt(dim.getToken().getValue()); 
+                dimlist.add(dimval); 
+            }
+
+            // Set root to impl start
+            AST rootImplName = new AST();
+            rootImplName = p_node;
+            while (rootImplName != null) {
+                if (rootImplName.getToken().getValue().equals("ImplDecl")) {
+                    break;
+                }
+                rootImplName = rootImplName.getParent();
+            }
+
+            // Get table name
+            String implName = rootImplName.getChildren().get(1).getToken().getValue();
+            p_node.m_symtab.lookupName(implName);
+
+            // Perform DFS to find the table to add to
+            Stack<AST> stack = new Stack<>();
+            List<AST> currChildren = new ArrayList<>();
+            AST curr = new AST();
+            AST progNode = rootImplName.getParent();
+            stack.push(progNode);
+            while (!stack.isEmpty()) {
+                curr = stack.pop();
+                // TODO: Because the struct, impl, func, vars are generated in reverse order, appending to the class's table (curr.m_symtab) is null
+                // TODO: This fails because the class FOR SOME REASON has its table made AFTER the impl (which is why its null)
+                if (curr.getToken().getValue().equals("StructDecl") && curr.getChildren().get(2).getToken().getValue().equals(implName)) {
+                    VariableTableEntry variableEntry = new VariableTableEntry(implName + "->local", vartype, varid, dimlist);
+                    
+                    // REMOVE THIS IF WE GO TOP DOWN INSTEAD OF BOTTOM UP TABLE GENRATION!!!
+                    // ----------------------------------------------------------------------
+                    SymbolTable localTable = new SymbolTable(2, implName, p_node.m_symtab);
+                    // curr.m_symtabentry = new ClassTableEntry(implName, localTable);
+                    // curr.m_symtab = localTable;
+                    // curr.m_symtab.addEntry(curr.m_symtabentry);
+                    // curr.m_symtab.addEntry(variableEntry);
+                    p_node.m_symtab.addEntry(variableEntry);
+                    // ----------------------------------------------------------------------
+
+                    // TODO: Uncomment if the class table is generated FIRST if we fix it!!!!!
+                    // curr.m_symtab.addEntry(variableEntry);
+                    break;
+                }
+                currChildren = curr.getChildren();
+                for (int i = 0; i < currChildren.size(); i++) {
+                    stack.push(currChildren.get(i));
+                }
+            }
+        }
     }
 
     @Override
     public void visit(ASTNodeFParam p_node)  throws Exception {
         System.out.println("F Param");
-
-        String varid = p_node.getChildren().get(2).getToken().getValue(); // Id
-        String vartype = p_node.getChildren().get(1).getToken().getValue(); // Type
-        Vector<Integer> dimList = new Vector<Integer>();
-        AST dimListNode = p_node.getChildren().get(0);
-
-        if (dimListNode.getChildren().size() > 0 && !dimListNode.getChildren().get(0).getToken().getValue().equals("EmptyArray")) {
-            for (AST node : dimListNode.getChildren()) { // array
-                Integer dimValue = Integer.parseInt(node.getToken().getValue());
-                dimList.add(dimValue);
-            }
-        }
-
-
-        if (dimListNode.getChildren().size() > 0 && dimListNode.getChildren().get(0).getToken().getValue().equals("EmptyArray")) {
-            dimList.add(-420);
-        }
-        
-        p_node.m_symtabentry = new VariableTableEntry("param", vartype, varid, dimList);
-        p_node.m_symtab.addEntry(p_node.m_symtabentry);
 
         // propagate accepting the same visitor to all the children
         // this effectively achieves Depth-First AST Traversal
@@ -406,6 +460,47 @@ public class SymbolTableCreationVisitor implements Visitor{
             child.m_symtab = p_node.m_symtab;
             child.accept(this);
         }
+
+        // Cheeck if we are in impl
+        AST isImplParent = new AST();
+        isImplParent = p_node;
+        Boolean writeFlag = true;
+        while (isImplParent != null) {
+            if (isImplParent.getToken().getValue().equals("ImplDecl")) {
+                writeFlag = false;
+                break;
+            }
+            isImplParent = isImplParent.getParent();
+        }
+
+        if (writeFlag) {
+            String varid = p_node.getChildren().get(2).getToken().getValue(); // Id
+            String vartype = p_node.getChildren().get(1).getToken().getValue(); // Type
+            Vector<Integer> dimList = new Vector<Integer>();
+            AST dimListNode = p_node.getChildren().get(0);
+
+            if (dimListNode.getChildren().size() > 0 && !dimListNode.getChildren().get(0).getToken().getValue().equals("EmptyArray")) {
+                for (AST node : dimListNode.getChildren()) { // array
+                    Integer dimValue = Integer.parseInt(node.getToken().getValue());
+                    dimList.add(dimValue);
+                }
+            }
+
+
+            if (dimListNode.getChildren().size() > 0 && dimListNode.getChildren().get(0).getToken().getValue().equals("EmptyArray")) {
+                dimList.add(-420);
+            }
+            
+            p_node.m_symtabentry = new VariableTableEntry("param", vartype, varid, dimList);
+            p_node.m_symtab.addEntry(p_node.m_symtabentry);
+        }
+
+        // // propagate accepting the same visitor to all the children
+        // // this effectively achieves Depth-First AST Traversal
+        // for (AST child : p_node.getChildren() ) {
+        //     child.m_symtab = p_node.m_symtab;
+        //     child.accept(this);
+        // }
     }
 
     @Override
@@ -706,11 +801,6 @@ public class SymbolTableCreationVisitor implements Visitor{
             inherList.add(nodes.getToken().getValue());
         }
 
-        // Vector<SymbolTableEntry> entryList = new Vector<>();
-        // for(String inherString: inherList){
-        //     entryList.addAll(p_node.m_symtab.lookupName(inherString).m_subtable.m_symlist);
-        // }
-
         Vector<String> inheritIdList = new Vector<>();
         for (AST node : p_node.getChildren().get(1).getChildren()) {
             String inheritId = node.getToken().getValue();
@@ -726,7 +816,11 @@ public class SymbolTableCreationVisitor implements Visitor{
 
         // Add the tables
         p_node.m_symtab.addEntry(p_node.m_symtabentry);
+        // if (p_node.m_symtab == null) {
+        //     p_node.m_symtab = localTable;
+        // }
         p_node.m_symtab = localTable;
+
         p_node.m_symtab.addEntry(inheritEntry);
 
         for (AST child : p_node.getChildren()) {
@@ -738,6 +832,7 @@ public class SymbolTableCreationVisitor implements Visitor{
     @Override
     public void visit(ASTNodeImplDefDecl p_node)  throws Exception {
         System.out.println("ImplDefDecl");
+        // // SKIP VERIFYING THE CHILDREN FROM THE IMPL! WE DO NOT NEED THEM!
         // propagate accepting the same visitor to all the children
         // this effectively achieves Depth-First AST Traversal
         for (AST child : p_node.getChildren() ) {
@@ -750,7 +845,19 @@ public class SymbolTableCreationVisitor implements Visitor{
     public void visit(ASTNodeFuncDefDecl p_node)  throws Exception {
         System.out.println("FuncDecl");
 
-        if (!p_node.getParent().getToken().getType().equals("MemberDecl")) {
+        // Cheeck if we are in impl
+        AST isImplParent = new AST();
+        isImplParent = p_node;
+        Boolean writeFlag = true;
+        while (isImplParent != null) {
+            if (isImplParent.getToken().getValue().equals("ImplDecl")) {
+                writeFlag = false;
+                break;
+            }
+            isImplParent = isImplParent.getParent();
+        }
+
+        if (!p_node.getParent().getToken().getType().equals("MemberDecl") && writeFlag) {
             // Function return type
             String ftype = p_node.getChildren().get(1).getToken().getValue();
             
@@ -775,6 +882,10 @@ public class SymbolTableCreationVisitor implements Visitor{
             // p_node.m_symtabentry = new FunctionTableEntry(ftype, fname, paramlist, localtable, dimTypeList);
             p_node.m_symtabentry = new FunctionTableEntry(ftype, fname, localtable, dimTypeList);
             p_node.m_symtab.addEntry(p_node.m_symtabentry);
+            
+            // if (p_node.m_symtab == null) {
+            //     p_node.m_symtab = localtable;
+            // }
             p_node.m_symtab = localtable;
 
 
@@ -783,9 +894,6 @@ public class SymbolTableCreationVisitor implements Visitor{
                 String inheritId = node.getToken().getValue();
                 inheritIdList.add(inheritId);
             }
-
-            // p_node.m_symtabentry = new InheritedTableEntry(null, inheritIdList);
-            // p_node.m_symtab.addEntry(p_node.m_symtabentry);
         }
         
 		// propagate accepting the same visitor to all the children
@@ -847,8 +955,20 @@ public class SymbolTableCreationVisitor implements Visitor{
         String visibility = p_node.getChildren().get(1).getToken().getValue();
         AST nodeType = p_node.getChildren().get(0);
 
+        // Cheeck if we are in impl
+        AST isImplParent = new AST();
+        isImplParent = p_node;
+        Boolean writeFlag = true;
+        while (isImplParent != null) {
+            if (isImplParent.getToken().getValue().equals("ImplDecl")) {
+                writeFlag = false;
+                break;
+            }
+            isImplParent = isImplParent.getParent();
+        }
+
         // Check for var
-        if (nodeType.getToken().getType().equals("VarDecl")) {
+        if (nodeType.getToken().getType().equals("VarDecl") && writeFlag) {
             String varid = nodeType.getChildren().get(2).getToken().getValue(); // Get id
             String vartype = nodeType.getChildren().get(1).getToken().getValue(); // Get type
             Vector<Integer> dimlist = new Vector<Integer>(); // Get dimensions
@@ -870,7 +990,7 @@ public class SymbolTableCreationVisitor implements Visitor{
         }
 
         // TODO: Check for array fparam integer[]
-        else if (nodeType.getToken().getType().equals("FuncDef")) {
+        else if (nodeType.getToken().getType().equals("FuncDef") && writeFlag) {
 
             // Function return type
             String ftype = nodeType.getChildren().get(0).getToken().getValue();
@@ -897,6 +1017,9 @@ public class SymbolTableCreationVisitor implements Visitor{
 
             p_node.m_symtabentry = new MemberFuncTableEntry(ftype, fname, localtable, visibility, dimTypeList);
             p_node.m_symtab.addEntry(p_node.m_symtabentry);
+            // if (p_node.m_symtab == null) {
+            //     p_node.m_symtab = localtable;
+            // }
             p_node.m_symtab = localtable;
 
         }
