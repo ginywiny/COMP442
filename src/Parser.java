@@ -569,6 +569,18 @@ public class Parser {
         semanticStack.push(subtreeNode);
     }
 
+    static List<AST> reverseChildren(List<AST> list) {
+        Stack<AST> stack = new Stack<>();
+        List<AST> reversedList = new ArrayList<>();
+        for (AST node : list) {
+            stack.push(node);
+        }
+        while (!stack.isEmpty()) {
+            reversedList.add(stack.pop());
+        }
+
+        return reversedList;
+    } 
 
 
     static AST returnExactAstNode(AST preNode) {
@@ -581,7 +593,9 @@ public class Parser {
 
         nodeType = nodeType.toLowerCase();
         List<AST> children = preNode.getChildren();
-        
+        // TODO: Reverse children order!
+        children  = reverseChildren(children);
+
         switch(nodeType) {
             case "prog":
                 // String child1 = renamingMap.get(children.get(0).getToken().getType());
@@ -666,6 +680,10 @@ public class Parser {
                 return new ASTNodeStatOrVarDecl(nodeToken, children);
          
             case "fparamlist":
+                for (AST node : children) {
+                    // System.out.println("LIST: " + node.getChildren().get(2).getToken().getValue());
+                    System.out.println("LIST: " + node.getChildren().get(0).getToken().getValue());
+                }
                 return new ASTNodeFParamList(nodeToken, children);
          
             case "funcdef":

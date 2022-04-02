@@ -1,0 +1,14 @@
+Prog
+| StructDecl
+| | id
+| | InherList
+| | MembList
+| | | public
+| | | FuncDef
+| | | | id
+| | | | FParamList
+| | | | | id
+| | | | | float
+| | | | | FParam
+| | | | | | FParamList
+| | | | float

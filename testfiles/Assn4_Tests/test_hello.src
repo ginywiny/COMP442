@@ -1,0 +1,4 @@
+func main() -> void
+{
+  hello.hello.hello = hello.hello();
+}
