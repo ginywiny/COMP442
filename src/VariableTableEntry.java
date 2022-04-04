@@ -14,8 +14,9 @@ public class VariableTableEntry extends SymbolTableEntry {
 			String.format("%-12s" , "| " + m_name) + 
 			String.format("%-16s"  , "| " + m_type) + 
 			String.format("%-12s"  , "| " + "[]") + 
-			// String.format("%-8s"  , "| " + m_size) + 
-			// String.format("%-16s"  , "| " + m_offset) +
+			// UNCOMMENTED BELOW TO SHOW MEMORY
+			String.format("%-8s"  , "| " + m_size) + 
+			String.format("%-16s"  , "| " + m_offset) +
 			"|";
 		}
 		// If array declared in function argument with numbers
@@ -24,8 +25,8 @@ public class VariableTableEntry extends SymbolTableEntry {
 			String.format("%-12s" , "| " + m_name) + 
 			String.format("%-16s"  , "| " + m_type) + 
 			String.format("%-12s"  , "| " + m_dims) + 
-			// String.format("%-8s"  , "| " + m_size) + 
-			// String.format("%-16s"  , "| " + m_offset) +
+			String.format("%-8s"  , "| " + m_size) + 
+			String.format("%-16s"  , "| " + m_offset) +
 			"|";
 		}
 		// If not array
@@ -34,8 +35,8 @@ public class VariableTableEntry extends SymbolTableEntry {
 			String.format("%-12s" , "| " + m_name) + 
 			String.format("%-16s"  , "| " + m_type) + 
 			String.format("%-12s"  , "| ") + 
-			// String.format("%-8s"  , "| " + m_size) + 
-			// String.format("%-16s"  , "| " + m_offset) +
+			String.format("%-8s"  , "| " + m_size) + 
+			String.format("%-16s"  , "| " + m_offset) +
 			"|";
 		}
 	}

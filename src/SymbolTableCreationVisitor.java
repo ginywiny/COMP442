@@ -249,7 +249,7 @@ public class SymbolTableCreationVisitor implements Visitor{
 
     @Override
     public void visit(ASTNodeIntNum p_node) throws Exception{
-        System.out.println();
+        System.out.println("Int num");
         // propagate accepting the same visitor to all the children
 		// this effectively achieves Depth-First AST Traversal
 		for (AST child : p_node.getChildren()) {
@@ -264,7 +264,7 @@ public class SymbolTableCreationVisitor implements Visitor{
 
     @Override
     public void visit(ASTNodeFloatNum p_node) throws Exception {
-        System.out.println();
+        System.out.println("Float num");
         // propagate accepting the same visitor to all the children
 		// this effectively achieves Depth-First AST Traversal
 		for (AST child : p_node.getChildren()) {
@@ -668,7 +668,7 @@ public class SymbolTableCreationVisitor implements Visitor{
 
     @Override
     public void visit(ASTNodeAddOp p_node)  throws Exception {
-        System.out.println();
+        System.out.println("Add op");
         // propagate accepting the same visitor to all the children
         // this effectively achieves Depth-First AST Traversal
         for (AST child : p_node.getChildren() ) {
@@ -723,14 +723,19 @@ public class SymbolTableCreationVisitor implements Visitor{
     }
 
     @Override
-    public void visit(ASTNodeAssignStatement node) {
-        System.out.println();
+    public void visit(ASTNodeAssignStatement p_node) throws Exception {
+        System.out.println("Assign stat");
+        // propagate accepting the same visitor to all the children
+        // this effectively achieves Depth-First AST Traversal
+        for (AST child : p_node.getChildren() ) {
+            child.m_symtab = p_node.m_symtab;
+            child.accept(this);
+        }
     }
     
     @Override
     public void visit(ASTNodeIfStatement p_node)  throws Exception {
-        System.out.println();
-        System.out.println("Integer type");
+        System.out.println("If stat");
         // propagate accepting the same visitor to all the children
         // this effectively achieves Depth-First AST Traversal
         for (AST child : p_node.getChildren() ) {
@@ -741,8 +746,7 @@ public class SymbolTableCreationVisitor implements Visitor{
 
     @Override
     public void visit(ASTNodeWhileStatement p_node)  throws Exception {
-        System.out.println();
-        System.out.println("Integer type");
+        System.out.println("While stat");
         // propagate accepting the same visitor to all the children
         // this effectively achieves Depth-First AST Traversal
         for (AST child : p_node.getChildren() ) {
@@ -753,8 +757,7 @@ public class SymbolTableCreationVisitor implements Visitor{
 
     @Override
     public void visit(ASTNodeReadStatement p_node)  throws Exception {
-        System.out.println();
-        System.out.println("Integer type");
+        System.out.println("Read stat");
         // propagate accepting the same visitor to all the children
         // this effectively achieves Depth-First AST Traversal
         for (AST child : p_node.getChildren() ) {
@@ -765,8 +768,7 @@ public class SymbolTableCreationVisitor implements Visitor{
 
     @Override
     public void visit(ASTNodeWriteStatement p_node)  throws Exception {
-        System.out.println();
-        System.out.println("Integer type");
+        System.out.println("Write stat");
         // propagate accepting the same visitor to all the children
         // this effectively achieves Depth-First AST Traversal
         for (AST child : p_node.getChildren() ) {
@@ -777,8 +779,7 @@ public class SymbolTableCreationVisitor implements Visitor{
 
     @Override
     public void visit(ASTNodeReturnStatement p_node)  throws Exception {
-        System.out.println();
-        System.out.println("Integer type");
+        System.out.println("Return stat");
         // propagate accepting the same visitor to all the children
         // this effectively achieves Depth-First AST Traversal
         for (AST child : p_node.getChildren() ) {

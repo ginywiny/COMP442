@@ -1,0 +1,40 @@
+//struct POLYNOMIAL {
+//	public func evaluate(x: float, y: integer) -> float;
+//};
+
+
+//struct LINEAR inherits POLYNOMIAL {
+//	private let a: float;
+//	public let b: float;
+//	private let c: float;
+//	public  func evaluate(x: float) -> float;
+//	public  func build(A: float, B: float, C: float) -> QUADRATIC;
+//};
+
+//func bubbleSort(arr: integer[], size: integer) -> void 
+//{
+//  let n: integer[8][2];
+//  let temp: integer; 
+//}
+
+
+func main() -> void
+{
+  let arr: integer[7];
+  let f1: integer;
+  let f2: float;
+  let f2: LINEAR;
+  let counter: integer;
+//  f1 = f1.build(2, 3.5);
+//  f2 = f2.build(-2.0, 1.0, 0.0);
+//  counter = 1;
+//      
+//  while(counter <= 10)
+//  {
+//    write(counter);
+//    write(f1.evaluate(counter));
+//    write(f2.evaluate(counter));
+//  };
+}
+
+

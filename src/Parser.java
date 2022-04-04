@@ -80,6 +80,7 @@ public class Parser {
 
     // Symbol table creator 
     static SymbolTableCreationVisitor creationVisitor = null;
+    static ComputeMemberSizeVisitor memoryVisitor = null;
     static TypeCheckingVisitor typeCheckVisitor = null;
     static Stack<AST> ASTNodeTypeStack = new Stack<>();
 
@@ -680,10 +681,6 @@ public class Parser {
                 return new ASTNodeStatOrVarDecl(nodeToken, children);
          
             case "fparamlist":
-                for (AST node : children) {
-                    // System.out.println("LIST: " + node.getChildren().get(2).getToken().getValue());
-                    System.out.println("LIST: " + node.getChildren().get(0).getToken().getValue());
-                }
                 return new ASTNodeFParamList(nodeToken, children);
          
             case "funcdef":
@@ -1050,6 +1047,7 @@ public class Parser {
         outastPath = lexer.getFilePathWithoutName() + "/" + lexer.getFileName() + ".outast";
         String outSymbolTablePath = lexer.getFilePathWithoutName() + "/" + lexer.getFileName() + ".outsymboltables";
         String outTypeCheckPath = lexer.getFilePathWithoutName() + "/" + lexer.getFileName() + ".outsemanticerrors";
+        String outMemorySymbolTablePath = lexer.getFilePathWithoutName() + "/" + lexer.getFileName() + ".outmemorysymboltables";
         //-----------------------------------------------------------
 
         //---------------------File Writer initialization------------
@@ -1091,13 +1089,13 @@ public class Parser {
 
         // TODO: Generate Table Assn4
         creationVisitor = new SymbolTableCreationVisitor(outSymbolTablePath);
+        memoryVisitor = new ComputeMemberSizeVisitor(outMemorySymbolTablePath);
         typeCheckVisitor = new TypeCheckingVisitor(outTypeCheckPath);
-        
         AST root = returnExactAstNode(ast.getChildren().get(0)); // skip ROOT token
-        root.accept(creationVisitor);
-        // root.accept(typeCheckVisitor);
 
-        
+        root.accept(creationVisitor); // Symbol Table creation
+        // root.accept(typeCheckVisitor); // Check type
+        root.accept(memoryVisitor);
         
         // Close reading and writing files
         // closeReadingWritingFiles();

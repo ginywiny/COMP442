@@ -3,7 +3,7 @@ import java.util.ArrayList;
 public class SymbolTable {
     public String                 m_name       = null;
 	public ArrayList<SymbolTableEntry> m_symlist    = null; 
-	// public int                    m_size       = 0;
+	public int                    m_size       = 0;
 	public int                    m_tablelevel = 0;
 	public SymbolTable                 m_uppertable = null;
 
@@ -48,14 +48,18 @@ public class SymbolTable {
 		String prelinespacing = new String();
 		for (int i = 0; i < this.m_tablelevel; i++)
 			prelinespacing += "|    "; 
-		stringtoreturn += "\n" + prelinespacing + "=====================================================\n";
+		// stringtoreturn += "\n" + prelinespacing + "=====================================================\n";
+		stringtoreturn += "\n" + prelinespacing + "=============================================================================\n";
 		// stringtoreturn += prelinespacing + String.format("%-25s" , "| table: " + m_name) + String.format("%-27s" , " scope offset: " + "0") + "|\n";
-		stringtoreturn += prelinespacing + String.format("%-30s" , "| table: " + m_name) + String.format("%-22s", "") + "|\n";
-		stringtoreturn += prelinespacing        + "=====================================================\n";
+		stringtoreturn += prelinespacing + String.format("%-25s" , "| table: " + m_name) + String.format("%-51s" , " scope offset: " + m_size) + "|\n";
+		// stringtoreturn += prelinespacing + String.format("%-30s" , "| table: " + m_name) + String.format("%-22s", "") + "|\n"; // WITHOUT MEMORY
+		// stringtoreturn += prelinespacing        + "=====================================================\n";
+		stringtoreturn += prelinespacing        + "=============================================================================\n";
 		for (int i = 0; i < m_symlist.size(); i++){
 			stringtoreturn +=  prelinespacing + m_symlist.get(i).toString() + '\n'; 
 		}
-		stringtoreturn += prelinespacing        + "=====================================================";
+		// stringtoreturn += prelinespacing        + "=====================================================";
+		stringtoreturn += prelinespacing        + "=============================================================================";
 		return stringtoreturn;
 	}
 }

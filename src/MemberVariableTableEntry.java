@@ -17,8 +17,8 @@ public class MemberVariableTableEntry extends SymbolTableEntry {
 				String.format("%-12s" , "| " + m_name) + 
 				String.format("%-12s"  , "| " + m_type) + 
               	String.format("%-12s"  , "| " + "[]") + 
-				// String.format("%-8s"  , "| " + m_size) + 
-				// String.format("%-8s"  , "| " + m_offset) +
+				String.format("%-8s"  , "| " + m_size) + 
+				String.format("%-8s"  , "| " + m_offset) +
 				String.format("%-8s"  , "| " + m_visibility)
 		        + "|";
 		}
@@ -28,8 +28,8 @@ public class MemberVariableTableEntry extends SymbolTableEntry {
 				String.format("%-12s" , "| " + m_name) + 
 				String.format("%-12s"  , "| " + m_type) + 
               	String.format("%-12s"  , "| " + m_dims) + 
-				// String.format("%-8s"  , "| " + m_size) + 
-				// String.format("%-8s"  , "| " + m_offset) +
+				String.format("%-8s"  , "| " + m_size) + 
+				String.format("%-8s"  , "| " + m_offset) +
 				String.format("%-8s"  , "| " + m_visibility)
 		        + "|";
 		}
@@ -39,8 +39,8 @@ public class MemberVariableTableEntry extends SymbolTableEntry {
 				String.format("%-12s" , "| " + m_name) + 
 				String.format("%-12s"  , "| " + m_type) + 
               	String.format("%-12s"  , "| ") + 
-				// String.format("%-8s"  , "| " + m_size) + 
-				// String.format("%-8s"  , "| " + m_offset) +
+				String.format("%-8s"  , "| " + m_size) + 
+				String.format("%-8s"  , "| " + m_offset) +
 				String.format("%-8s"  , "| " + m_visibility)
 		        + "|";
 		}
