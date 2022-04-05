@@ -8,9 +8,19 @@ public class AST {
     private List<AST> children = new ArrayList();
     private AST parent = null;
     public static int depth = 0;
+
+    // Symbol table
     public SymbolTable m_symtab = null;
     public SymbolTableEntry m_symtabentry = null;
+
+    // Type checking
+    public String      m_type               = null;
+
+    // Code generation
     public String m_moonVarName = new String();
+    // public  String      m_localRegister      = new String(); 
+    // public  String      m_leftChildRegister  = new String(); 
+    // public  String      m_rightChildRegister = new String(); 
 
     public AST() {
         this.children = new ArrayList();
@@ -34,6 +44,10 @@ public class AST {
 
     public List<AST> getChildren() {
         return children;
+    }
+
+    public String getType() {
+        return this.m_type;
     }
 
     public boolean isParentRoot() {

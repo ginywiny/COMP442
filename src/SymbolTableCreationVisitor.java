@@ -256,10 +256,64 @@ public class SymbolTableCreationVisitor implements Visitor{
 			child.m_symtab = p_node.m_symtab;
 			child.accept(this);
 		}
-		// String tempvarname = this.getNewTempVarName();
-		// String vartype = p_node.getToken().getType();
-		// p_node.m_symtabentry = new VariableTableEntry("litval", vartype, tempvarname, new Vector<Integer>());
-		// p_node.m_symtab.addEntry(p_node.m_symtabentry);
+
+        AST nodeImpl = p_node;
+        boolean isImpl = false;
+        String methodName = "";
+        while (nodeImpl.getParent() != null) {
+            if (nodeImpl.getToken().getValue().equals("MemberFunc")) {
+                methodName = nodeImpl.getChildren().get(0).getToken().getValue();
+            }
+            if (nodeImpl.getToken().getValue().equals("ImplDecl")) {
+                isImpl = true;
+                break;
+            }
+            nodeImpl = nodeImpl.getParent();
+        }
+
+        // If not in IMPL
+        if (!isImpl) {
+            String tempvarname = this.getNewTempVarName();
+            p_node.m_moonVarName = tempvarname;
+            String vartype = "integer";
+            p_node.m_symtabentry = new VariableTableEntry("litval", vartype, tempvarname, new Vector<Integer>());
+            p_node.m_symtab.addEntry(p_node.m_symtabentry);
+        }
+        // If in IMPL
+        else {
+            String structName = nodeImpl.getChildren().get(0).getToken().getValue();
+            AST progNode = nodeImpl.getParent();
+            Stack<AST> stack = new Stack<>();
+            AST curr = new AST();
+            stack.push(progNode);
+            
+            while (!stack.isEmpty()) {
+                curr = stack.pop();
+                if (curr.getToken().getValue().equals("StructDecl") 
+                && curr.getChildren().get(0).getToken().getValue().equals(structName)) {
+                    String tempvarname = this.getNewTempVarName();
+                    p_node.m_moonVarName = tempvarname;
+                    String vartype = "integer";
+                    p_node.m_symtabentry = new VariableTableEntry("litval", vartype, tempvarname, new Vector<Integer>());
+
+                    if (methodName.length() > 0) {
+                        SymbolTableEntry classTable = curr.m_symtabentry;
+                        for (SymbolTableEntry entry : classTable.m_subtable.m_symlist) {
+                            if (entry.m_kind.equals("function") && entry.m_name.equals(methodName)) {
+                                entry.m_subtable.addEntry(p_node.m_symtabentry);
+                            }
+                        }
+                    }
+                    else {
+                        curr.m_symtab.addEntry(p_node.m_symtabentry);
+                    }
+                }
+
+                for (AST node : curr.getChildren()) {
+                    stack.push(node);
+                }
+            }
+        }
     }
 
     @Override
@@ -271,10 +325,65 @@ public class SymbolTableCreationVisitor implements Visitor{
 			child.m_symtab = p_node.m_symtab;
 			child.accept(this);
 		}
-		// String tempvarname = this.getNewTempVarName();
-		// String vartype = p_node.getToken().getType();
-		// p_node.m_symtabentry = new VariableTableEntry("litval", vartype, tempvarname, new Vector<Integer>());
-		// p_node.m_symtab.addEntry(p_node.m_symtabentry);
+
+        AST nodeImpl = p_node;
+        boolean isImpl = false;
+        String methodName = "";
+        while (nodeImpl.getParent() != null) {
+            if (nodeImpl.getToken().getValue().equals("MemberFunc")) {
+                methodName = nodeImpl.getChildren().get(0).getToken().getValue();
+            }
+            if (nodeImpl.getToken().getValue().equals("ImplDecl")) {
+                isImpl = true;
+                break;
+            }
+            nodeImpl = nodeImpl.getParent();
+        }
+
+        // If not in IMPL
+        if (!isImpl) {
+            String tempvarname = this.getNewTempVarName();
+            p_node.m_moonVarName = tempvarname;
+            String vartype = "float";
+            p_node.m_symtabentry = new VariableTableEntry("litval", vartype, tempvarname, new Vector<Integer>());
+            p_node.m_symtab.addEntry(p_node.m_symtabentry);
+        }
+        // If in IMPL
+        else {
+            String structName = nodeImpl.getChildren().get(0).getToken().getValue();
+            AST progNode = nodeImpl.getParent();
+            Stack<AST> stack = new Stack<>();
+            AST curr = new AST();
+            stack.push(progNode);
+            
+            while (!stack.isEmpty()) {
+                curr = stack.pop();
+                if (curr.getToken().getValue().equals("StructDecl") 
+                && curr.getChildren().get(0).getToken().getValue().equals(structName)) {
+                    String tempvarname = this.getNewTempVarName();
+                    p_node.m_moonVarName = tempvarname;
+                    String vartype = "float";
+                    p_node.m_symtabentry = new VariableTableEntry("litval", vartype, tempvarname, new Vector<Integer>());
+
+                    if (methodName.length() > 0) {
+                        SymbolTableEntry classTable = curr.m_symtabentry;
+                        for (SymbolTableEntry entry : classTable.m_subtable.m_symlist) {
+                            if (entry.m_kind.equals("function") && entry.m_name.equals(methodName)) {
+                                entry.m_subtable.addEntry(p_node.m_symtabentry);
+                            }
+                        }
+                    }
+                    else {
+                        curr.m_symtab.addEntry(p_node.m_symtabentry);
+                    }
+                }
+
+                for (AST node : curr.getChildren()) {
+                    stack.push(node);
+                }
+            }
+
+        }
     }
 
     @Override
@@ -536,17 +645,7 @@ public class SymbolTableCreationVisitor implements Visitor{
         }
     }
 
-    @Override
-    public void visit(ASTNodeMultOp p_node)  throws Exception {
-        System.out.println("Mult Op");
-        // propagate accepting the same visitor to all the children
-        // this effectively achieves Depth-First AST Traversal
-        for (AST child : p_node.getChildren() ) {
-            child.m_symtab = p_node.m_symtab;
-            child.accept(this);
-        }
-
-    }
+    
 
     @Override
     public void visit(ASTNodeDivOp p_node)  throws Exception {
@@ -667,6 +766,91 @@ public class SymbolTableCreationVisitor implements Visitor{
     }
 
     @Override
+    public void visit(ASTNodeMultOp p_node)  throws Exception {
+        System.out.println("Mult Op");
+        // propagate accepting the same visitor to all the children
+        // this effectively achieves Depth-First AST Traversal
+        for (AST child : p_node.getChildren() ) {
+            child.m_symtab = p_node.m_symtab;
+            child.accept(this);
+        }
+
+        // TODO: Find the type to put!!!!!
+        // Do this to find the node type!!
+        String varType = "";
+        AST statementTypeFinder = p_node;
+        while (!statementTypeFinder.getParent().getToken().getValue().equals("Stat") && statementTypeFinder.getParent() != null) {
+            statementTypeFinder = statementTypeFinder.getParent();
+        }
+
+        Stack<AST> stack = new Stack<>();
+        stack.push(statementTypeFinder);
+        AST currIdNode = new AST();
+        while (statementTypeFinder != null) {
+            currIdNode = stack.pop();
+            if (currIdNode.getToken().getType().equals("id")) {
+                break;
+            }
+
+            for (AST child : currIdNode.getChildren()) {
+                stack.push(child);
+            }
+        }
+
+        SymbolTableEntry entry = new SymbolTableEntry();
+        if (p_node.m_symtab.m_name.equals("global")) {
+
+            AST typeFinder = new AST();
+            typeFinder = p_node;
+            String functionName = "";
+            String structName = "";
+            while (typeFinder.getParent() != null) {
+                if (typeFinder.getToken().getValue().equals("MemberFunc")) {
+                    functionName = typeFinder.getChildren().get(0).getToken().getValue();
+                }
+                else if (typeFinder.getToken().getValue().equals("ImplDecl")) {
+                    structName = typeFinder.getChildren().get(0).getToken().getValue();
+                }
+                typeFinder = typeFinder.getParent();
+            }
+
+            SymbolTable methodTable = null;
+            // Find the struct first
+            for (SymbolTableEntry classEntry : p_node.m_symtab.m_symlist) {
+               if (classEntry.m_name.equals(structName)) {
+                   // From struct, find function
+                   SymbolTable structEntries = classEntry.m_subtable;
+                   for (SymbolTableEntry funcEntry : structEntries.m_symlist) {
+                        if (funcEntry.m_name.equals(functionName)) {
+                            entry = structEntries.lookupName(currIdNode.getToken().getValue());
+                            varType = entry.m_type;
+                            methodTable = funcEntry.m_subtable;
+                            break;
+                        }
+                   }
+                   break;
+               }
+            }
+
+            String tempvarname = this.getNewTempVarName();
+            p_node.m_moonVarName = tempvarname;
+            p_node.m_symtabentry = new VariableTableEntry("tempvar", varType, p_node.m_moonVarName, p_node.m_symtab.lookupName(p_node.getChildren().get(0).m_moonVarName).m_dims);
+            methodTable.addEntry(p_node.m_symtabentry);
+        }
+
+        else {
+            entry = p_node.m_symtab.lookupName(currIdNode.getToken().getValue());
+            varType = entry.m_type;
+            String tempvarname = this.getNewTempVarName();
+            p_node.m_moonVarName = tempvarname;
+            // TODO: WHAT DO I DO WITH THIS?????  p_node.m_symtab.lookupName(p_node.getChildren().get(0).m_moonVarName).m_dims
+            // p_node.m_symtabentry = new VariableTableEntry("tempvar", varType, p_node.m_moonVarName, p_node.m_symtab.lookupName(p_node.getChildren().get(0).m_moonVarName).m_dims);
+            p_node.m_symtabentry = new VariableTableEntry("tempvar", varType, p_node.m_moonVarName, p_node.m_symtab.lookupName(p_node.getChildren().get(0).m_moonVarName).m_dims);
+            p_node.m_symtab.addEntry(p_node.m_symtabentry);
+        }
+    }
+
+    @Override
     public void visit(ASTNodeAddOp p_node)  throws Exception {
         System.out.println("Add op");
         // propagate accepting the same visitor to all the children
@@ -674,6 +858,82 @@ public class SymbolTableCreationVisitor implements Visitor{
         for (AST child : p_node.getChildren() ) {
             child.m_symtab = p_node.m_symtab;
             child.accept(this);
+        }
+
+        // TODO: Find the type to put!!!!!
+        // Do this to find the node type!!
+        String varType = "";
+
+        AST statementTypeFinder = p_node;
+        while (!statementTypeFinder.getParent().getToken().getValue().equals("Stat") && statementTypeFinder.getParent() != null) {
+            statementTypeFinder = statementTypeFinder.getParent();
+        }
+
+        Stack<AST> stack = new Stack<>();
+        stack.push(statementTypeFinder);
+        AST currIdNode = new AST();
+        while (statementTypeFinder != null) {
+            currIdNode = stack.pop();
+            if (currIdNode.getToken().getType().equals("id")) {
+                break;
+            }
+
+            for (AST child : currIdNode.getChildren()) {
+                stack.push(child);
+            }
+        }
+
+
+        SymbolTableEntry entry = new SymbolTableEntry();
+        if (p_node.m_symtab.m_name.equals("global")) {
+
+            AST typeFinder = new AST();
+            typeFinder = p_node;
+            String functionName = "";
+            String structName = "";
+            while (typeFinder.getParent() != null) {
+                if (typeFinder.getToken().getValue().equals("MemberFunc")) {
+                    functionName = typeFinder.getChildren().get(0).getToken().getValue();
+                }
+                else if (typeFinder.getToken().getValue().equals("ImplDecl")) {
+                    structName = typeFinder.getChildren().get(0).getToken().getValue();
+                }
+                typeFinder = typeFinder.getParent();
+            }
+
+            SymbolTable methodTable = null;
+            // Find the struct first
+            for (SymbolTableEntry classEntry : p_node.m_symtab.m_symlist) {
+               if (classEntry.m_name.equals(structName)) {
+                   // From struct, find function
+                   SymbolTable structEntries = classEntry.m_subtable;
+                   for (SymbolTableEntry funcEntry : structEntries.m_symlist) {
+                        if (funcEntry.m_name.equals(functionName)) {
+                            entry = structEntries.lookupName(currIdNode.getToken().getValue());
+                            varType = entry.m_type;
+                            methodTable = funcEntry.m_subtable;
+                            break;
+                        }
+                   }
+                   break;
+               }
+            }
+
+            String tempvarname = this.getNewTempVarName();
+            p_node.m_moonVarName = tempvarname;
+            p_node.m_symtabentry = new VariableTableEntry("tempvar", varType, p_node.m_moonVarName, p_node.m_symtab.lookupName(p_node.getChildren().get(0).m_moonVarName).m_dims);
+            methodTable.addEntry(p_node.m_symtabentry);
+        }
+
+        else {
+            entry = p_node.m_symtab.lookupName(currIdNode.getToken().getValue());
+            varType = entry.m_type;
+            String tempvarname = this.getNewTempVarName();
+            p_node.m_moonVarName = tempvarname;
+            // TODO: WHAT DO I DO WITH THIS?????  p_node.m_symtab.lookupName(p_node.getChildren().get(0).m_moonVarName).m_dims
+            // p_node.m_symtabentry = new VariableTableEntry("tempvar", varType, p_node.m_moonVarName, p_node.m_symtab.lookupName(p_node.getChildren().get(0).m_moonVarName).m_dims);
+            p_node.m_symtabentry = new VariableTableEntry("tempvar", varType, p_node.m_moonVarName, p_node.m_symtab.lookupName(p_node.getChildren().get(0).m_moonVarName).m_dims);
+            p_node.m_symtab.addEntry(p_node.m_symtabentry);
         }
 
     }

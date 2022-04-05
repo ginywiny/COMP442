@@ -19,9 +19,168 @@ public class ComputeMemberSizeVisitor implements Visitor{
     	return "t" + varCounter.toString();  
     }
 
+    public int getStructSize(AST p_node) {
+        int size = 0;
+        AST progNode = p_node;
+        while (progNode.getParent() != null) {
+            progNode = progNode.getParent();
+        }
+
+        // Find the size of the table for a given class (eg. return QUADRATIC)
+        String varType = p_node.getToken().getValue();
+        Stack<AST> stack = new Stack<>();
+        AST curr = new AST();
+        stack.push(progNode);
+        while (!stack.isEmpty()) {
+            curr = stack.pop();
+            // Set the size
+            if (curr.getToken().getValue().equals("StructDecl")
+            && curr.m_symtab.m_name.equals(varType)) {
+                size = Math.abs(curr.m_symtab.m_size);
+            }
+
+            for (AST node: curr.getChildren()) {
+                stack.push(node);
+            }
+        }
+        return size;
+    }
+
+
+    public void updateOffset(AST p_node) {
+        // Step 1: Check if we are in FUNC or in IMPL
+        AST isFuncNode = p_node;
+        boolean isFunc = false;
+        while (isFuncNode.getParent() != null) {
+            if (isFuncNode.getToken().getValue().equals("FuncDefDecl")) {
+                isFunc = true;
+                break;
+            }
+            isFuncNode = isFuncNode.getParent();
+        }
+        
+        // If we are in IMPL NOT FUNC!
+        if (!isFunc) {
+            AST structFinder = p_node;
+            String functionName = "";
+            String className = "";
+
+            // Find the Class and Method
+            while (structFinder.getParent() != null) {
+                // Get the function name
+                if (structFinder.getToken().getValue().equals("MemberFunc")) {
+                    functionName = structFinder.getChildren().get(0).getToken().getValue();
+                }
+                if (structFinder.getToken().getValue().equals("ImplDecl")) {
+                    className = structFinder.getChildren().get(0).getToken().getValue();
+                }
+                structFinder = structFinder.getParent();
+            }
+
+            // Find the symbol table for the class + method (eg. LINEAR::evaluate)
+            boolean isMethodFound = false;
+            SymbolTableEntry entryToUpdate = null;
+            
+            // structFinder is at PROG
+            for (SymbolTableEntry classEntry : structFinder.m_symtab.m_symlist) {
+                if (classEntry.m_name.equals(className)) {
+                    SymbolTable subTable = classEntry.m_subtable;
+
+                    for (SymbolTableEntry functionEntry : subTable.m_symlist) {
+                        if (functionEntry.m_kind.equals("function") && functionEntry.m_name.equals(functionName)) {
+                            entryToUpdate = functionEntry;
+                            isMethodFound = true;
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+            
+            // Update the table by setting the size of the current variable, and then updating offsets
+            if (isMethodFound) {
+                SymbolTable classFuncTable = entryToUpdate.m_subtable;
+                String varType = p_node.m_symtabentry.m_type; 
+                int size = 0;
+                if (varType.equals("integer")) {
+                    size = 4;
+                }
+                else if (varType.equals("float")) {
+                    size = 8;
+                }
+                else {
+                    size = getStructSize(p_node);
+                }
+
+                // Update the table offsets!
+                classFuncTable.m_size = -size;
+                classFuncTable.m_size = 0;
+                for (SymbolTableEntry entry : classFuncTable.m_symlist) {
+                    entry.m_offset = classFuncTable.m_size - entry.m_size; 
+                    classFuncTable.m_size -= entry.m_size;
+                }
+            }
+        }
+        else {
+            AST funcFinder = p_node;
+            String funcName = "";
+            // Find the function and then set funcFinder to PROG
+            while (funcFinder.getParent() != null) {
+                // Get the function name
+                if (funcFinder.getToken().getValue().equals("FuncDefDecl")) {
+                    if (funcFinder.getChildren().size() > 0) {
+                        funcName = funcFinder.getChildren().get(0).getToken().getValue();
+                    }
+                }
+                funcFinder = funcFinder.getParent();
+            }
+
+
+            // Find the symbol table for the class + method (eg. LINEAR::evaluate)
+            boolean isFuncFound = false;
+            SymbolTableEntry entryFuncToUpdate = null;
+            
+            // funcFinder is at PROG
+            for (SymbolTableEntry funcEntry : funcFinder.m_symtab.m_symlist) {
+                if (funcEntry.m_kind.equals("function") && funcEntry.m_name.equals(funcName)) {
+                    entryFuncToUpdate = funcEntry;
+                    isFuncFound = true;
+                    break;
+                }
+            }
+
+            if (isFuncFound) {
+                SymbolTable funcTable = entryFuncToUpdate.m_subtable;
+                String varType = p_node.m_symtabentry.m_type; 
+                int size = 0;
+                if (varType.equals("integer")) {
+                    size = 4;
+                }
+                else if (varType.equals("float")) {
+                    size = 8;
+                }
+                else {
+                    size = getStructSize(p_node);
+                }
+
+                // Update the table offsets!
+                funcTable.m_size = -size;
+                funcTable.m_size = 0;
+                for (SymbolTableEntry entry : funcTable.m_symlist) {
+                    entry.m_offset = funcTable.m_size - entry.m_size; 
+                    funcTable.m_size -= entry.m_size;
+                }
+            }
+            else {
+                System.out.println("Func not found...");
+            }
+        }
+    }
+
+
+
     public int sizeOfEntry(AST p_node) {
         int size = 0;
-
 
         //TODO: Create DFS to find the memory size for a class (ex. LINEAR)
 
@@ -81,8 +240,35 @@ public class ComputeMemberSizeVisitor implements Visitor{
 			size = 4;
 		else if(p_node.getToken().getType().equals("float"))
 			size = 8;
+        else {
+            // Get PROG
+            AST progNode = p_node;
+            while (progNode.getParent() != null) {
+                progNode = progNode.getParent();
+            }
+
+            // Find the size of the table for a given class (eg. return QUADRATIC)
+            String varType = p_node.getToken().getValue();
+            Stack<AST> stack = new Stack<>();
+            AST curr = new AST();
+            stack.push(progNode);
+            while (!stack.isEmpty()) {
+                curr = stack.pop();
+                // Set the size
+                if (curr.getToken().getValue().equals("StructDecl")
+                && curr.m_symtab.m_name.equals(varType)) {
+                    size = Math.abs(curr.m_symtab.m_size);
+                }
+
+                for (AST node: curr.getChildren()) {
+                    stack.push(node);
+                }
+            }
+        }
 		return size;
 	}
+
+
 
     @Override
     public void visit(ASTNodeProg p_node) throws Exception {
@@ -294,7 +480,20 @@ public class ComputeMemberSizeVisitor implements Visitor{
 		for (AST child : p_node.getChildren()) {
             child.accept(this);
         }
-        // p_node.m_symtabentry.m_size = this.sizeOfEntry(p_node);
+        String varType = p_node.m_symtabentry.m_type; 
+        int size = 0;
+        if (varType.equals("integer")) {
+            size = 4;
+        }
+        else if (varType.equals("float")) {
+            size = 8;
+        }
+        else {
+            size = getStructSize(p_node);
+        }
+
+        p_node.m_symtabentry.m_size = size;
+        this.updateOffset(p_node);
     }
 
     @Override
@@ -305,7 +504,20 @@ public class ComputeMemberSizeVisitor implements Visitor{
 		for (AST child : p_node.getChildren()) {
             child.accept(this);
         }
-        // p_node.m_symtabentry.m_size = this.sizeOfEntry(p_node);
+        String varType = p_node.m_symtabentry.m_type; 
+        int size = 0;
+        if (varType.equals("integer")) {
+            size = 4;
+        }
+        else if (varType.equals("float")) {
+            size = 8;
+        }
+        else {
+            size = getStructSize(p_node);
+        }
+
+        p_node.m_symtabentry.m_size = size;
+        this.updateOffset(p_node);
     }
 
     @Override
@@ -406,10 +618,6 @@ public class ComputeMemberSizeVisitor implements Visitor{
 
         // Set the size for the variable within the struct by finding it in IMPL
         if (isMemberFunc) {
-
-
-
-
             // Set the structFinger to PROG
             AST structFinder = p_node;
             String functionName = "";
@@ -445,11 +653,8 @@ public class ComputeMemberSizeVisitor implements Visitor{
                 }
             }
 
-
-            
-
-
             if (isMethodFound) {
+                // For the new value added (local from IMPL), find it in the symboltable and assign its type + size
                 for (SymbolTableEntry entry : curr.m_symtab.m_symlist) {
                     if (entry.m_name.equals(p_node.getChildren().get(0).getToken().getValue())) {
                         entry.m_size = this.sizeOfEntry(p_node.getChildren().get(1));
@@ -465,9 +670,6 @@ public class ComputeMemberSizeVisitor implements Visitor{
                     curr.m_symtab.m_size -= entry.m_size;
                 }
             }
-
-
-
         }
     }
 
@@ -535,16 +737,7 @@ public class ComputeMemberSizeVisitor implements Visitor{
 		}
     }
 
-    @Override
-    public void visit(ASTNodeMultOp p_node)  throws Exception {
-        System.out.println("Mult Op");
-        // propagate accepting the same visitor to all the children
-		// this effectively achieves Depth-First AST Traversal
-		for (AST child : p_node.getChildren()) {
-            child.accept(this);
-        }
-        // p_node.m_symtabentry.m_size = this.sizeOfEntry(p_node);
-    }
+    
 
     @Override
     public void visit(ASTNodeDivOp p_node)  throws Exception {
@@ -647,6 +840,30 @@ public class ComputeMemberSizeVisitor implements Visitor{
     }
 
     @Override
+    public void visit(ASTNodeMultOp p_node)  throws Exception {
+        System.out.println("Mult Op");
+        // propagate accepting the same visitor to all the children
+		// this effectively achieves Depth-First AST Traversal
+		for (AST child : p_node.getChildren()) {
+            child.accept(this);
+        }
+        String varType = p_node.m_symtabentry.m_type; 
+        int size = 0;
+        if (varType.equals("integer")) {
+            size = 4;
+        }
+        else if (varType.equals("float")) {
+            size = 8;
+        }
+        else {
+            size = getStructSize(p_node);
+        }
+
+        p_node.m_symtabentry.m_size = size;
+        this.updateOffset(p_node);
+    }
+
+    @Override
     public void visit(ASTNodeAddOp p_node)  throws Exception {
         System.out.println("Add op");
         // propagate accepting the same visitor to all the children
@@ -654,7 +871,20 @@ public class ComputeMemberSizeVisitor implements Visitor{
 		for (AST child : p_node.getChildren()) {
             child.accept(this);
         }
-        // p_node.m_symtabentry.m_size = this.sizeOfEntry(p_node);
+        String varType = p_node.m_symtabentry.m_type; 
+        int size = 0;
+        if (varType.equals("integer")) {
+            size = 4;
+        }
+        else if (varType.equals("float")) {
+            size = 8;
+        }
+        else {
+            size = getStructSize(p_node);
+        }
+
+        p_node.m_symtabentry.m_size = size;
+        this.updateOffset(p_node);
     }
 
     @Override
@@ -790,8 +1020,6 @@ public class ComputeMemberSizeVisitor implements Visitor{
 		for (AST child : p_node.getChildren()) {
             child.accept(this);
         }
-        // p_node.m_symtabentry.m_size = this.sizeOfEntry(p_node);
-    
         p_node.m_symtab.m_size = -(this.sizeOfTypeNode(p_node.getChildren().get(2)));
 		//then is the return addess is stored on the stack frame
 		p_node.m_symtab.m_size = 0;
