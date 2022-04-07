@@ -121,6 +121,7 @@ public class ComputeMemberSizeVisitor implements Visitor{
                 }
             }
         }
+        // If we are in FUNC, not STRUCT or IMPL
         else {
             AST funcFinder = p_node;
             String funcName = "";

@@ -782,6 +782,7 @@ public class SymbolTableCreationVisitor implements Visitor{
         while (!statementTypeFinder.getParent().getToken().getValue().equals("Stat") && statementTypeFinder.getParent() != null) {
             statementTypeFinder = statementTypeFinder.getParent();
         }
+        statementTypeFinder = statementTypeFinder.getParent(); // Get Stat
 
         Stack<AST> stack = new Stack<>();
         stack.push(statementTypeFinder);
@@ -868,6 +869,7 @@ public class SymbolTableCreationVisitor implements Visitor{
         while (!statementTypeFinder.getParent().getToken().getValue().equals("Stat") && statementTypeFinder.getParent() != null) {
             statementTypeFinder = statementTypeFinder.getParent();
         }
+        statementTypeFinder = statementTypeFinder.getParent(); // Get Stat
 
         Stack<AST> stack = new Stack<>();
         stack.push(statementTypeFinder);

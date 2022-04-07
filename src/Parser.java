@@ -82,6 +82,7 @@ public class Parser {
     static SymbolTableCreationVisitor creationVisitor = null;
     static ComputeMemberSizeVisitor memoryVisitor = null;
     static TypeCheckingVisitor typeCheckVisitor = null;
+    static CodeGenerationVisitor codeGenerationVisitor = null;
     static Stack<AST> ASTNodeTypeStack = new Stack<>();
 
     // TODO: Create list for epsilon transitions
@@ -105,7 +106,8 @@ public class Parser {
         "_paramlist_", "_funclist_", "_aparamslist_", "_statblocklist_", "_inheritslist_", "_memberlist_",
         "_arraysize_", "_factor_", "_term_", "_arithexpr_", "_expr_", "_statement_", 
         "_structdecl_", "_impldefdecl_", "_funcdefdecl_", "_assignstatement_", "_memberfunc_", "_memberdecl_",
-        "_fparams_",
+        "_fparams_", "_readstatement_",
+        // "_addop_"
     };
     static List<String> semanticListTypesList; // For epsilon
 
@@ -129,7 +131,7 @@ public class Parser {
         "_notfactor_",
         "_prog_",
         // "_addop_",
-        "_multop_",
+        // "_multop_",
     };
     static List<String> semanticPopCount1List;
 
@@ -137,9 +139,9 @@ public class Parser {
     // _fparams_ = fcall
     static String[] semanticPopCount2 = {
         "_dot_",
-        "_readstatement_",
+        // "_readstatement_",
         "_whilestatement_",
-        "_addop_",
+        // "_addop_",
     };
     static List<String> semanticPopCount2List;
 
@@ -149,6 +151,9 @@ public class Parser {
         "_vardecl_",
         "_ifstatement_",
         "_relexpr_",
+        "_addop_",
+        "_multop_",
+
         // "_fparams_"
     };
     static List<String> semanticPopCount3List;
@@ -1048,6 +1053,7 @@ public class Parser {
         String outSymbolTablePath = lexer.getFilePathWithoutName() + "/" + lexer.getFileName() + ".outsymboltables";
         String outTypeCheckPath = lexer.getFilePathWithoutName() + "/" + lexer.getFileName() + ".outsemanticerrors";
         String outMemorySymbolTablePath = lexer.getFilePathWithoutName() + "/" + lexer.getFileName() + ".outmemorysymboltables";
+        String outCodeGeneratorPath = lexer.getFilePathWithoutName() + "/" + lexer.getFileName() + ".moon";
         //-----------------------------------------------------------
 
         //---------------------File Writer initialization------------
@@ -1091,12 +1097,16 @@ public class Parser {
         creationVisitor = new SymbolTableCreationVisitor(outSymbolTablePath);
         memoryVisitor = new ComputeMemberSizeVisitor(outMemorySymbolTablePath);
         typeCheckVisitor = new TypeCheckingVisitor(outTypeCheckPath);
-        AST root = returnExactAstNode(ast.getChildren().get(0)); // skip ROOT token
+        codeGenerationVisitor = new CodeGenerationVisitor(outCodeGeneratorPath);
+        AST root = returnExactAstNode(ast.getChildren().get(0)); // skip ROOT token to get PROG
 
         root.accept(creationVisitor); // Symbol Table creation
-        // root.accept(typeCheckVisitor); // Check type
-        root.accept(memoryVisitor);
+        // root.accept(typeCheckVisitor); // TODO: Check type DO THIS LATER
+        root.accept(memoryVisitor); // Assign memory to symbol table contents
+        root.accept(codeGenerationVisitor); // Generate moon code 
         
+
+
         // Close reading and writing files
         // closeReadingWritingFiles();
     }

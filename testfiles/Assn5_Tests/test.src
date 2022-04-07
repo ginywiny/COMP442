@@ -3,7 +3,7 @@ func func1(arg1: integer, arg2: float, arg3: integer)) -> void {
     let x: integer;
 }
 
-func func2(arg1: integer, arg2: float, arg3: integer)) -> void {
-    let n: integer;
-    let x: integer;
-}
+//func func2(arg1: integer, arg2: float, arg3: integer)) -> void {
+//    let n: integer;
+//    let x: integer;
+//}
