@@ -8,6 +8,10 @@ public class MemberFuncTableEntry extends FunctionTableEntry {
 		super(p_type, p_name, table, dimTypeList);
 		this.m_visibility = visibility;
 	}
+
+	public void setAParams(Vector<String> params) {
+		this.m_params = params;
+	}
 		
 	public String toString(){
 		return 	String.format("%-12s" , "| " + m_kind) +

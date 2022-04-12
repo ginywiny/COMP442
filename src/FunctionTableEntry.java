@@ -2,7 +2,7 @@ import java.util.Vector;
 
 public class FunctionTableEntry extends SymbolTableEntry {
 
-    public Vector<VariableTableEntry> m_params   = new Vector<VariableTableEntry>();
+    public Vector<String> m_params   = new Vector<String>();
 	public Vector<String> m_dimTypeList = new Vector<String>();
 	
 	public FunctionTableEntry(String p_type, String p_name, SymbolTable p_table, Vector<String> dimTypeList){

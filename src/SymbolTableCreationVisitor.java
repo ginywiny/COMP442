@@ -453,6 +453,17 @@ public class SymbolTableCreationVisitor implements Visitor{
     }
 
     @Override
+    public void visit(ASTNodeFuncCall p_node) throws Exception {
+        System.out.println("Func call");
+        // propagate accepting the same visitor to all the children
+		// this effectively achieves Depth-First AST Traversal
+		for (AST child : p_node.getChildren() ) {
+            child.m_symtab = p_node.m_symtab;
+            child.accept(this);
+        }
+    }
+
+    @Override
     public void visit(ASTNodeVarDecl p_node) throws Exception {
         System.out.println("Var");
         // propagate accepting the same visitor to all the children
@@ -492,6 +503,7 @@ public class SymbolTableCreationVisitor implements Visitor{
             // create the symbol table entry for this variable
             // it will be picked-up by another node above later
             p_node.m_symtabentry = new VariableTableEntry("local", vartype, varid, dimlist);
+            p_node.m_symtab.varTableList.add(p_node.m_symtabentry);
             p_node.m_symtab.addEntry(p_node.m_symtabentry);
         }
         // if in impldecl
@@ -608,6 +620,7 @@ public class SymbolTableCreationVisitor implements Visitor{
             
             p_node.m_symtabentry = new VariableTableEntry("param", vartype, varid, dimList);
             p_node.m_symtab.addEntry(p_node.m_symtabentry);
+            p_node.m_symtab.varTableList.add(p_node.m_symtabentry);
         }
     }
 
@@ -1131,6 +1144,7 @@ public class SymbolTableCreationVisitor implements Visitor{
             for (int i = 0; i < FparamListItems.getChildren().size(); i++) {
                 AST currNode = FparamListItems.getChildren().get(i);
                 String paramType = currNode.getChildren().get(1).getToken().getValue();
+                currNode.getChildren().get(0).m_type = paramType;
                 if (currNode.getChildren().get(2).getChildren().size() > 0 && currNode.getChildren().get(2).getChildren().get(0).getToken().getValue().equals("EmptyArray")) {
                     paramType += "[]";
                 }
@@ -1241,6 +1255,7 @@ public class SymbolTableCreationVisitor implements Visitor{
             }
             
 		    p_node.m_symtabentry = new MemberVariableTableEntry("data", vartype, varid, dimlist, visibility);
+            p_node.m_symtab.varTableList.add(p_node.m_symtabentry);
             p_node.m_symtab.addEntry(p_node.m_symtabentry);
         }
 
@@ -1266,11 +1281,14 @@ public class SymbolTableCreationVisitor implements Visitor{
             for (int i = 0; i < FparamListItems.getChildren().size(); i++) {
                 AST currNode = FparamListItems.getChildren().get(i);
                 String paramType = currNode.getChildren().get(1).getToken().getValue();
+                currNode.getChildren().get(0).m_type = paramType;
                 dimTypeList.add(paramType);
             }
 
 
             p_node.m_symtabentry = new MemberFuncTableEntry(ftype, fname, localtable, visibility, dimTypeList);
+            p_node.m_symtabentry.m_size = dimTypeList.size();
+            p_node.m_symtabentry.m_params = dimTypeList;
             p_node.m_symtab.addEntry(p_node.m_symtabentry);
             p_node.m_symtab = localtable;
 

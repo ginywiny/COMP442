@@ -1421,11 +1421,15 @@ class Lexer {
         bwError = new BufferedWriter(errorFile);
 
         // Read all tokens and write to files simultaneously
-        while (!buff.isEndOfFile()) {
+        // while (!eofFlag || !buff.isEndOfFile()) {
+        while (!eofFlag) {
             // TokenType token = createToken();
             TokenType token = getNextToken();
             writeToFiles(tokenPath, errorPath, token);
-            token.printAll();
+            // token.printAll();
+            // if (eofFlag) {
+            //     inSrcFile.close();
+            // }
         }
 
         // Close files

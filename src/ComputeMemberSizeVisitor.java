@@ -424,6 +424,16 @@ public class ComputeMemberSizeVisitor implements Visitor{
     }
 
     @Override
+    public void visit(ASTNodeFuncCall p_node)  throws Exception {
+        System.out.println("Func call");
+        // propagate accepting the same visitor to all the children
+		// this effectively achieves Depth-First AST Traversal
+		for (AST child : p_node.getChildren()) {
+            child.accept(this);
+        }
+    }
+
+    @Override
     public void visit(ASTNodeInherList p_node)  throws Exception {
         System.out.println("Inherit List");
         // propagate accepting the same visitor to all the children
@@ -999,8 +1009,10 @@ public class ComputeMemberSizeVisitor implements Visitor{
         // this should be node on all nodes that represent
         // a scope and contain their own table
         for (SymbolTableEntry entry : p_node.m_symtab.m_symlist){
-            entry.m_offset = p_node.m_symtab.m_size - entry.m_size;
-            p_node.m_symtab.m_size -= entry.m_size;
+            if (entry.m_kind.equals("data")) {
+                entry.m_offset = p_node.m_symtab.m_size - entry.m_size;
+                p_node.m_symtab.m_size -= entry.m_size;
+            }
         }
     }
 

@@ -63,4 +63,5 @@ public interface Visitor {
     public void visit(ASTNodeMemberDecl nodeMemberDecl) throws Exception;
     public void visit(ASTNodeMemberFunc nodeMemberFunc) throws Exception;
     public void visit(ASTNodeEmptyArray nodeEmptyArray) throws Exception;
+    public void visit(ASTNodeFuncCall nodeFuncCall) throws Exception;
 }

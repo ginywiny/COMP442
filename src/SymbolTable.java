@@ -6,7 +6,7 @@ public class SymbolTable {
 	public int                    m_size       = 0;
 	public int                    m_tablelevel = 0;
 	public SymbolTable                 m_uppertable = null;
-
+	public ArrayList<SymbolTableEntry> varTableList = new ArrayList<>();
 	
 	public SymbolTable(int p_level, SymbolTable p_uppertable){
 		m_tablelevel = p_level;

@@ -348,6 +348,15 @@ public class CodeGenerationVisitor implements Visitor {
     }
 
     @Override
+    public void visit(ASTNodeFuncCall p_node) throws Exception {
+        // propagate accepting the same visitor to all the children
+		// this effectively achieves Depth-First AST Traversal
+		for (AST child : p_node.getChildren()) {
+            child.accept(this);
+        }
+    }
+
+    @Override
     public void visit(ASTNodeFuncDef p_node) throws Exception {
         // propagate accepting the same visitor to all the children
 		// this effectively achieves Depth-First AST Traversal
@@ -788,7 +797,7 @@ public class CodeGenerationVisitor implements Visitor {
             m_moonExecCode += m_mooncodeindent + "% processing function definition: "  + funcName + "\n";
             //create the tag to jump onto 
             // and copy the jumping-back address value in the called function's stack frame 
-            m_moonExecCode += String.format("%-10s",funcName)  + "sw -4(r14),r15\n" ;
+            m_moonExecCode += String.format("%-10s",funcName)  + " sw -4(r14),r15\n" ;
         }
         // ----------------------------------------------------
 

@@ -8,7 +8,9 @@ public class SymbolTableEntry {
 	public int             m_offset     = 0;
 	public SymbolTable          m_subtable   = null;
 	public Vector<Integer> m_dims       = new Vector<Integer>();
-	
+	public Vector<String> m_params = new Vector<>();
+	Vector<String> m_inheritIdList = new Vector<>();
+
 	public SymbolTableEntry() {};
 	
 	public SymbolTableEntry(String p_kind, String p_type, String p_name, SymbolTable p_subtable){
@@ -16,5 +18,9 @@ public class SymbolTableEntry {
 		m_type = p_type;
 		m_name = p_name;
 		m_subtable = p_subtable;
+	}
+
+	public void setInheritanceList(Vector<String> inheritIdList) {
+		m_inheritIdList = inheritIdList;
 	}
 }

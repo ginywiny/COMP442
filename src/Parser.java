@@ -97,7 +97,7 @@ public class Parser {
         "_statblocklist_", "_ifstatement_", "_whilestatement_", "_readstatement_", "_writestatement_",
         "_returnstatement_", "_structdecl_", "_impldefdecl_", "_funcdefdecl_", "_integertype_", "_floattype_", 
         "_idtype_", "_arraysize_", "_publicvisibility_", "_privatevisibility_", "_assignstatement_", "_memberfunc_", 
-        "_memberdecl_", "_emptyarray_"
+        "_memberdecl_", "_emptyarray_", "_funccall_"
     };
     static List<String> semanticTypesList;
 
@@ -105,8 +105,10 @@ public class Parser {
         "_indicelist_", "_fparamslist_", "_fparamstaillist_", "_statorvardecllist_",
         "_paramlist_", "_funclist_", "_aparamslist_", "_statblocklist_", "_inheritslist_", "_memberlist_",
         "_arraysize_", "_factor_", "_term_", "_arithexpr_", "_expr_", "_statement_", 
-        "_structdecl_", "_impldefdecl_", "_funcdefdecl_", "_assignstatement_", "_memberfunc_", "_memberdecl_",
-        "_fparams_", "_readstatement_",
+        "_structdecl_", "_impldefdecl_", "_funcdefdecl_", "_memberfunc_", "_memberdecl_",
+        "_fparams_", "_readstatement_", 
+        // "_assignstatement_",
+        // "_funccall_"
         // "_addop_"
     };
     static List<String> semanticListTypesList; // For epsilon
@@ -130,6 +132,7 @@ public class Parser {
         "_signfactor_",
         "_notfactor_",
         "_prog_",
+        "_funccall_",
         // "_addop_",
         // "_multop_",
     };
@@ -153,7 +156,7 @@ public class Parser {
         "_relexpr_",
         "_addop_",
         "_multop_",
-
+        "_assignstatement_",
         // "_fparams_"
     };
     static List<String> semanticPopCount3List;
@@ -340,7 +343,7 @@ public class Parser {
         }
 
         // Write derivation to parser file
-        // writeParserOutputFiles(derivationString, true); // TODO: Comment to remove writing to files
+        writeParserOutputFiles(derivationString, true); // TODO: Comment to remove writing to files
         // System.out.println(derivationString); // TODO: Uncomment to show derivations!
     }
 
@@ -690,6 +693,9 @@ public class Parser {
          
             case "funcdef":
                 return new ASTNodeFuncDef(nodeToken, children);
+            
+            case "funccall":
+                return new ASTNodeFuncCall(nodeToken, children);
          
             case "div":
                 // return new ASTNodeDivOp(nodeToken, children.get(0), children.get(1));
@@ -850,7 +856,7 @@ public class Parser {
             System.out.println(errorMessage);
 
             // TODO: Uncomment to write derviations from Assignment2
-            // writeParserOutputFiles(errorMessage, false); // Write to error file
+            writeParserOutputFiles(errorMessage, false); // Write to error file
         }
 
         // Error handling
@@ -881,8 +887,8 @@ public class Parser {
     static void closeReadingWritingFiles() throws Exception{
         // Close writing files
         // TODO: Move to method or Uncomment when writing derivations and errors
-        // bwDerivation.close();
-        // bwSyntaxError.close();
+        bwDerivation.close();
+        bwSyntaxError.close();
         
         
         bwoutast.close();
@@ -943,8 +949,8 @@ public class Parser {
             // Writing to output file
             System.out.println(outputLine);
             // TODO: Uncomment to write out
-            // bwoutast.write(outputLine);
-            // bwoutast.newLine();
+            bwoutast.write(outputLine);
+            bwoutast.newLine();
         }
     }
 
@@ -1018,6 +1024,7 @@ public class Parser {
         renamingMap.put("_memberfunc_", "MemberFunc");
         renamingMap.put("_memberdecl_", "MemberDecl");
         renamingMap.put("_emptyarray_", "EmptyArray");
+        renamingMap.put("_funccall_", "FuncCall");
     }
 
 
@@ -1037,6 +1044,9 @@ public class Parser {
         makeAttributeMap();
 
         //----------------------Rule file reading----------------------
+        // Create token files
+        Lexer lexerWriter = new Lexer(args[0]);
+        lexerWriter.writeTokenFiles();
         // Test read src file
         lexer = new Lexer(args[0]);
         // Generate rule dictionary map
@@ -1057,32 +1067,32 @@ public class Parser {
         //-----------------------------------------------------------
 
         //---------------------File Writer initialization------------
-        // TODO: Move this file writing to a different method to display AST
+        // // TODO: Move this file writing to a different method to display AST
         // Delete files before making new ones;
         // Create outast file
-        // File myFile = new File(outastPath);
-        // if (myFile.exists() && myFile.isFile()) {
-        //     myFile.delete();
-        // }
-        // outastFile = new FileWriter(outastPath, true);
-        // bwoutast = new BufferedWriter(outastFile);
+        File myFile = new File(outastPath);
+        if (myFile.exists() && myFile.isFile()) {
+            myFile.delete();
+        }
+        outastFile = new FileWriter(outastPath, true);
+        bwoutast = new BufferedWriter(outastFile);
         
-        // TODO: Move this file writing to a different method to display derivations and errors
+        // // TODO: Move this file writing to a different method to display derivations and errors
         // // Create syntax derivation file
-        // myFile = new File(syntaxDerivationPath);
-        // if (myFile.exists() && myFile.isFile()) {
-        //     myFile.delete();
-        // }
-        // // Create syntax derivation error file
-        // myFile = new File(syntaxErrorPath);
-        // if (myFile.exists() && myFile.isFile()) {
-        //     myFile.delete();
-        // }
-        // // Initialize writers to files (true == append to file!)
-        // derivationFile = new FileWriter(syntaxDerivationPath, true);
-        // errorSyntaxFile = new FileWriter(syntaxErrorPath, true);
-        // bwDerivation = new BufferedWriter(derivationFile);
-        // bwSyntaxError = new BufferedWriter(errorSyntaxFile);
+        myFile = new File(syntaxDerivationPath);
+        if (myFile.exists() && myFile.isFile()) {
+            myFile.delete();
+        }
+        // Create syntax derivation error file
+        myFile = new File(syntaxErrorPath);
+        if (myFile.exists() && myFile.isFile()) {
+            myFile.delete();
+        }
+        // Initialize writers to files (true == append to file!)
+        derivationFile = new FileWriter(syntaxDerivationPath, true);
+        errorSyntaxFile = new FileWriter(syntaxErrorPath, true);
+        bwDerivation = new BufferedWriter(derivationFile);
+        bwSyntaxError = new BufferedWriter(errorSyntaxFile);
         // //-----------------------------------------------------------
         
 
@@ -1093,6 +1103,9 @@ public class Parser {
         // Print tree
         printDfsOutput();
 
+        // Close reading and writing files
+        closeReadingWritingFiles();
+
         // TODO: Generate Table Assn4
         creationVisitor = new SymbolTableCreationVisitor(outSymbolTablePath);
         memoryVisitor = new ComputeMemberSizeVisitor(outMemorySymbolTablePath);
@@ -1101,13 +1114,9 @@ public class Parser {
         AST root = returnExactAstNode(ast.getChildren().get(0)); // skip ROOT token to get PROG
 
         root.accept(creationVisitor); // Symbol Table creation
-        // root.accept(typeCheckVisitor); // TODO: Check type DO THIS LATER
         root.accept(memoryVisitor); // Assign memory to symbol table contents
+        root.accept(typeCheckVisitor); // Semantic type checking
         root.accept(codeGenerationVisitor); // Generate moon code 
-        
 
-
-        // Close reading and writing files
-        // closeReadingWritingFiles();
     }
 }

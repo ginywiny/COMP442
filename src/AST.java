@@ -8,6 +8,11 @@ public class AST {
     private List<AST> children = new ArrayList();
     private AST parent = null;
     public static int depth = 0;
+    public String      m_data      = null;
+
+    // public static int  m_nodelevel = 0;
+    // public int         m_nodeId    = 0;
+    // public static int  m_curNodeId = 0;
 
     // Symbol table
     public SymbolTable m_symtab = null;
@@ -48,6 +53,14 @@ public class AST {
 
     public String getType() {
         return this.m_type;
+    }
+
+    public void setType(String p_type) {
+        this.m_type = p_type;
+    }
+
+    public void setData(String p_data) {
+        this.m_data = p_data;
     }
 
     public boolean isParentRoot() {

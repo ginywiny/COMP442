@@ -7,6 +7,7 @@ public class InheritedTableEntry extends SymbolTableEntry {
 	public InheritedTableEntry(SymbolTable p_table, Vector<String> idList){
 		super("Inherit", "NA", "NA", p_table);
 		this.inheritIdList = idList;
+		super.setInheritanceList(inheritIdList);
 	}
 
 	public String toString(){

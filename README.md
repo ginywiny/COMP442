@@ -13,12 +13,53 @@ The files are NOT modified! They are only updated with an EOF
 4. Build .jar with: `jar -cvmf MANIFEST.MF <drivername>.jar *.class`
 5. Now can execute <drivername>.jar
 
-
-# Assignment 5 (Current)
+# Final Submission
 ## FOR GRADING BY TA:
 1. Open console
 2. Enter src directory: `cd src`
-3. Run program with `java -jar semanticanalyzerdriver.jar <testfile>`
+3. Run program with `java -jar compiler.jar <testfile>`
+4. Testfiles are found within the testfiles directory
+5. Test 1: `java -jar compiler.jar ../testfiles/Assn5_Tests/bubblesort.src`
+6. Test 2: `java -jar compiler.jar ../testfiles/Assn5_Tests/polynomial.src`
+7. Test 3: `java -jar compiler.jar ../testfiles/Assn5_Tests/test2_func_code.src`
+8. Test 4: `java -jar compiler.jar ../testfiles/Assn5_Tests/simplemain.src`
+9. Test 5: `java -jar compiler.jar ../testfiles/Assn5_Tests/test_addop_main.src`
+NOTE: `test_addop_main.src` displays the incorrect AddOP operation between two different types
+10. Memory Symbol Table and Moon output files are found within the same testfiles directory
+
+## How to run without executable
+1. Open console
+2. Change directory to /src: `cd /src`
+3. Build project with: `javac *.java`
+4. Run program with `java Parser <testfile>`
+5. Testfiles are found within testfiles directory
+6. Test 1: `java Parser ../testfiles/Assn5_Tests/bubblesort.src`
+7. Test 2: `java Parser ../testfiles/Assn5_Tests/polynomial.src`
+8. Test 3: `java Parser ../testfiles/Assn5_Tests/test2_func_code.src`
+9. Test 4: `java Parser ../testfiles/Assn5_Tests/simplemain.src`
+9. Test 5: `java Parser ../testfiles/Assn5_Tests/test_addop_main.src`
+10. Memory Symbol Table and Moon output files are found within the same testfiles directory
+
+## Running on Moon Machine
+1. Enter Moon source folder: `Resources/moon/source`
+2. Run Moon file from testfiles: `./moon ../../../testfiles/Assn5_Tests/<filename>.moon`
+3. Test 1: `./moon ../../../testfiles/Assn5_Tests/test2_func_code.moon`
+4. Test 2: `./moon ../../../testfiles/Assn5_Tests/bubblesort.moon`
+5. Test 3: `./moon ../../../testfiles/Assn5_Tests/polynomial.moon`
+6. Test 4: `./moon ../../../testfiles/Assn5_Tests/simplemain.moon`
+6. Test 4: `./moon ../../../testfiles/Assn5_Tests/test_addop_main.moon`
+
+
+
+
+
+
+## -------------------------------------------------------------------------
+# Assignment 5 (OLD)
+## FOR GRADING BY TA:
+1. Open console
+2. Enter src directory: `cd src`
+3. Run program with `java -jar compilerdriver.jar <testfile>`
 4. Testfiles are found within the testfiles directory
 5. Test 1: `java -jar compilerdriver.jar ../testfiles/bubblesort.src`
 6. Test 2: `java -jar compilerdriver.jar ../testfiles/polynomial.src`
@@ -39,10 +80,6 @@ The files are NOT modified! They are only updated with an EOF
 10. Memory Symbol Table and Moon output files are found within the same testfiles directory
 
 
-
-
-
-## -------------------------------------------------------------------------
 # Assignment 4 (OLD)
 ## Making an executable .jar if not available
 ## How to run as executable
@@ -66,13 +103,6 @@ The files are NOT modified! They are only updated with an EOF
 7. Test 3: `java Parser ../testfiles/polynomial.src`
 8. AST tree output files are found within the same testfiles directory
 
-
-
-
-
-
-
-
 # Assignment 3 (Old)
 ## FOR GRADING BY TA:
 ## How to run as executable
@@ -95,11 +125,6 @@ The files are NOT modified! They are only updated with an EOF
 7. Test 2: `java Parser ../testfiles/polynomial.src`
 7. Test 2: `java Parser ../testfiles/test.src`
 8. AST tree output files are found within the same testfiles directory
-
-
-
-
-
 
 
 # Assignment 2 (Old)
