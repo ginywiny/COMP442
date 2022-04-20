@@ -1,5 +1,13 @@
 # COMP442
 Compiler design project which compiles Rust code to Moon (Lua). 
+This functions by:
+1. Tokenizing a Rust source file
+2. Parsing the derivations based on a grammar
+3. Generating the AST from the parse tree
+4. Generating the symbol tables from the AST using a visitor pattern
+5. Allocating memory to the symbol tables
+6. Performing semantic checks from the symbol tables
+7. Generating the Moon (Lua) output code
 
 ## Making an executable .jar if not available
 1. Open console
